@@ -106,7 +106,7 @@ class shenZhen{
 		);
 		$cookie = "JSESSIONID=F65D13DEB783C6AA721BCBB784AB1066";
 		$page =  BaseModelHttp::post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
-		echo $page;
+		return $page;
 		//echo strlen($page);
 		//echo BaseModelHttp::post("http://127.0.0.4:8080/test.php" , $args, $header , 200 , $cookie);
 	}
@@ -116,15 +116,10 @@ class shenZhen{
 		$this->getCode();
 		foreach($this->shenCode as $codes){
 			//var_dump($codes);
-			$i = 2;
-			$this->getCompanyInfo($codes[$i]['code']);
-			return;
-			for($i = 8, $len = count($codes);$i < $len && $i < 10;$i++){
+			for($i = 0, $len = count($codes);$i < $len && $i < 10;$i++){
 				//echo $codes[$i]['code'] . "\n";
 				$this->getCompanyInfo($codes[$i]['code']);
-				echo "\n";
 			}
-			break;
 		}
 	}
 }
