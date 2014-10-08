@@ -1,6 +1,8 @@
 <?php
 
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
+var_dump(get_loaded_extensions());
+return;
 /**
  * 魔术函数，自动添加寻找对应的模块
  */

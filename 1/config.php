@@ -6,6 +6,6 @@
  ************************************************************************/
 $config['db']['host'] = "localhost";
 $config['db']['userName'] = "root";
-$config['db']['passwd'] = "douunasm";
-
+$config['db']['password'] = "douunasm";
+$config['db']['dbName'] = "honghao";
 ?>

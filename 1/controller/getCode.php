@@ -87,10 +87,7 @@ class shenZhen{
 	 **/
 	public function getCompanyInfo($code = "000001")
 	{
-		//$args['leftid'] = 1;
-		//$args['lmid'] = "drgg";
-		//$args['pageNo'] = 1;
-		$args['stockCode'] = "000001";
+		$args['stockCode'] = $code;
 		$args['keyword'] = "";
 		$args['noticeType'] = "010301";
 		$args['startTime'] = "2002-10-02";
@@ -109,16 +106,19 @@ class shenZhen{
 		);
 		$cookie = "JSESSIONID=F65D13DEB783C6AA721BCBB784AB1066";
 		$page =  BaseModelHttp::post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
-		echo strlen($page);
+		return $page;
+		//echo strlen($page);
 		//echo BaseModelHttp::post("http://127.0.0.4:8080/test.php" , $args, $header , 200 , $cookie);
 	}
+	//用来测试验证是否可以通过那些code数据来大规模获取对应的年报
 	public function getAllShenCode()
 	{
 		$this->getCode();
 		foreach($this->shenCode as $codes){
 			//var_dump($codes);
 			for($i = 0, $len = count($codes);$i < $len && $i < 10;$i++){
-				echo $codes[$i]['code'] . "\n";
+				//echo $codes[$i]['code'] . "\n";
+				$this->getCompanyInfo($codes[$i]['code']);
 			}
 		}
 	}
