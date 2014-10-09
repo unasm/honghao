@@ -1,0 +1,68 @@
+	<link rel="stylesheet" href="test.css" type="text/css" media="screen" charset="utf-8"/>
+	<link rel="stylesheet" href="http://cdn.staticfile.org/font-awesome/4.0.3/css/font-awesome.min.css">
+	<form action="{$postAction}" method="POST" accept-charset="utf-8" enctype = "multipart/form-data" id = "dp" class = "bw dp"  style = "display:none">
+		<textarea name="status" placeholder = "发微博.." ></textarea>
+		<p class = "clearfix">
+		<!--
+			<input type="submit" name="sub" value="发表" id = "sub">
+		-->
+			<a href = "javascript:;" id = "fakebut">提交</a>
+			<i class = "fa fa-picture-o" title = "点击上传图片" id = "toUpload"></i>
+			<input type="file" name="file" style = "display:none">
+			</p>
+	</form>
+	<div id="content" class = "bw content">
+		<ul>
+			{foreach $statuses as $status}
+			<li>
+				<div class = "user clearfix">
+					<a href = "user?uid={$status['id']}">
+						<img src = "{$status['user']['profile_image_url']}">
+					</a>
+					<div >
+
+					<a href = "user?uid={$status['id']}">
+						<p class = "sname">{$status['user']['screen_name']}</p>
+						<p class = "des">{$status['user']['description']}</p>
+					</a>
+					</div>
+				</div>
+				<div class = "text">
+					<p>{$status['text']}</p>
+					<ul class = "pic_urls clearfix">
+						{foreach $status['pic_urls'] as $pic}
+							<!--以后可以添加双击放大，但是貌似目前没有机会了-->
+							<li><img src = "{$pic['thumbnail_pic']}" / >	</li>
+						{/foreach}
+					</ul>
+				</div>
+				<div class = "icons clearfix">
+					<span name = "{$status['id']}" class = "reply">
+						<i class = "fa fa-reply"></i>回复({$status['comments_count']})
+					</span>
+					<a href = "api/favor/index?status={$status['favorited']}&id={$status['id']}" class = "favor">
+						{if $status['favorited'] === 'false'}
+						<span>
+							<i class = "fa fa-plus"></i>收藏
+						</span>
+						{else}
+						<span>
+							<i class = "fa fa-minus"></i>取消收藏
+						</span>
+						{/if}
+
+					</a>
+				</div>
+			</li>
+			{/foreach}
+		</ul>
+	</div>
+	<div id = "drf" style = "display:none">
+		<form action="index_submit" method="post" accept-charset="utf-8" id = "replyForm">
+			<i class = "fa fa-times"></i>
+			<textarea name="comment"></textarea>
+			<p><input type="submit" value="评价" id = "butrep"></p>
+		</form>
+	<div>
+<script type="text/javascript" charset="utf-8" src = "jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src = "home.js"></script>
