@@ -50,6 +50,7 @@ function instancePath($path){
 	$routePath = array();
 	$path = '/' . $path;
 	for($i = strlen($path) -1 ;$i >= 0;$i--){
+		$tmp = '';
 		if($path[$i] === '/' && $cnt > 0 && $tmp){
 			$tmp = strrev($tmp)	;
 			$routePath[$cnt] = $tmp;
