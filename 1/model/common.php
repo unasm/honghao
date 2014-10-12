@@ -12,6 +12,7 @@ if(!function_exists('show_404')){
 	function show_404()
 	{}
 }
+
 if(!class_exists('Loader')){
 	/**
 	 * 这里是调用系统资源的，如lib，如view，如model
@@ -20,23 +21,38 @@ if(!class_exists('Loader')){
 	{
 		//单例模式	
 		private function __construct(){}
-		static $isInstanced;
-		public static $model ,  $view , $lib , $obj;
+		static $obj;
 		final public  static function &instance()
 		{
 			//单例模式
 			if(!self::$obj instanceof self){
 				self::$obj = new Loader;
-				self::$obj->model = array();
 			}
 			return self::$obj;
 		}
 		public function __call($funcName , $args)
 		{
-			echo "funcName : " . $funcName . "<br/>";
+			$type = array('model' , 'library' , 'view');
+			$instance = &get_instance();
+			if(in_array($funcName , $type)){
+				foreach ($args as $class) {
+					if(!$this->is_loaded[$funcName][$class]){
+						include PATH_ROOT .$funcName . '/' .  $class . '.php';
+						$this->is_loaded[$funcName][$class] = true;
+						$instance->$funcName->$class = new $class;
+					}
+					//return $this->classes[$funcName][$args];
+				}
+			} else {
+				error("不存在指定的文件类型");
+			}
+			return;
 			if($funcName == "model"){
-				
-			} elseif ($funcName === 'libraray') {
+				if(!$this->model[$funcName])	{
+					$this->model[$funcName] = "value";
+				}
+				return $this->model[$funcName];
+			} elseif ($funcName === 'library') {
 			
 			} else if ($funcName === 'view') {
 			
@@ -44,6 +60,12 @@ if(!class_exists('Loader')){
 			
 			}
 		}
+	}
+}
+if(!function_exists('getInstance')){
+	function getInstance()
+	{
+		return $frame;
 	}
 }
 ?>

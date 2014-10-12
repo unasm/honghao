@@ -24,7 +24,7 @@ class BaseModelHttp {
 		private static $last_header_info;
 
 		var $image;
-		private function __construct() {}
+		function __construct() {}
 		private function __clone() {}
 		private function __destruct() {}
 

@@ -7,13 +7,13 @@
 /**
  * 这里实现系统的资源调度
  **/
-class FrameWork
+class Core
 {
 	static $load;
 	function __construct()
 	{
-		$this->load = &Loader::instance() ;
-		$this->load->library("sdfa" , "sdf");
+		
+
 	}
 }
 ?>
