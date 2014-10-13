@@ -14,13 +14,15 @@
 class Getcode  extends Honghao{
 	static $shenCode;
 	static $shangCode;
+	const $SHENLENGTH = 6;
+	const $HULENGTH = 6;
 	public function __construct()
 	{
 		parent::__construct();
 		$this->shenCode = array();
 		$this->shangCode = array();
-		//$this->load->model('HtmlParserModel');
-		//$this->load->model('BaseModelHttp');
+		$this->load->model('HtmlParserModel');
+		$this->load->model('BaseModelHttp');
 	}
 	/**
 	 * 从$url中获取对应的股票交易码,不过只有上证和深证的
@@ -33,7 +35,8 @@ class Getcode  extends Honghao{
 		if(file_exists(BasePath . 'cache/' . $fileName)){
 			$data = file_get_contents(BasePath . 'cache/' . $fileName ,true)	;
 		}else{
-			$data = BaseModelHttp::curl(array("url" => $url));
+			$data = $this->BaseModelHttp->curl(array('url' => $url));
+			//$data = BaseModelHttp::curl(array("url" => $url));
 		}
 		$parser = new HtmlParserModel();
 		$parser->parseStr($data);
@@ -51,32 +54,6 @@ class Getcode  extends Honghao{
 					}
 				}
 			}
-		/**
-			for($j = 0,$slen = count($result) ; $j < $slen;$j++){
-				echo $result[$j]['code'] . "    ";
-			}
-			continue;
-		if(count($result) === 0){
-			echo $comName[$key] . "\n<br/>";
-		}else{
-			$fileName = BasePath . 'cache/' . $comName[$key] . '.txt';
-			//如果不存在，或者是存在可写
-			if(is_writeable($fileName) || !file_exists($fileName)){
-				$fp = fopen($fileName , 'w') or die("无法打开{$fileName}文件\n<br/>");
-				$state = fwrite($fp , json_encode($result));
-				if($state === false){
-					echo $key . "\n";
-					//var_dump($result);
-					//exit("没有写入文件");
-				}else{
-					echo "yes";
-				}
-				fclose($fp);
-			}else{
-				echo "存在不可写\n";
-			}
-		}
-		 */
 			//$code[$key] = $result ;
 			if($key === 0 || $key === 4){
 				$this->shangCode[] = $result;
@@ -109,6 +86,7 @@ class Getcode  extends Honghao{
 		);
 		$cookie = "JSESSIONID=F65D13DEB783C6AA721BCBB784AB1066";
 		$page =  BaseModelHttp::post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
+		//$page =  BaseModelHttp::post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
 		return $page;
 		//echo strlen($page);
 		//echo BaseModelHttp::post("http://127.0.0.4:8080/test.php" , $args, $header , 200 , $cookie);
@@ -116,8 +94,6 @@ class Getcode  extends Honghao{
 	//用来测试验证是否可以通过那些code数据来大规模获取对应的年报
 	public function getAllShenCode()
 	{
-		die("sdfa");
-		/*
 		$this->getCode();
 		foreach($this->shenCode as $codes){
 			//var_dump($codes);
@@ -126,7 +102,36 @@ class Getcode  extends Honghao{
 				$this->getCompanyInfo($codes[$i]['code']);
 			}
 		}
-		 */
+	}
+
+	/**
+	 * 检验是不是正确的，想要的深圳股票的返回页面
+	 *
+	 * @param $string $page		页面的html的string 
+	 * @return boolen
+	 **/
+	public function ($page)
+	{
+	}
+	/**
+	 * 生成上市公司的代码，不再定向查找
+	 */
+	public function makeCode()
+	{
+		//沪市股票的开头,创业版，中小版，配股，新股,沪市A股是600或者是601，B股,配股
+		$prefix = array('300' , '002' , '700' , '730' , '600' , '601' , '900','580')
+		for($i = 0; $i < 10000;$i++){
+				foreach($prefix as $code){
+					$tmp = $code . $i;
+					$page = $this->getCompanyInfo($tmp);
+					if($this->shenRight($page)){
+							
+					}
+				}
+		}
+		//深市A股，B股,配股
+		$prefixShen = array('000' , '200' ,'080' ,'031');
+
 	}
 	public function test()
 	{

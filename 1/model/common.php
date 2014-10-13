@@ -39,7 +39,8 @@ if(!class_exists('Loader')){
 					if(!$this->is_loaded[$funcName][$class]){
 						include PATH_ROOT .$funcName . '/' .  $class . '.php';
 						$this->is_loaded[$funcName][$class] = true;
-						$instance->$funcName->$class = new $class;
+						$instance->$class = new $class;
+						//$instance->$funcName->$class = new $class;
 					}
 					//return $this->classes[$funcName][$args];
 				}
