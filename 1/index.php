@@ -28,8 +28,6 @@ $route = new Route;
 include $route->path . strtolower($route->class) . '.php';
 $route->class = ucwords($route->class);
 $tmp = new $route->class();
-//$tmp->getAllShenCode();
-//$function = $route->function;
 $tmp->{$route->function}();
 // @todo 这里的code的方式不合适,应该通过get的方式获取
 

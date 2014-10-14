@@ -7,10 +7,7 @@
 /**
  * 本文件主要是用来获取股票交易码的
  */
-//require "./index.php";
-//require BasePath . "model/HtmlParserModel.php";
-//require BasePath . "model/BaseModelHttp.php";
-//命令行的时候，读取配置路由内容
+
 abstract class Getcode  extends Honghao{
 	static $shenCode;
 	static $shangCode;
@@ -33,8 +30,22 @@ abstract class Getcode  extends Honghao{
 	 * @param $string $page		页面的html的string 
 	 * @return boolen
 	 **/
-	public function ($page)
+	public function checkPageRight($page)
 	{
+	}
+	/**
+	 * 根据传入的array 获取真正的页面
+	 *
+	 */
+	public function createCode($prefix)
+	{
+		foreach($prefix as $code){
+			$tmp = $code . $i;
+			$page = $this->getCompanyInfo($tmp);
+			if($this->checkPageRight($page)){
+						
+			}
+		}
 	}
 
 }

@@ -10,28 +10,21 @@ require PATH_ROOT . 'getcode.php';
  **/
 class Shengetcode extends Getcode
 {
-	
+	const $CODELENGTH;
 	function __construct()
 	{
 	}
 	/**
-	 * 生成上市公司的代码，不再定向查找
+	 * 生成深圳上市公司的代码，不再定向查找
 	 */
 	public function makeCode()
 	{
-		//沪市股票的开头,创业版，中小版，配股，新股,沪市A股是600或者是601，B股,配股
-		$prefix = array('300' , '002' , '700' , '730' , '600' , '601' , '900','580')
-		for($i = 0; $i < 10000;$i++){
-				foreach($prefix as $code){
-					$tmp = $code . $i;
-					$page = $this->getCompanyInfo($tmp);
-					if($this->shenRight($page)){
-							
-					}
-				}
-		}
+
 		//深市A股，B股,配股
-		$prefixShen = array('000' , '200' ,'080' ,'031');
+		$prefix = array('000' , '200' ,'080' ,'031');
+		for($i = 0;$i < 10000;$i++){
+			$this->createCode($prefix);
+		}
 
 	}
 	/*
