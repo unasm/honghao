@@ -32,17 +32,31 @@ if(!class_exists('Loader')){
 		}
 		public function __call($funcName , $args)
 		{
-			$type = array('model' , 'library' , 'view');
 			$instance = &get_instance();
-			if(in_array($funcName , $type)){
-				foreach ($args as $class) {
-					if(!$this->is_loaded[$funcName][$class]){
-						include PATH_ROOT .$funcName . '/' .  $class . '.php';
-						$this->is_loaded[$funcName][$class] = true;
-						$instance->$class = new $class;
-						//$instance->$funcName->$class = new $class;
+			if($funcName === 'config'){
+				foreach($args as $class){
+					if($this->is_loaded[$funcName][$class])	{
+						return;
 					}
-					//return $this->classes[$funcName][$args];
+					include PATH_ROOT .$funcName . '/' .  $class . '.php';
+					$this->is_loaded[$funcName][$class] = true;
+					if(!$instance->config || empty($instance->config)){
+						$instance->config = array();
+					}
+					$instance->config = array_merge($instance->config , $config);
+				}
+			}else{
+				$type = array('model' , 'library' , 'view' , 'config');
+				if(in_array($funcName , $type)){
+					foreach ($args as $class) {
+						if(!$this->is_loaded[$funcName][$class]){
+							include PATH_ROOT .$funcName . '/' .  $class . '.php';
+							$this->is_loaded[$funcName][$class] = true;
+							$instance->$class = new $class;
+							//$instance->$funcName->$class = new $class;
+						}
+						//return $this->classes[$funcName][$args];
+					}
 				}
 			} else {
 				error("不存在指定的文件类型");

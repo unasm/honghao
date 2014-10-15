@@ -30,6 +30,7 @@ class Route
 	}
 	/**
 	 * 检查路由是否符合描述规则
+	 * @todo $request 有待改进
 	 */
 	function checkRoute(&$urlArr){
 		//value中是对应的request_uri的正则格式
@@ -59,6 +60,8 @@ class Route
 		$routePath = array();
 		$path = '/' . $path;
 		$tmp = '';
+		var_dump($path);
+		die;
 		for($i = strlen($path) - 1 ;$i >= 0;$i--){
 			if($path[$i] === '/' && $cnt > 0 && $tmp){
 				$tmp = strrev($tmp)	;
