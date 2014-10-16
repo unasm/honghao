@@ -11,3 +11,4 @@ $route['api/reply/send'] = "/^api\/reply\/send\?id\=[\d]+$/";
 $route['api/favor/index'] = "/^api\/favor\/index\?status\=[\w]{3,10}&id=[\d]+$/";
 $route['api/upload/index'] = "//";
 $route['getcode/getAllShenCode'] = "//";
+$route['hugetcode/index'] = "//";

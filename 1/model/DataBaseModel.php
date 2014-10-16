@@ -21,11 +21,11 @@ class DataBaseModel
 	}
 	protected function init()
 	{
-		$this->dbConfig = $this->cofig['db'];
+		//$this->dbConfig = $this->cofig['db'];
 		self::$link = mysqli_init();
-		$flag = self::$link->real_connect($this->dbConfig['host'] , $this->dbConfig['userName'] , $this->dbConfig['password'] , $this->dbConfig['dbName']);
+		$flag = self::$link->real_connect($this->config['db']['host'] , $this->config['db']['userName'] , $this->config['db']['password'] , $this->config['db']['dbName']);
 		if(!$flag){
-			exit("连接数据库失败");
+			exit("连接数据库失败 ,connect error is : " . self::$link->connect_error);
 		}
 	}
 	/**

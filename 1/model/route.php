@@ -35,7 +35,10 @@ class Route
 	function checkRoute(&$urlArr){
 		//value中是对应的request_uri的正则格式
 		include PATH_ROOT . 'config/route.php';
-		$request = ltrim($_SERVER['REQUEST_URI'] , '/');
+		$request = '';
+		if(isset($_SERVER['REQUEST_URI'])){
+			$request = ltrim($_SERVER['REQUEST_URI'] , '/');
+		}
 		if(preg_match('/^\/core/' , $urlArr['path'])){
 			exit("you are not permit to access");
 		}
@@ -60,8 +63,6 @@ class Route
 		$routePath = array();
 		$path = '/' . $path;
 		$tmp = '';
-		var_dump($path);
-		die;
 		for($i = strlen($path) - 1 ;$i >= 0;$i--){
 			if($path[$i] === '/' && $cnt > 0 && $tmp){
 				$tmp = strrev($tmp)	;

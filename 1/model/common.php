@@ -55,12 +55,12 @@ if(!class_exists('Loader')){
 							$instance->$class = new $class;
 							//$instance->$funcName->$class = new $class;
 						}
-						//return $this->classes[$funcName][$args];
 					}
+				} else {
+					error("不存在指定的文件类型");
 				}
-			} else {
-				error("不存在指定的文件类型");
 			}
+		  
 			return;
 			if($funcName == "model"){
 				if(!$this->model[$funcName])	{

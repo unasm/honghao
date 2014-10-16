@@ -4,6 +4,24 @@
  * Author    :    jiamin1
  * Mail      :    jiamin1@staff.sina.com.cn
  ************************************************************************/
-var_dump($_POST);
-var_dump($_SERVER);
-?>
+/**
+ * 
+ **/
+class base
+{
+	static $data;
+	var $data2;
+	function __construct($get)
+	{
+		self::$data = $get;
+		$this->data2 = $get;
+	}
+	function get(){
+		echo self::$data . "\n";
+		echo $this->data2 . "\n";
+	}
+}
+$first = new base("data1");
+$sec = new base("test");
+$first->get();
+$sec->get();
