@@ -19,6 +19,28 @@ class DataBaseModel
 		}
 		$this->tableName = $table;
 	}
+
+	/**
+	 * 清除数据库表里所有的数据
+	 *
+	 * @return boolen
+	 **/
+	public function truck()
+	{
+		$flag = self::$link->query('delete from ' . $this->tableName);
+		if($flag){
+			echo "删除成功";
+		}
+	}
+
+	/**
+	 * 创建表，如果还不存在的话
+	 *
+	 **/
+	public function createTable ()
+	{
+
+	}
 	/**
 	 * 设置当前对象操作的表名字
 	 **/

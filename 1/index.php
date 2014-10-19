@@ -24,10 +24,28 @@ if(!function_exists('get_instance')){
 		return Honghao::$instance;
 	}
 }
+//错误处理
+function myerror($level, $message){
+	$delimite = "<br/>";
+	if(isset($_SERVER['argc'])){
+		$delimite = "\n";
+	}
+	$info = '错误号 : ' . $level . $delimite;
+	$info .= '错误信息 : ' . $message .$delimite;	
+	$info .= '发生时间 : '.date('Y-m-d H:i:s') . $delimite . $delimite;
+	echo $info;
+}
+set_error_handler('myerror' , E_ALL);
 $route = new Route;
 include $route->path . strtolower($route->class) . '.php';
 $route->class = ucwords($route->class);
-$tmp = new $route->class();
-$tmp->{$route->function}();
+try{
+	//虽然无用，但是依旧保留的一场捕获
+	$tmp = new $route->class();
+	$tmp->{$route->function}();
+} catch (Exception $e){
+	echo "error Code is :"  , $e->getCode() . "<br/>";
+	echo $e->getMessage() . "<br/>";
+}
 // @todo 这里的code的方式不合适,应该通过get的方式获取
 

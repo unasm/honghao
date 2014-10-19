@@ -24,14 +24,10 @@ class Shengetcode extends Getcode
 
 		//深市A股，B股,配股
 		$prefix = array('000' , '200' ,'080' ,'031');
-		$cnt = 0;
-		return;
 		for($i = 0;$i < 1000;$i++){
 			$flag = $this->createCode($prefix , $i);
-			if($flag !== false){
-				$cnt +=count($flag);
-			}
 		}
+		echo "yes";
 	}
 	/*
 	 * 用来测试验证是否可以通过那些code数据来大规模获取对应的年报
