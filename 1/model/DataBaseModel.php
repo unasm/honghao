@@ -12,20 +12,35 @@ class DataBaseModel
 {
 	static $link;	
 	var  $tableName;
-	function __construct($table)
+	function __construct()
 	{
 		if(!self::$link){
 			$this->init();
 		}
 		$this->tableName = $table;
 	}
-	protected function init()
+	/**
+	 * 设置当前对象操作的表名字
+	 **/
+	public function setTables($table)
+	{
+		$this->tableName = $table;
+	}
+	public static function init()
 	{
 		//$this->dbConfig = $this->cofig['db'];
-		self::$link = mysqli_init();
-		$flag = self::$link->real_connect($this->config['db']['host'] , $this->config['db']['userName'] , $this->config['db']['password'] , $this->config['db']['dbName']);
-		if(!$flag){
-			exit("连接数据库失败 ,connect error is : " . self::$link->connect_error);
+		if(extension_loaded('mysqli')){
+			self::$link = mysqli_init();
+			$instance = &get_instance();
+			if(!self::$link->real_connect($instance->config['db']['host'] ,
+					$instance->config['db']['userName'] , 
+					$instance->config['db']['password'] , 
+					$instance->config['db']['dbName'])
+			){
+				exit("连接数据库失败 ,connect error is : " . self::$link->connect_error);
+			}
+		}else{
+			die("please install mysqli");
 		}
 	}
 	/**
@@ -33,7 +48,7 @@ class DataBaseModel
 	 * @param  array $tabItem	需要插入的列的名字，数组
 	 * @param  array $data		需要添加的数据,array(array('asd' , 'asdf') , array('sdf'))这种格式
 	 */
-	public function insert($tabItem, $data)
+	public static function insert($tabItem, $data)
 	{
 		if(!is_array($tabItem)){
 			error("这里发送了错误，输入的数据不是数组");
@@ -46,7 +61,7 @@ class DataBaseModel
 		foreach($tabItem as $item){
 			// count 的效率是O(1)的
 			if(count($tabItem) != count($item)){
-				error("需要插入的数据和对应的字段不同")	
+				error("需要插入的数据和对应的字段不同")	;
 			}	
 			$sql .= ' values ( ' . implode(','). ')';
 		}
@@ -62,9 +77,9 @@ class DataBaseModel
 	 * @param	array		$data	按照kv的格式组织的where限制条件
 	 *
 	 **/
-	public function select($field , $data)
+	public static function select($field , $data)
 	{
-		$sql = "select " . $field . " from {$this->tableName} where " , $this->getWhere($data);
+		$sql = "select " . $field . " from {$this->tableName} where " . $this->getWhere($data);
 		$result = self::$link->query($sql);
 		if(!$result){
 			error('mysql error : ' . self::$link->errno);
@@ -80,9 +95,9 @@ class DataBaseModel
 		$sql = '';
 		foreach($data as $key => $value){
 			if(is_array($value)){
-				$sql .= $key ,' = in(' , implode(',' , $value) ,') ';
+				$sql .= $key .' = in(' . implode(',' . $value) .') ';
 			}else{
-				$sql .= $key ,'=' , $value . ' ';	
+				$sql .= $key .'=' . $value . ' ';	
 			}
 		}
 		return $sql;

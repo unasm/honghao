@@ -4,15 +4,17 @@
  * Author    :    jiamin1
  * Mail      :    jiamin1@staff.sina.com.cn
  ************************************************************************/
-require PATH_ROOT . 'getcode.php';
+if(!class_exists('Getcode')){
+	require 'getcode.php';
+}
 /**
  * 具体实现深圳股市的实现
  **/
 class Shengetcode extends Getcode
 {
-	const $CODELENGTH;
-	function __construct()
-	{
+	function __construct(){
+		parent::__construct();
+		$this->makeCode();
 	}
 	/**
 	 * 生成深圳上市公司的代码，不再定向查找
@@ -22,10 +24,14 @@ class Shengetcode extends Getcode
 
 		//深市A股，B股,配股
 		$prefix = array('000' , '200' ,'080' ,'031');
-		for($i = 0;$i < 10000;$i++){
-			$this->createCode($prefix);
+		$cnt = 0;
+		return;
+		for($i = 0;$i < 1000;$i++){
+			$flag = $this->createCode($prefix , $i);
+			if($flag !== false){
+				$cnt +=count($flag);
+			}
 		}
-
 	}
 	/*
 	 * 用来测试验证是否可以通过那些code数据来大规模获取对应的年报
@@ -36,7 +42,7 @@ class Shengetcode extends Getcode
 		foreach($this->shenCode as $codes){
 			for($i = 0, $len = count($codes);$i < $len && $i < 10;$i++){
 				//echo $codes[$i]['code'] . "\n";
-				$this->getCompanyInfo($codes[$i]['code']);
+				//$this->getCompanyInfo($codes[$i]['code']);
 			}
 		}
 	}
@@ -46,6 +52,7 @@ class Shengetcode extends Getcode
 	 **/
 	public function getCompanyInfo($code = "000001")
 	{
+		return '';
 		$args['stockCode'] = $code;
 		$args['keyword'] = "";
 		$args['noticeType'] = "010301";
@@ -64,7 +71,7 @@ class Shengetcode extends Getcode
 			"Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.4"
 		);
 		$cookie = "JSESSIONID=F65D13DEB783C6AA721BCBB784AB1066";
-		$page =  BaseModelHttp::post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
+		$page =  $this->BaseModelHttp->post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
 		//$page =  BaseModelHttp::post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
 		return $page;
 		//echo strlen($page);
@@ -111,3 +118,4 @@ class Shengetcode extends Getcode
 
 
 }
+new Shengetcode();

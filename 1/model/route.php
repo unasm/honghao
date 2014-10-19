@@ -15,17 +15,21 @@ class Route
 	function __construct()
 	{
 		$urlArr = array();
-		if(isset($_SERVER['argv']) && $_SERVER['argc'] > 1){
-			$urlArr['path'] = $_SERVER['argv'][1];
+		if(isset($_SERVER['argv'])){
+			if($_SERVER['argc'] > 1){
+				$urlArr['path'] = $_SERVER['argv'][1];
+			}else{
+				$urlArr['path'] = '';
+			}
 		}else{
 			$url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 			$urlArr = parse_url($url);
 			$urlArr['path'] = trim($urlArr['path'] , "/");	
 		}
-		if(!$urlArr['path']){
+		if(!$urlArr['path'] || empty($urlArr)){
 			$urlArr['path'] = 'home';
 		}
-		$this->checkRoute($urlArr);
+		//$this->checkRoute($urlArr);
 		$this->instancePath($urlArr['path']);
 	}
 	/**
@@ -46,9 +50,6 @@ class Route
 		//路径中不能包含非英文字符
 		if($urlArr['path'] && !preg_match("/^[\/\w]+$/" , $urlArr['path'])){
 			exit("route is invalid");
-		}
-		if(!array_key_exists($urlArr['path'] , $route)){
-			echo "pathing";
 		}
 		if(!array_key_exists($urlArr['path'],$route) ||  !preg_match($route[$urlArr['path']] , $request)){
 			error("the request is invalid");
@@ -84,17 +85,17 @@ class Route
 		if($len === 0){
 			$class = 'home'	;
 			$function = 'index';
-		}elseif($len === 1){
+		} elseif ($len === 1){
 			$function = 'index';
 			$class = $routePath[2];
-		}else if($len === 2){
+		} elseif ($len === 2){
 			$function = $routePath[2];
 			$class = $routePath[1];
-		} elseif($len === 3) {
+		} elseif ($len === 3) {
 			$function = $routePath[2];
 			$class = $routePath[1];
 			$path .= $routePath[0] . "/";
-		}else{
+		} else {
 			error("错误");
 		}
 		if(file_exists($path . $class . '.php')){
@@ -102,6 +103,7 @@ class Route
 			$this->class = $class;
 			$this->function = $function;
 		}else{
+			die("没有具体路由");
 			show_404();
 		}
 	}

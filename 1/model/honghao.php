@@ -15,7 +15,7 @@ class Honghao
 	function __construct()
 	{
 		
-		$this->load = &Loader::instance() ;
+		$this->load = new Loader ;
 		self::$instance = &$this;
 	}
 	/**

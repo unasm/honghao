@@ -20,27 +20,36 @@ if(!class_exists('Loader')){
 	class Loader
 	{
 		//单例模式	
-		private function __construct(){}
 		static $obj;
+		var $is_loaded;
+		function __construct(){
+			$this->is_loaded = array("sdfa");
+		}
 		final public  static function &instance()
 		{
 			//单例模式
+			/*
 			if(!self::$obj instanceof self){
 				self::$obj = new Loader;
 			}
 			return self::$obj;
+			 */
 		}
-		public function __call($funcName , $args)
-		{
+		public function __call($funcName , $files ){
 			$instance = &get_instance();
 			if($funcName === 'config'){
-				foreach($args as $class){
-					if($this->is_loaded[$funcName][$class])	{
+				foreach($files as $class){
+					if(array_key_exists($funcName , $this->is_loaded) && array_key_exists($class , $this->is_loaded[$funcName])){
+						return;	
+					}
+					/*
+					if(!$this->is_loaded[$funcName][$class])	{
 						return;
 					}
+					 */
 					include PATH_ROOT .$funcName . '/' .  $class . '.php';
 					$this->is_loaded[$funcName][$class] = true;
-					if(!$instance->config || empty($instance->config)){
+					if(!isset($instance->config) || empty($instance->config)){
 						$instance->config = array();
 					}
 					$instance->config = array_merge($instance->config , $config);
@@ -48,13 +57,14 @@ if(!class_exists('Loader')){
 			}else{
 				$type = array('model' , 'library' , 'view' , 'config');
 				if(in_array($funcName , $type)){
-					foreach ($args as $class) {
-						if(!$this->is_loaded[$funcName][$class]){
-							include PATH_ROOT .$funcName . '/' .  $class . '.php';
-							$this->is_loaded[$funcName][$class] = true;
-							$instance->$class = new $class;
-							//$instance->$funcName->$class = new $class;
+					foreach ($files as $class) {
+						if(array_key_exists($funcName , $this->is_loaded) && array_key_exists($class , $this->is_loaded[$funcName])){
+							return;	
 						}
+						include PATH_ROOT .$funcName . '/' .  $class . '.php';
+						$this->is_loaded[$funcName][$class] = true;
+						$instance->$class = new $class;
+							//$instance->$funcName->$class = new $class;
 					}
 				} else {
 					error("不存在指定的文件类型");
