@@ -14,20 +14,26 @@ class Shengetcode extends Getcode
 {
 	function __construct(){
 		parent::__construct();
-		$this->makeCode();
+		$this->load->model('DataBaseModel');
+		$this->tableName = 'code';
+		$this->DataBaseModel->setTables($this->tableName);
+		$this->DataBaseModel->createTable($this->tableName);
 	}
 	/**
 	 * 生成深圳上市公司的代码，不再定向查找
 	 */
 	public function makeCode()
 	{
-
 		//深市A股，B股,配股
 		$prefix = array('000' , '200' ,'080' ,'031');
 		for($i = 0;$i < 1000;$i++){
 			$flag = $this->createCode($prefix , $i);
+			$tmp = array();
+			foreach($flag as $data){
+				$tmp[] = array($data);
+			}
+			$this->DataBaseModel->insert(array('code') , $tmp);
 		}
-		echo "yes";
 	}
 	/*
 	 * 用来测试验证是否可以通过那些code数据来大规模获取对应的年报
@@ -70,8 +76,6 @@ class Shengetcode extends Getcode
 		$page =  $this->BaseModelHttp->post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
 		//$page =  BaseModelHttp::post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
 		return $page;
-		//echo strlen($page);
-		//echo BaseModelHttp::post("http://127.0.0.4:8080/test.php" , $args, $header , 200 , $cookie);
 	}
 	/**
 	 * 从$url中获取对应的股票交易码,不过只有上证和深证的
@@ -114,4 +118,3 @@ class Shengetcode extends Getcode
 
 
 }
-new Shengetcode();

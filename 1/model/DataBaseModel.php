@@ -17,7 +17,6 @@ class DataBaseModel
 		if(!self::$link){
 			$this->init();
 		}
-		$this->tableName = $table;
 	}
 
 	/**
@@ -35,11 +34,30 @@ class DataBaseModel
 
 	/**
 	 * 创建表，如果还不存在的话
-	 *
+	 * @param string	$table 想要创建的表
+	 * @todo  优化这个
 	 **/
-	public function createTable ()
+	public function createTable ($table)
 	{
-
+		$db = array(
+			'code' => array(
+				'code int unsigned not null default 0',
+			),
+		);
+		if(array_key_exists($table , $db)){
+			$db = $db[$table];
+			$sql = 'create table IF NOT EXISTS ' . $table . ' (';
+			foreach($db as $column){
+				$sql .= $column;	
+			}
+			$sql .= ')';
+			if(!self::$link->query($sql)){
+				//error('创建表失败， mysql error : ' . self::$link->errno);
+				echo "创建表失败 : " . mysqli_error(self::$link). "<br/>";
+			}
+		}else{
+			trigger_error('the table you want does not exist' , E_USER_NOTICE);
+		}
 	}
 	/**
 	 * 设置当前对象操作的表名字
@@ -79,14 +97,16 @@ class DataBaseModel
 			error("输入数据不是数组");
 		}
 
-		$sql = 'INSERT INTO ' . $this->tableName;
-		foreach($tabItem as $item){
+		$sql = 'INSERT INTO ' . $this->tableName . '( ' . implode(',' , $tabItem) . ')';
+		foreach($data as $row){
 			// count 的效率是O(1)的
-			if(count($tabItem) != count($item)){
-				error("需要插入的数据和对应的字段不同")	;
+			if(count($tabItem) !== count($row)){
+				trigger_error('需要插入的数据和字段数不同' , E_USER_NOTICE);
 			}	
 			$sql .= ' values ( ' . implode(','). ')';
 		}
+		echo $sql . "<br/>";
+		die;
 		$result = self::$link->query($sql);
 		if(!$result){
 			error('mysql error : ' . self::$link->errno);
@@ -124,6 +144,7 @@ class DataBaseModel
 		}
 		return $sql;
 	}
-	public function __destruct(){self::$link->close();}
+	public function __destruct(){
+		//self::$link->close();
+	}
 }
-?>

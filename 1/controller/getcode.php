@@ -8,22 +8,15 @@
  * 本文件主要是用来获取股票交易码的
  */
 if(isset($_SERVER['argc'])){
-	include '../model/honghao.php';
-	include '../model/DataBaseModel.php';
+//	include '../model/honghao.php';
+//	include '../model/DataBaseModel.php';
 }
 
 abstract class Getcode  extends Honghao{
-	static $shenCode;
-	static $shangCode;
 	public function __construct()
 	{
 		parent::__construct();
-		$this->shenCode = array();
-		$this->shangCode = array();
 		$this->load->config('db');
-		$this->load->model('DataBaseModel');
-		$this->load->model('HtmlParserModel');
-		$this->load->model('BaseModelHttp');
 	}
 	public function makecode(){}
 	public function getCompanyInfo(){}

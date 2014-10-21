@@ -8,7 +8,6 @@
  * @version         Id: 1.1
  */
 //require "image.php";
-define("TEST" , true);
 class BaseModelHttp {
 
 		const DAGGER_HTTP_TIMEOUT = 30; // curl超时设置，单位是秒。基类方法可自定义重试次数，故而如果接口超时，最大重试次数倍此设置时间。
@@ -25,8 +24,8 @@ class BaseModelHttp {
 
 		var $image;
 		function __construct() {}
-		private function __clone() {}
-		private function __destruct() {}
+		//private function __clone() {}
+		//private function __destruct() {}
 
 		/**
 		* 设置请求失败的锁的次数阈值

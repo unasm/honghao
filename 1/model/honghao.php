@@ -23,6 +23,6 @@ class Honghao
 	 */
 	protected function setInstance($instance)
 	{
-		self::$instance = $instance;
+		//self::$instance = $instance;
 	}
 }
