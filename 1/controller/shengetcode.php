@@ -32,8 +32,9 @@ class Shengetcode extends Getcode
 			foreach($flag as $data){
 				$tmp[] = array($data);
 			}
-			$this->DataBaseModel->insert(array('code') , $tmp);
+			$res = $this->DataBaseModel->insert(array('code') , $tmp);
 		}
+		echo "yes";
 	}
 	/*
 	 * 用来测试验证是否可以通过那些code数据来大规模获取对应的年报

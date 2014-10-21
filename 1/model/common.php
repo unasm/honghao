@@ -51,13 +51,12 @@ if(!class_exists('Loader')){
 							&& array_key_exists($class , $this->is_loaded[$funcName]) 
 							&& $this->is_loaded[$funcName][$class]
 						){
-							echo "sdfa";
 							return;	
 						}
 						include PATH_ROOT .$funcName . '/' .  $class . '.php';
 						$this->is_loaded[$funcName][$class] = true;
 						//echo $class . "<br/>";
-						$instance->$class = new $class;
+						$instance->$class = new $class();
 							//$instance->$funcName->$class = new $class;
 					}
 				} else {
@@ -66,18 +65,6 @@ if(!class_exists('Loader')){
 			}
 		  
 			return;
-			if($funcName == "model"){
-				if(!$this->model[$funcName])	{
-					$this->model[$funcName] = "value";
-				}
-				return $this->model[$funcName];
-			} elseif ($funcName === 'library') {
-			
-			} else if ($funcName === 'view') {
-			
-			}else{
-			
-			}
 		}
 	}
 }

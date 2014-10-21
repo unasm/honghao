@@ -88,7 +88,7 @@ class DataBaseModel
 	 * @param  array $tabItem	需要插入的列的名字，数组
 	 * @param  array $data		需要添加的数据,array(array('asd' , 'asdf') , array('sdf'))这种格式
 	 */
-	public static function insert($tabItem, $data)
+	public  function insert($tabItem, $data)
 	{
 		if(!is_array($tabItem)){
 			error("这里发送了错误，输入的数据不是数组");
@@ -96,20 +96,22 @@ class DataBaseModel
 		if(!is_array($data)){
 			error("输入数据不是数组");
 		}
-
-		$sql = 'INSERT INTO ' . $this->tableName . '( ' . implode(',' , $tabItem) . ')';
+		$sql = 'INSERT INTO `' . $this->tableName . '` ( `' . implode('`,`' , $tabItem) . '` ) VALUES';
 		foreach($data as $row){
 			// count 的效率是O(1)的
 			if(count($tabItem) !== count($row)){
 				trigger_error('需要插入的数据和字段数不同' , E_USER_NOTICE);
 			}	
-			$sql .= ' values ( ' . implode(','). ')';
+			$sql .= '(' . implode(' ,  ' , $row). ' ),';
 		}
-		echo $sql . "<br/>";
-		die;
+		//echo $sql . "<br/>";
+		//var_dump(rtrim($sql , ','));
+		$sql = rtrim($sql , ',' ) . ';';
+		//die;
 		$result = self::$link->query($sql);
 		if(!$result){
-			error('mysql error : ' . self::$link->errno);
+			//error('mysql error : ' . self::$link->errno);
+			error('mysql error : ' . self::$link->error);
 		}
 		return $result;
 	}
