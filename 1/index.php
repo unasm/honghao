@@ -7,6 +7,7 @@ require PATH_ROOT . 'model/common.php';
 //require PATH_ROOT . 'model/core.php';
 
 require PATH_ROOT . 'model/error.php';
+require PATH_ROOT . 'model/debug.php';
 require PATH_ROOT . 'model/honghao.php';
 //这里直接在route中调用了目标地址,直接跳转，或许这样不好
 require PATH_ROOT . 'model/route.php';

@@ -17,6 +17,7 @@ class Shengetcode extends Getcode
 		$this->load->model('DataBaseModel');
 		$this->tableName = 'code';
 		$this->DataBaseModel->setTables($this->tableName);
+		$this->DataBaseModel->drop();
 		$this->DataBaseModel->createTable($this->tableName);
 	}
 	/**
@@ -26,7 +27,7 @@ class Shengetcode extends Getcode
 	{
 		//深市A股，B股,配股
 		$prefix = array('000' , '200' ,'080' ,'031');
-		for($i = 0;$i < 1000;$i++){
+		for($i = 0;$i < 100;$i++){
 			$flag = $this->createCode($prefix , $i);
 			$tmp = array();
 			foreach($flag as $data){
@@ -34,7 +35,7 @@ class Shengetcode extends Getcode
 			}
 			$res = $this->DataBaseModel->insert(array('code') , $tmp);
 		}
-		echo "yes";
+		//$this->DataBaseModel->cleanTable();
 	}
 	/*
 	 * 用来测试验证是否可以通过那些code数据来大规模获取对应的年报

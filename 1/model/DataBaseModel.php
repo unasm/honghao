@@ -24,14 +24,25 @@ class DataBaseModel
 	 *
 	 * @return boolen
 	 **/
-	public function truck()
+	public function cleanTable()
 	{
 		$flag = self::$link->query('delete from ' . $this->tableName);
 		if($flag){
-			echo "删除成功";
+			echo "delete success<br/>";
 		}
 	}
-
+	
+	/**
+	 * 删除某一个表
+	 *
+	 * @return boolen
+	 **/
+	public function drop()
+	{
+		if(!self::$link->query('drop table ' . $this->tableName)){
+			Debug::output('drop failed');
+		}
+	}
 	/**
 	 * 创建表，如果还不存在的话
 	 * @param string	$table 想要创建的表
@@ -41,7 +52,9 @@ class DataBaseModel
 	{
 		$db = array(
 			'code' => array(
-				'code int unsigned not null default 0',
+				'code char(10), ',
+				'id int unsigned not null auto_increment , ',
+				'primary key(id) '
 			),
 		);
 		if(array_key_exists($table , $db)){
@@ -102,12 +115,11 @@ class DataBaseModel
 			if(count($tabItem) !== count($row)){
 				trigger_error('需要插入的数据和字段数不同' , E_USER_NOTICE);
 			}	
-			$sql .= '(' . implode(' ,  ' , $row). ' ),';
+			$sql .= '(\'' . implode('\',\'' , $row). '\' ),';
 		}
 		//echo $sql . "<br/>";
 		//var_dump(rtrim($sql , ','));
 		$sql = rtrim($sql , ',' ) . ';';
-		//die;
 		$result = self::$link->query($sql);
 		if(!$result){
 			//error('mysql error : ' . self::$link->errno);
