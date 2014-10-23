@@ -52,9 +52,14 @@ class DataBaseModel
 	{
 		$db = array(
 			'code' => array(
-				'code char(10), ',
+				'code char(10), ',//可以使用的股票的代码
 				'id int unsigned not null auto_increment , ',
 				'primary key(id) '
+			),
+			'pages' => array(
+				'code char(10) , ', //股票的代码,对的或者是不对的，全部存储起来
+				'pageId tinyint not null default 1 ,',//页码，当前页面是这个code的第几页，考虑分页的问题
+				'content text'//网页的html内容，echo就是整个页面的
 			),
 		);
 		if(array_key_exists($table , $db)){
@@ -68,6 +73,7 @@ class DataBaseModel
 				//error('创建表失败， mysql error : ' . self::$link->errno);
 				echo "创建表失败 : " . mysqli_error(self::$link). "<br/>";
 			}
+			$this->setTables($table);
 		}else{
 			trigger_error('the table you want does not exist' , E_USER_NOTICE);
 		}
@@ -115,10 +121,12 @@ class DataBaseModel
 			if(count($tabItem) !== count($row)){
 				trigger_error('需要插入的数据和字段数不同' , E_USER_NOTICE);
 			}	
-			$sql .= '(\'' . implode('\',\'' , $row). '\' ),';
+			$sql .= "(";
+			foreach($row as $field){
+				$sql .= "'" . self::$link->real_escape_string($field) ."',";
+			}
+			$sql = rtrim($sql , ',' ) . ') ,';
 		}
-		//echo $sql . "<br/>";
-		//var_dump(rtrim($sql , ','));
 		$sql = rtrim($sql , ',' ) . ';';
 		$result = self::$link->query($sql);
 		if(!$result){
@@ -133,13 +141,27 @@ class DataBaseModel
 	 * @param	array		$data	按照kv的格式组织的where限制条件
 	 *
 	 **/
-	public static function select($field , $data)
+	public function select($field , $data)
 	{
 		$sql = "select " . $field . " from {$this->tableName} where " . $this->getWhere($data);
 		$result = self::$link->query($sql);
 		if(!$result){
 			error('mysql error : ' . self::$link->errno);
 		}
+		if($result->num_rows === 0)return false;
+
+		/*
+		$rows = $result->fetch_array();
+		var_dump($rows);
+		die;
+		 */
+		$rows = $result->fetch_assoc();
+		return $rows;
+		var_dump($rows);
+		die;
+		$rows = self::$link->fetch_all($result);
+		var_dump($rows);
+		die;
 		return $result->result_array();
 	}
 	/**

@@ -17,6 +17,8 @@ abstract class Getcode  extends Honghao{
 	{
 		parent::__construct();
 		$this->load->config('db');
+		$this->load->model('BaseModelHttp');
+		$this->load->model('HtmlParserModel');
 	}
 	public function makecode(){}
 	public function getCompanyInfo(){}
@@ -29,6 +31,8 @@ abstract class Getcode  extends Honghao{
 	 **/
 	public function checkPageRight($page)
 	{
+		$this->HtmlParserModel->parseStr($page);
+		$class = $this->HtmlParserModel->find('.class');
 		return true;
 	}
 	/**
@@ -38,9 +42,29 @@ abstract class Getcode  extends Honghao{
 	public function createCode($prefix , $pos)
 	{
 		$res = array();
+		$len = 3 - strlen($pos);
+		while($len--) {
+			$pos = '0'.$pos;
+		}
+		$page = 'pages';
+		$this->DataBaseModel->createTable($page);
+		//目前的都是6位的
 		foreach($prefix as $code){
 			$tmp = $code . $pos;
-			$page = $this->getCompanyInfo($tmp);
+			$data = $this->DataBaseModel->select('content' , array( 'code' => $tmp));
+			if(!$data || count($data) === 0 ){
+				$page = $this->getCompanyInfo($tmp);
+				$this->DataBaseModel->insert(
+					array('code' , 'content'),
+					array(
+						array($tmp , $page)
+					)
+				) && die("插入成功");		
+			} else{
+				var_dump($data);
+			}
+
+			die;
 			if($this->checkPageRight($page)){
 				$res[] = $tmp;
 			}

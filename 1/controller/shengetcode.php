@@ -15,10 +15,7 @@ class Shengetcode extends Getcode
 	function __construct(){
 		parent::__construct();
 		$this->load->model('DataBaseModel');
-		$this->tableName = 'code';
-		$this->DataBaseModel->setTables($this->tableName);
-		$this->DataBaseModel->drop();
-		$this->DataBaseModel->createTable($this->tableName);
+
 	}
 	/**
 	 * 生成深圳上市公司的代码，不再定向查找
@@ -26,12 +23,17 @@ class Shengetcode extends Getcode
 	public function makeCode()
 	{
 		//深市A股，B股,配股
+		//$this->DataBaseModel->createTable('code');
 		$prefix = array('000' , '200' ,'080' ,'031');
-		for($i = 0;$i < 100;$i++){
+		for($i = 1;$i <= 999;$i++){
 			$flag = $this->createCode($prefix , $i);
 			$tmp = array();
-			foreach($flag as $data){
-				$tmp[] = array($data);
+			foreach($flag as $code){
+				if($this->checkPageRight(
+					$this->getCompanyInfo($code)
+				)){
+					$tmp[] = array($data);
+				}
 			}
 			$res = $this->DataBaseModel->insert(array('code') , $tmp);
 		}
@@ -56,7 +58,6 @@ class Shengetcode extends Getcode
 	 **/
 	public function getCompanyInfo($code = "000001")
 	{
-		return '';
 		$args['stockCode'] = $code;
 		$args['keyword'] = "";
 		$args['noticeType'] = "010301";
