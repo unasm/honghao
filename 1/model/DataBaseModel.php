@@ -57,9 +57,23 @@ class DataBaseModel
 				'primary key(id) '
 			),
 			'pages' => array(
+				'pid int unsigned not null auto_increment , ', 
 				'code char(10) , ', //股票的代码,对的或者是不对的，全部存储起来
 				'pageId tinyint not null default 1 ,',//页码，当前页面是这个code的第几页，考虑分页的问题
-				'content text'//网页的html内容，echo就是整个页面的
+				'content text , ' , //网页的html内容，echo就是整个页面的
+				'notice char(10) , ' , 
+				'primary key(pid)'
+			),
+			//array('time' , 'link' , 'size' , 'title' , 'notice' , 'code'), 
+			'data' => array(
+				'did int unsigned not null auto_increment , ',
+				'time date  , ' ,
+				'link varchar(100) , ' ,
+				'size int unsigned not null default 0 ,',
+				'title char(100) ,',
+				'notice char(10) , ',
+				'code char(10) , ' ,
+				'primary key(did)',
 			),
 		);
 		if(array_key_exists($table , $db)){
@@ -71,7 +85,7 @@ class DataBaseModel
 			$sql .= ')';
 			if(!self::$link->query($sql)){
 				//error('创建表失败， mysql error : ' . self::$link->errno);
-				echo "创建表失败 : " . mysqli_error(self::$link). "<br/>";
+				Debug::output("创建表失败 : " . mysqli_error(self::$link). "<br/>" , E_ERROR);
 			}
 			$this->setTables($table);
 		}else{
@@ -109,6 +123,7 @@ class DataBaseModel
 	 */
 	public  function insert($tabItem, $data)
 	{
+		//ob_flush();
 		if(!is_array($tabItem)){
 			error("这里发送了错误，输入的数据不是数组");
 		}
@@ -131,9 +146,11 @@ class DataBaseModel
 		$result = self::$link->query($sql);
 		if(!$result){
 			//error('mysql error : ' . self::$link->errno);
-			error('mysql error : ' . self::$link->error);
+			error('insert mysql error : ' . mysqli_error(self::$link));
+			//echo "创建表失败 : " . mysqli_error(self::$link). "<br/>";
 		}
-		return $result;
+		//mysqli_free_result($result);
+		return true;
 	}
 	/**
 	 * 从指定的表里面获取对应的数据
@@ -141,28 +158,20 @@ class DataBaseModel
 	 * @param	array		$data	按照kv的格式组织的where限制条件
 	 *
 	 **/
-	public function select($field , $data)
+	public function select($field , $data = array())
 	{
-		$sql = "select " . $field . " from {$this->tableName} where " . $this->getWhere($data);
+		$sql = "select " . $field . " from {$this->tableName} " . $this->getWhere($data);
 		$result = self::$link->query($sql);
 		if(!$result){
-			error('mysql error : ' . self::$link->errno);
+			error('select mysql error : ' . mysqli_error(self::$link));
 		}
 		if($result->num_rows === 0)return false;
-
-		/*
-		$rows = $result->fetch_array();
-		var_dump($rows);
-		die;
-		 */
-		$rows = $result->fetch_assoc();
+		$rows = array();
+		while($row = $result->fetch_assoc()){
+			$rows[] = $row;
+		}
+		mysqli_free_result($result);
 		return $rows;
-		var_dump($rows);
-		die;
-		$rows = self::$link->fetch_all($result);
-		var_dump($rows);
-		die;
-		return $result->result_array();
 	}
 	/**
 	 * 根据传入的array限制条件，拼接成对应的string
@@ -170,12 +179,20 @@ class DataBaseModel
 	 **/
 	public function getWhere($data)
 	{
-		$sql = '';
+		if(empty($data))return '';
+		$sql = 'where ';
+		$cnt = 1;
 		foreach($data as $key => $value){
 			if(is_array($value)){
+				//有待测试
 				$sql .= $key .' = in(' . implode(',' . $value) .') ';
 			}else{
-				$sql .= $key .'=' . $value . ' ';	
+				if($cnt){
+					$cnt -- ;
+					$sql .= $key .' = ' . $value;	
+				}else{
+					$sql .= ' && '  . $key .' = ' . $value;	
+				}
 			}
 		}
 		return $sql;

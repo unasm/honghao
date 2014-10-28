@@ -29,48 +29,55 @@ abstract class Getcode  extends Honghao{
 	 * @param $string $page		页面的html的string 
 	 * @return boolen
 	 **/
-	public function checkPageRight($page)
-	{
-		$this->HtmlParserModel->parseStr($page);
-		$class = $this->HtmlParserModel->find('.class');
-		return true;
-	}
+	public function checkPageRight($page){}
 	/**
 	 * 根据传入的array 获取真正的页面
-	 *
+	 * @param array		$prefix		深圳公司的上市公司代码前缀
+	 * @param int		$pos		从0～999已经扫描到的下表
+	 * @param int		$notice		年报的类型
+	 * @todo insert notice类型的数据
 	 */
-	public function createCode($prefix , $pos)
-	{
+	public function createCode($prefix , $pos , $notice){
 		$res = array();
 		$len = 3 - strlen($pos);
+		//不足三位，前面补充0,确保最终是6位
 		while($len--) {
 			$pos = '0'.$pos;
 		}
-		$page = 'pages';
-		$this->DataBaseModel->createTable($page);
 		//目前的都是6位的
 		foreach($prefix as $code){
-			$tmp = $code . $pos;
-			$data = $this->DataBaseModel->select('content' , array( 'code' => $tmp));
+			$tmpCode = $code . $pos;
+			$data = $this->DataBaseModel->select('pid ' , array( 'code' => $tmpCode , 'notice' => $notice));
 			if(!$data || count($data) === 0 ){
-				$page = $this->getCompanyInfo($tmp);
-				$this->DataBaseModel->insert(
-					array('code' , 'content'),
-					array(
-						array($tmp , $page)
-					)
-				) && die("插入成功");		
-			} else{
-				var_dump($data);
-			}
-
-			die;
-			if($this->checkPageRight($page)){
-				$res[] = $tmp;
+				$page = $this->getCompanyInfo($tmpCode , $notice);
+				$pageState = $this->checkPageRight($page);
+				if($pageState){
+					//0,0的情况不保存
+					if($pageState['now']){
+						$this->DataBaseModel->insert(
+							array('code' , 'content' , 'notice'),
+							array(
+								array($tmpCode , $page , $notice)
+							)
+						) && printf ("insert success");	
+						for($i = $pageState['now'] + 1; $i <= $pageState['total'];$i++){
+							$this->DataBaseModel->insert(
+								array('code' , 'content' , 'pageId' , 'notice'),
+								array(
+									array($tmpCode , $this->getCompanyInfo($tmpCode , $notice) ,$i , $notice)
+								)
+							);
+						}
+						Debug::output('for insert page all : ' . $tmpCode , E_NOTICE);
+					}
+				} else {
+					//Debug::output('checkPageRight返回为false ,此时的code 为' . $tmpCode , E_NOTICE );
+				}
+				ob_flush()	;
+			} else {
+				Debug::output('获取数据成功' , E_NOTICE);
 			}
 		}
-		return $res;
 	}
-
 }
 ?>
