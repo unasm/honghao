@@ -78,13 +78,11 @@ class Shengetcode extends Getcode
 	 **/
 	public function selectPage()
 	{
-		//header("Content-type:text/html;charset=gb2312");
 		$this->DataBaseModel->setTables($this->config['shenpage']);
 		$data = $this->DataBaseModel->select(' notice , code ,content');
 		$this->DataBaseModel->createTable('data');
 		$baseUrl = "http://disclosure.szse.cn/";
 		$cnt = 0;
-		//$last = 10000000;
 		foreach ($data  as $page ) {
 			$this->HtmlParserModel->parseStr($page['content'], array() , "big5");
 			$lines = $this->HtmlParserModel->find('.td2');

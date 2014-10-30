@@ -123,6 +123,8 @@ class DataBaseModel
 	 */
 	public  function insert($tabItem, $data)
 	{
+		var_dump($data);
+		die;
 		//ob_flush();
 		if(!is_array($tabItem)){
 			error("这里发送了错误，输入的数据不是数组");

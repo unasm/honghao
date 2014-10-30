@@ -490,8 +490,7 @@ class BaseModelHttp {
 								}
 							}
 						} else {
-							$mcd->deleteMultiByKey(self::DAGGER_HTTP_MC_SERVER_KEY, array($mc_http_false_keys[$k], $mc_http_lock_keys[$k]));
-						}
+							$mcd->deleteMultiByKey(self::DAGGER_HTTP_MC_SERVER_KEY, array($mc_http_false_keys[$k], $mc_http_lock_keys[$k])); }
 					}
 				}
 
@@ -599,6 +598,7 @@ class BaseModelHttp {
 	 */
 	private static function _get_content($ch, $maxredirect) {
 		//$redireCURLE_OKct = 0;
+		$redirect = 0;
 		do {
 			$retry = false;
 			$ret = curl_exec($ch);
