@@ -49,33 +49,31 @@ abstract class Getcode  extends Honghao{
 			$tmpCode = $code . $pos;
 			$data = $this->DataBaseModel->select('pid ' , array( 'code' => $tmpCode , 'notice' => $notice));
 			if(!$data || count($data) === 0 ){
-				$page = $this->getCompanyInfo($tmpCode , $notice);
+				$page = trim($this->getCompanyInfo($tmpCode , $notice));
 				$pageState = $this->checkPageRight($page);
-				if($pageState){
+				if($pageState && $pageState['now']){
 					//0,0的情况不保存
-					if($pageState['now']){
+					$this->DataBaseModel->insert(
+						array('code' , 'content' , 'notice'),
+						array(
+							array($tmpCode , base64_encode($page) , $notice)
+						)
+					) && printf ("insert success");	
+					for($i = $pageState['now'] + 1; $i <= $pageState['total'];$i++){
 						$this->DataBaseModel->insert(
-							array('code' , 'content' , 'notice'),
+							array('code' , 'content' , 'pageId' , 'notice'),
 							array(
-								array($tmpCode , $page , $notice)
+								array($tmpCode , base64_encode($this->getCompanyInfo($tmpCode , $notice)) ,$i , $notice)
 							)
-						) && printf ("insert success");	
-						for($i = $pageState['now'] + 1; $i <= $pageState['total'];$i++){
-							$this->DataBaseModel->insert(
-								array('code' , 'content' , 'pageId' , 'notice'),
-								array(
-									array($tmpCode , $this->getCompanyInfo($tmpCode , $notice) ,$i , $notice)
-								)
-							);
-						}
-						Debug::output('for insert page all : ' . $tmpCode , E_NOTICE);
+						);
 					}
+					Debug::output('for insert page all : ' . $tmpCode , E_NOTICE);
 				} else {
 					//Debug::output('checkPageRight返回为false ,此时的code 为' . $tmpCode , E_NOTICE );
 				}
-				ob_flush()	;
+				echo $tmpCode . "\n";
 			} else {
-				Debug::output('获取数据成功' , E_NOTICE);
+				Debug::output('之前已经获取数据成功' , E_NOTICE);
 			}
 		}
 	}

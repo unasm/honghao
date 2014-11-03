@@ -31,16 +31,13 @@ class Shengetcode extends Getcode
 			if(count($value) === 2){
 				//有两个数字，一个是总共的页数，一个是当前的页数
 				return array('now' => $value[1][0] , 'total' => $value[1][1]);
-			} else {
-				ob_clean();
+			} elseif(trim($page)) {
 				var_dump($page);
 				Debug::output('Shengetcode/' . __LINE__ . '出现了count  != 2的情况' , E_ERROR);
 			}
-		}else{
-			ob_clean();
+		} elseif(trim($page)) {
 			var_dump($page);
 			Debug::output('shenggetcode/' . __LINE__ . '出现了>1的错误'  , E_ERROR);
-			ob_end_flush();
 		}
 		return false;
 	}
@@ -50,7 +47,6 @@ class Shengetcode extends Getcode
 	 */
 	public function makeCode()
 	{
-		ob_start();
 		//深市A股，B股,配股
 		//$this->DataBaseModel->createTable('code');
 		//上市公司的前缀
@@ -64,12 +60,11 @@ class Shengetcode extends Getcode
 		$notice = array('010303' , '010305' , '010307');
 
 		$this->DataBaseModel->createTable($this->config['shenpage']);
-		for($i = 0;$i <= 999 ;$i++){
+		for($i = 1;$i <= 999 ;$i++){
 			foreach ($notice as $note) {
 				$this->createCode($prefix , $i , $note);
 			}
 		}
-		ob_end_flush();
 	}
 	
 	/**
@@ -84,7 +79,7 @@ class Shengetcode extends Getcode
 		$baseUrl = "http://disclosure.szse.cn/";
 		$cnt = 0;
 		foreach ($data  as $page ) {
-			$this->HtmlParserModel->parseStr($page['content'], array() , "big5");
+			$this->HtmlParserModel->parseStr(base64_decode($page['content']), array() , "big5");
 			$lines = $this->HtmlParserModel->find('.td2');
 			//从每一行td2中获取时间和标题，以及对应的下载连接
 			foreach($lines as $line){
@@ -124,13 +119,16 @@ class Shengetcode extends Getcode
 					echo "<br/>";
 					Debug::output('title is wrong' , E_ERROR);
 				}
-				echo $cnt . "<br/>";
-				var_dump($title[1]);
+				echo $cnt . "\n";
 				flush();
+				echo $title[1];
 				//die("yes");
 				//var_dump($page['content']);
 				//var_dump($tmpStr);
-				//flush();
+				//flush;
+				var_dump(mb_detect_encoding($title[1] , "GBK, UTF-8, UTF-16LE, UTF-16BE, ISO-8859-1 , BIG-5"));
+				echo "\n";
+				echo $title[1];
 				$this->DataBaseModel->insert(
 					array('time' , 'link' , 'size' , 'title' , 'notice' , 'code'), 
 					array(
@@ -138,7 +136,8 @@ class Shengetcode extends Getcode
 							$time[1] ,
 						   	$baseUrl . $download[1] , 
 							$size[1] ,
-						   	$title[1] ,
+							//$title[1],
+						   	mb_convert_encoding($title[1] ,'UTF-8', 'CP936'),
 						   	$page['notice'] , $page['code'])
 					)
 				);
@@ -158,7 +157,6 @@ class Shengetcode extends Getcode
 		$this->DataBaseModel->setTables('data');
 		$data = $this->DataBaseModel->select('title');
 		$data[0]['title'] = mb_convert_encoding($data[0]['title'], 'UTF-8', 'gbk');
-		echo "<html><head><meta charset =  'utf-8'></head><body>" . $data[0]['title']. "</body></html>";
 		//var_dump($data[0]['title']);
 	}
 	/**
@@ -187,7 +185,7 @@ class Shengetcode extends Getcode
 			"Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.4"
 		);
 		$cookie = "JSESSIONID=F65D13DEB783C6AA721BCBB784AB1066";
-		$page =  $this->BaseModelHttp->post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 200 , $cookie);
+		$page =  $this->BaseModelHttp->post("http://disclosure.szse.cn/m/search0425.jsp" , $args, $header , 10 , $cookie );
 		return $page;
 	}
 	/**
@@ -228,6 +226,30 @@ class Shengetcode extends Getcode
 			}
 		}
 	}
-
-
+	
+	/**
+	 * 修改data中的title 编码，以免将来乱码
+	 *
+	 * @return void
+	 * @author Me
+	 **/
+	public function trans()
+	{
+		$this->DataBaseModel->setTables('data');
+		$datas = $this->DataBaseModel->select('did,title');
+		$cnt = 0;
+		foreach ($datas as $row) {
+			$cnt++;
+			if($cnt < 2)continue;
+			$this->DataBaseModel->update(
+				array(
+					'title' => "sdfa色风俗地方" 
+					//'title' => mb_convert_encoding($row['title'] , 'UTF-8' , 'GBK')
+				),
+				array(
+					'did' => 1 
+				)
+			);
+		}
+	}
 }
