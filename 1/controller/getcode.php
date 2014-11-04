@@ -39,12 +39,6 @@ abstract class Getcode  extends Honghao{
 	 */
 	public function createCode($prefix , $pos , $notice){
 		$res = array();
-		$len = 3 - strlen($pos);
-		//不足三位，前面补充0,确保最终是6位
-		while($len--) {
-			$pos = '0'.$pos;
-		}
-		//目前的都是6位的
 		foreach($prefix as $code){
 			$tmpCode = $code . $pos;
 			$data = $this->DataBaseModel->select('pid ' , array( 'code' => $tmpCode , 'notice' => $notice));

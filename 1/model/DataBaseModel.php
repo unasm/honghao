@@ -112,6 +112,7 @@ class DataBaseModel
 			){
 				exit("连接数据库失败 ,connect error is : " . self::$link->connect_error);
 			}
+			self::$link->query("set names utf8");
 		}else{
 			die("please install mysqli");
 		}
@@ -123,8 +124,6 @@ class DataBaseModel
 	 */
 	public  function insert($tabItem, $data)
 	{
-		var_dump($data);
-		die;
 		//ob_flush();
 		if(!is_array($tabItem)){
 			error("这里发送了错误，输入的数据不是数组");
@@ -199,7 +198,33 @@ class DataBaseModel
 		}
 		return $sql;
 	}
-	public function __destruct(){
-		//self::$link->close();
+
+	/**
+	 * 修改已经有的变量
+	 *
+	 **/
+	public function update ($data , $where)
+	{
+		if(!is_array($data)){
+			die("请输入数组");
+		}
+		$sql = 'update ' . $this->tableName;
+		$tmp = '';
+		foreach($data as $key => $value){
+			if($tmp){
+				$tmp .= ' && set ' . $key . " = '" . $value . "'";	
+			} else {
+				$tmp = ' set ' . $key . " = '" . $value . "'";
+			}
+		}
+		$sql .= $tmp . ' ' . $this->getWhere($where);
+		$flag = self::$link->query($sql);
+		if(!$flag){
+			//error('创建表失败， mysql error : ' . self::$link->errno);
+			Debug::output("更新表失败 : " . mysqli_error(self::$link). "<br/>" , E_ERROR);
+		}
+		die("sdf");
+		return true;
 	}
+	public function __destruct(){self::$link->close();}
 }

@@ -12,7 +12,7 @@ class BaseModelHttp {
 
 		const DAGGER_HTTP_TIMEOUT = 30; // curl超时设置，单位是秒。基类方法可自定义重试次数，故而如果接口超时，最大重试次数倍此设置时间。
 		const DAGGER_HTTP_MAXREDIRECT = 2; // 301、302、303、307最大跳转次数。
-		const DAGGER_HTTP_REDO = 0; // 访问失败后的重试次数, 默认0次为不重试。
+		const DAGGER_HTTP_REDO = 2; // 访问失败后的重试次数, 默认0次为不重试。
 		const DAGGER_HTTP_USERAGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0 Dagger/1.1';// 默认UA头
 		const DAGGER_HTTP_MC_SERVER_KEY = 'DAGGER';
 		const DAGGER_HTTP_FLASE_LOCK_TIMES = 0;

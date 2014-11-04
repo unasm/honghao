@@ -30,6 +30,33 @@ class Ganggetcode extends Getcode
 	 */
 	public function makeCode()
 	{
+		/*
+		$config['ctl00$rdo_SelectDocType'] = 'rbAfter2006';
+		$config['ctl00$rdo_SelectDocType'] = 'rbPrior2006';
+		$config['ctl00$sel_tier_2'] = array(159,160,161);
+		 */
+		$config = array(159,160,161);
+		for($i = 0;$i <= 99999;$i++){
+			$len = 5 - strlen($i);
+			while($len --){
+				$i = '0' . $i;
+			}
+			foreach($config as $data){
+				$this->createCode(array('') , $i,
+					array(
+						'ctl00$rdo_SelectDocType' => 'rbAfter2006',
+						'ctl00$sel_tier_2' => $data
+					)
+				);
+			}
+			$this->createCode('' , $i,
+				array(
+					'ctl00$rdo_SelectDocType' => 'rbPrior2006',
+					'ctl00$sel_tier_2' => '-2' , 
+					'ctl00$sel_DocTypePrior2006' => 11500,
+				)
+			);
+		}
 	}
 	
 	/**
@@ -65,10 +92,16 @@ class Ganggetcode extends Getcode
 				//$tmpStr = "sdfa 12/02/3221 sdf";
 				preg_match('/\>\s*(\d{2}\s*\/\s*\d{2}\s*\/\s*\d{4}\s*)\s*\</' , $tmpStr , $time);
 				if(count($time) != 2){
-					var_dump($tmpStr);
+					var_dump(trim($tmpStr));
 					echo "<br/>";
 					Debug::output('time is wrong' , E_NOTICE);
 					continue;
+				} else {
+					$tmp = explode('/' , $time[1]);
+					$tmp2[0] = $tmp[2];
+					$tmp2[1] = $tmp[1];
+					$tmp2[2] = $tmp[0];
+					$time[1] = implode('-' , $tmp2);
 				}
 				//$tmpStr = "<a href=\"finalpage/2014-03-07/63646348.PDF\" target=\"new\">平安银行：2013年年度报告摘要</a>";
 				//匹配下载连接
@@ -134,7 +167,7 @@ class Ganggetcode extends Getcode
 	 * @param string	$code	上市公司的代码
 	 * @param string	$notice	年报的类型
 	 **/
-	public function getCompanyInfo($code = "000001" , $notice = "010301")
+	public function getCompanyInfo($code = '00001' , $notice)
 	{
 		//$args['stockCode'] = $code;
 		//这里的时间将来要修改
@@ -151,16 +184,21 @@ class Ganggetcode extends Getcode
 		$args['ctl00$rdo_SelectDateOfRelease'] = 'rbManualRange';
 		$args['ctl00$ddlTierTwoGroup']  = '2,1';
 		$args['ctl00$ddlTierTwo'] = '59,1,7';
-		$args['ctl00$sel_tier_2'] = -2;
+		//$args['ctl00$sel_tier_2'] = -2;
 		$args['ctl00$sel_tier_2_group'] = -2;
 		$args['ctl00$sel_DocTypePrior2006'] = -1;
 		$args['ctl00$sel_tier_1'] = -2;
-		$args['ctl00$rdo_SelectDocType'] = 'rbAll';
-		$args['ctl00$txt_stock_code'] = '00010';
+		//$args['ctl00$rdo_SelectDocType'] = 'rbPrior2006';
+		//公司的股票代码,主要的查询标准之一
+		$args['ctl00$txt_stock_code'] = $code;
 		$args['ctl00$hfAlert'] = '';
 		$args['ctl00$hfStatus'] = 'ACM';
 		$args['ctl00$txt_today'] = 20141029;
 		$args['__VIEWSTATEENCRYPTED'] = '';
+		//重写args的参数
+		foreach($notice as $key => $value){
+			$args[$key] = $value;
+		}
 		$header = array(
 			"Host: www.hkexnews.hk" ,
 			"Referer: http://www.hkexnews.hk/listedco/listconews/advancedsearch/search_active_main_c.aspx"	, 
@@ -171,6 +209,9 @@ class Ganggetcode extends Getcode
 		);
 		$cookie = "TS0161f2e5=0141259276c4ffb01f569f60012faeb010e26ca336004ee02e58653fdc2b56e750684b5c2b";
 		$page =  $this->BaseModelHttp->post("http://www.hkexnews.hk/listedco/listconews/advancedsearch/search_active_main_c.aspx" , $args, $header , 200 , $cookie);
+		//header("Content-type: utf-8");
+		var_dump($page);
+		die;
 		return $page;
 	}
 	/**

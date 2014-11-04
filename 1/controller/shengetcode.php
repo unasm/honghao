@@ -62,6 +62,11 @@ class Shengetcode extends Getcode
 		$this->DataBaseModel->createTable($this->config['shenpage']);
 		for($i = 1;$i <= 999 ;$i++){
 			foreach ($notice as $note) {
+				//不足三位，前面补充0,确保最终是6位
+				$len = 3 - strlen($i);
+				while($len--) {
+					$i = '0'.$i;
+				}
 				$this->createCode($prefix , $i , $note);
 			}
 		}
@@ -78,6 +83,7 @@ class Shengetcode extends Getcode
 		$this->DataBaseModel->createTable('data');
 		$baseUrl = "http://disclosure.szse.cn/";
 		$cnt = 0;
+		//header("Cache-control: no-cache");
 		foreach ($data  as $page ) {
 			$this->HtmlParserModel->parseStr(base64_decode($page['content']), array() , "big5");
 			$lines = $this->HtmlParserModel->find('.td2');
@@ -118,17 +124,16 @@ class Shengetcode extends Getcode
 					var_dump($tmpStr);
 					echo "<br/>";
 					Debug::output('title is wrong' , E_ERROR);
+				} else {
+					$title[1] = mb_convert_encoding($title[1] ,'UTF-8', 'CP936');
 				}
-				echo $cnt . "\n";
-				flush();
-				echo $title[1];
+				echo $title[1] . "\n";
 				//die("yes");
 				//var_dump($page['content']);
 				//var_dump($tmpStr);
 				//flush;
-				var_dump(mb_detect_encoding($title[1] , "GBK, UTF-8, UTF-16LE, UTF-16BE, ISO-8859-1 , BIG-5"));
-				echo "\n";
-				echo $title[1];
+				//var_dump(mb_detect_encoding($title[1] , "GBK, UTF-8, UTF-16LE, UTF-16BE, ISO-8859-1 , BIG-5"));
+				//echo $title[1];
 				$this->DataBaseModel->insert(
 					array('time' , 'link' , 'size' , 'title' , 'notice' , 'code'), 
 					array(
@@ -136,8 +141,7 @@ class Shengetcode extends Getcode
 							$time[1] ,
 						   	$baseUrl . $download[1] , 
 							$size[1] ,
-							//$title[1],
-						   	mb_convert_encoding($title[1] ,'UTF-8', 'CP936'),
+							$title[1],
 						   	$page['notice'] , $page['code'])
 					)
 				);
