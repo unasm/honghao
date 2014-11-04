@@ -21,7 +21,7 @@ abstract class Getcode  extends Honghao{
 		$this->load->model('HtmlParserModel');
 	}
 	public function makecode(){}
-	public function getCompanyInfo(){}
+	//public function getCompanyInfo(){}
 
 	/**
 	 * 检验是不是正确的，想要的深圳股票的返回页面
@@ -35,7 +35,7 @@ abstract class Getcode  extends Honghao{
 	 * @param array		$prefix		深圳公司的上市公司代码前缀
 	 * @param int		$pos		从0～999已经扫描到的下表
 	 * @param int		$notice		年报的类型
-	 * @todo insert notice类型的数据
+	 * @notice 这里没有香港的类型
 	 */
 	public function createCode($prefix , $pos , $notice){
 		$res = array();
