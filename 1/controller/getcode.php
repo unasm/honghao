@@ -20,6 +20,18 @@ abstract class Getcode  extends Honghao{
 		$this->load->model('BaseModelHttp');
 		$this->load->model('HtmlParserModel');
 	}
+
+	/**
+	 * 获取日子
+	 * 
+	 * @param	int		$year	返回的时间和今天相隔的年数
+	 * @param	string	$sep	日期之间的分隔符
+	 * @return string 
+	 **/
+	public function getTime($sep = '' , $year = 0 )
+	{
+		return date('Y' . $sep . 'm' . $sep . 'd' , time() - 31536000 * $year);
+	}
 	public function makecode(){}
 	//public function getCompanyInfo(){}
 

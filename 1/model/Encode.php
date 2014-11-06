@@ -40,6 +40,7 @@ class Encode{
 	 *
 	 * @return "UTF8,BIG5"
 	 **/
+	/*
 	public function check()
 	{
 		if($this->checkUtf8($str)){
@@ -47,16 +48,18 @@ class Encode{
 		}
 		return "false";
 	}
-
+	*/
 	/**
 	 * 检测顺序
 	 **/
-	public function test($str)
+	public function check($str)
 	{
 		//mb_detect_encoding(urldecode($REQUEST_URI), 'UTF-8, UTF-7, ASCII, EUC-JP,SJIS, eucJP-win, SJIS-win, JIS, ISO-2022-JP, ISO-8859-1 , BIG-5, CP936 , CP950 , GB18030');
-		echo mb_detect_encoding( $str, 'UTF-8, UTF-7, ASCII, EUC-JP,SJIS, eucJP-win, SJIS-win, JIS, ISO-2022-JP, ISO-8859-1') . "\n";
+		return mb_detect_encoding( $str, 'UTF-8, UTF-7, ASCII, EUC-JP,SJIS, eucJP-win, SJIS-win, JIS, ISO-2022-JP, ISO-8859-1') . "\n";
 	}
 }
+/*
 $code = new Encode;
 $str = file_get_contents("http://www.hkexnews.hk/listedco/listconews/advancedsearch/search_active_main_c.aspx");
 echo $code->test($str ). "\n";
+ */
