@@ -131,6 +131,7 @@ class DataBaseModel
 		if(!is_array($data)){
 			error("输入数据不是数组");
 		}
+		if(empty($data))return true;
 		$sql = 'INSERT INTO `' . $this->tableName . '` ( `' . implode('`,`' , $tabItem) . '` ) VALUES';
 		foreach($data as $row){
 			// count 的效率是O(1)的
@@ -159,9 +160,14 @@ class DataBaseModel
 	 * @param	array		$data	按照kv的格式组织的where限制条件
 	 *
 	 **/
-	public function select($field , $data = array())
+	public function select($field , $data = array() , $where = false)
 	{
-		$sql = "select " . $field . " from {$this->tableName} " . $this->getWhere($data);
+		$sql = '';
+		if($where){
+			$sql = "select " . $field . " from {$this->tableName} " .$where ;
+		} else {
+			$sql = "select " . $field . " from {$this->tableName} " . $this->getWhere($data);
+		}
 		$result = self::$link->query($sql);
 		if(!$result){
 			error('select mysql error : ' . mysqli_error(self::$link));

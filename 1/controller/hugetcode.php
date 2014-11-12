@@ -130,21 +130,42 @@ class Hugetcode extends Getcode
 	public function selectPage()
 	{
 		$this->DataBaseModel->setTables('pages');
-		$data = $this->DataBaseModel->select('content , pid'  , array('pid' => 2018) );
+		//hu的pages是从2018开始的
+		//$data = $this->DataBaseModel->select('content , pid'  , array('pid' => 5457)  );
+		$data = $this->DataBaseModel->select('content , pid'  , array() , 'where pid > 2017' );
+		$url = "http://www.sse.com.cn";
+		$this->DataBaseModel->setTables('data');
 		foreach($data as $lines){
+			echo $lines['pid'] . "\n";
 			//var_dump(json_decode($lines['content']));
 			preg_match("/^jsonpCallback67854\((.*)\)$/" , $lines['content'], $arr);
-			$company = json_decode($arr[1] , true);
-			foreach($company as $key => $value){
-				echo $key . "<br/>";
+			if(count($arr) != 2){
+				echo $lines['pid'] . "得到的arr != 2\n";
+				continue;
 			}
-			//var_dump($company);
-			//echo count($company[0]);
-			die;
+			$company = json_decode($arr[1] , true);
+			$result = array();
+			if(!array_key_exists('result' , $company)){
+				continue;
+			}
+			foreach($company['result'] as $row){
+				$tmp = array();
+				if($row['SSEDate'] && $row['title'] && 
+					$row['security_Code'] && $row['URL']){
+					$tmp[] = $row['SSEDate'];
+					$tmp[] = $row['URL'];
+					$tmp[] = $row['title'];
+					$tmp[] = $row['security_Code'];
+					$result[] = $tmp;
+					echo $row['security_Code'] . $row['SSEDate'] ." " . $row['title'] . "\n";
+					flush();
+				} else{
+					echo $lines['pid'] . "\n\n";
+				}
+			}
+			$this->DataBaseModel->insert(
+				array('time' , 'link' , 'title' , 'code') , $result
+			) && printf("yes all\n\n");
 		}
 	}
 }
-/*
-$test = new Hugetcode();
-$test->makecode();
- */
