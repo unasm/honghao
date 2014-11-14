@@ -1,10 +1,11 @@
 <?php
-echo "sdf";
-return;
 if(isset($_GET['signature']) && isset($_GET['timestamp']) && isset($_GET['nonce'])){
 	require PATH_ROOT . 'model/wx.php';
 	return;
+} else {
+	echo "yes";
 }
+return;
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
 
