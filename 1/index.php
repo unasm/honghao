@@ -1,4 +1,6 @@
 <?php
+echo "sdf";
+return;
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
 
