@@ -1,6 +1,7 @@
 <?php
+require PATH_ROOT . 'model/wx.php';
+return;
 if(isset($_GET['signature']) && isset($_GET['timestamp']) && isset($_GET['nonce'])){
-	require PATH_ROOT . 'model/wx.php';
 	return;
 } else {
 	echo "yes";
