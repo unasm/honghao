@@ -1,10 +1,9 @@
 <?php
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
-require PATH_ROOT . 'model/wx.php';
-return;
+
 if(isset($_GET['signature']) && isset($_GET['timestamp']) && isset($_GET['nonce'])){
-	return;
+	require PATH_ROOT . 'model/wx.php';
 } else {
 	echo "yes";
 }
