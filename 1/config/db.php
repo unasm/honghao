@@ -13,4 +13,9 @@ $config['shenpage'] = 'pages';
 $config['gangpage'] = 'pages';
 $config['hupage'] = 'hupage';
 $config['gangpage'] = 'gangpage';
+
+//07开始 dd结尾的长数字
+$config['wx']['secret'] = "";
+$config['wx']['grant_type'] = "client_credential";
+$config['wx']['appid'] = "wx656f0f60388c1c07";
 ?>
