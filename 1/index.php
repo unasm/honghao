@@ -19,6 +19,24 @@ if(!function_exists('get_instance')){
 	}
 }
 
+if(!function_exists('output')){
+	/**
+	 * 输入到微信端
+	 */
+	function output($value){
+		if(is_array($value)){
+			//var_dump($value);	
+			foreach($value as $idx => $data){
+				echo $idx . "=>" . "<br/>";
+				var_dump($data);
+				echo "<br/>";
+				echo "<br/>";
+			}
+		} else {
+			echo $value . "<br/>";	
+		}
+	}
+}
 set_error_handler('myerror' , E_ALL);
 $route = new Route;
 include $route->path . strtolower($route->class) . '.php';

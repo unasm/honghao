@@ -16,7 +16,6 @@ abstract class Getcode  extends Honghao{
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->config('db');
 		$this->load->model('BaseModelHttp');
 		$this->load->model('HtmlParserModel');
 	}

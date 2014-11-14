@@ -17,6 +17,8 @@ class Honghao
 		
 		$this->load = new Loader ;
 		self::$instance = &$this;
+
+		$this->load->config('db');
 	}
 	/**
 	 * 为以后访问主程序准备接口

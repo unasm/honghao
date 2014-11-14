@@ -73,6 +73,7 @@ class DataBaseModel
 				'title char(100) ,',
 				'notice char(10) , ',
 				'code char(10) , ' ,
+				'timestamp int  not null default -1' , 
 				'primary key(did)',
 			),
 		);
@@ -98,6 +99,13 @@ class DataBaseModel
 	public function setTables($table)
 	{
 		$this->tableName = $table;
+	}
+	/**
+	 * 返回当前正在操作的表名字
+	 **/
+	public function getTable()
+	{
+		return $this->tableName ;
 	}
 	public static function init()
 	{
@@ -158,7 +166,7 @@ class DataBaseModel
 	 * 从指定的表里面获取对应的数据
 	 * @param	string		$field	字符串按照a,b,c的方式拼接的字符串
 	 * @param	array		$data	按照kv的格式组织的where限制条件
-	 *
+	 * @param	string		$where	和data构成不能共存的限制条件
 	 **/
 	public function select($field , $data = array() , $where = false)
 	{
@@ -173,6 +181,18 @@ class DataBaseModel
 			error('select mysql error : ' . mysqli_error(self::$link));
 		}
 		if($result->num_rows === 0)return false;
+		return $this->getResult($result);
+
+		return $rows;
+	}
+
+	/**
+	 * 根据句柄，获取对应的数据
+	 * @param	link	$resut	句柄，mysql的返回的东西	
+	 * @return array
+	 **/
+	public function getResult($result)
+	{
 		$rows = array();
 		while($row = $result->fetch_assoc()){
 			$rows[] = $row;
@@ -229,8 +249,17 @@ class DataBaseModel
 			//error('创建表失败， mysql error : ' . self::$link->errno);
 			Debug::output("更新表失败 : " . mysqli_error(self::$link). "<br/>" , E_ERROR);
 		}
-		die("sdf");
 		return true;
+	}
+
+	/**
+	 * 传入一条sql，无条件执行
+	 *
+	 * @return array
+	 **/
+	public function exec($sql)
+	{
+		return $this->getResult(self::$link->query($sql));
 	}
 	public function __destruct(){self::$link->close();}
 }
