@@ -98,4 +98,14 @@ class Select extends Honghao
 			}
 		}
 	}
+
+	/**
+	 * 用来初始化
+	 *
+	 **/
+	public function init()
+	{
+		//debug_print_backtrace();
+		$this->token();
+	}
 }
