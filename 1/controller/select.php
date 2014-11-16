@@ -17,7 +17,16 @@ class Select extends Honghao
 		$this->DataBaseModel->setTables('data');
 		$this->load->model('validate');
 	}
-	
+	/**
+	 * 获取从微信来的信息，并解码
+	 *
+	 * @return get
+	 **/
+	public function decodewxmsg()
+	{
+		var_dump($_POST);
+		echo "yes<br/>";
+	}		
 	/**
 	 * 根据传入的数据获取对应的结果
 	 * @param	string/get	$time	2013Q3这种类型的数据
