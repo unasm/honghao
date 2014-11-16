@@ -27,7 +27,9 @@ class Select extends Honghao
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
 		if(!empty($res) && $res['content']){
-			$data = explode(' ' , $res['content']);
+			var_dump($res);
+			$data = explode('|' , $res['content']);
+			var_dump($data);
 			if(count($data) === 2){
 				$_GET['code'] = $data[0];
 				$_GET['time'] = $data[1];
