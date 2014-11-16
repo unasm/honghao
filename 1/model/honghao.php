@@ -54,30 +54,23 @@ class Honghao
 	 * 判断是否需要获取token
 	 *
 	 **/
-	public function token()
+	public function getToken()
 	{
 		if(extension_loaded('memcached')){
-			$mc = new cache();
-			if(!$mc->addServer($this->config['mc']['host'] , $this->config['mc']['port'])){
-				error("连接mc失败")	;
+			$token = $this->getCache('token');
+			$flag = 0;
+			if($token ){
+				$token = json_decode($token , true);
+				if(time() < $token['expires_in'] ){
+					$flag = 1;
+				}
 			}
-			$mc->set('test' , 'hello,world!');
-			//sleep(10);
-			var_dump($mc->get('test'));			
-			$token = $mc->get('token');
-			return;
-			if($token){
-				var_dump($token);
-				die;
-				return $token;
+			if($flag){
+				return $token['access_token'];
 			} else {
 				$arr = $this->httpGetToken();
-				echo $arr['access_token'] . "<br/>";
-				echo $arr['expires_in'] + time();
-				die;
-				if(!$mc->set('token' , $arr['access_token'] , time() + $arr['expires_in'] )){
-					error("更新mc token失败")	;
-				}
+				$arr['expires_in'] = $arr['expires_in'] + time();
+				$this->setCache('token' , json_encode($arr));
 				return $arr['access_token'];
 			}
 		} else {

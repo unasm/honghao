@@ -76,6 +76,10 @@ class DataBaseModel
 				'timestamp int  not null default -1' , 
 				'primary key(did)',
 			),
+			'cache' => array(
+				'k char(15) not null ,' , 
+				'value text ' ,
+			)
 		);
 		if(array_key_exists($table , $db)){
 			$db = $db[$table];
@@ -209,6 +213,7 @@ class DataBaseModel
 		if(empty($data))return '';
 		$sql = 'where ';
 		$cnt = 1;
+		if(!is_array($data))return $data;
 		foreach($data as $key => $value){
 			if(is_array($value)){
 				//有待测试
@@ -216,9 +221,10 @@ class DataBaseModel
 			}else{
 				if($cnt){
 					$cnt -- ;
-					$sql .= $key .' = ' . $value;	
+					$sql .= $key .' = \'' . $value . '\'';	
+
 				}else{
-					$sql .= ' && '  . $key .' = ' . $value;	
+					$sql .= ' && '  . $key .' = \'' . $value . '\'';	
 				}
 			}
 		}
@@ -227,7 +233,10 @@ class DataBaseModel
 
 	/**
 	 * 修改已经有的变量
-	 *
+	 * @param	array	$data  想要修改的变量kv
+	 * @param	string	$where	限制条件
+	 * @example	 (array('key' => 'test' , value => ''hello,world) , key => 'sdf' )
+	 * @example	 $where 为数组的时候，为精确查找，也可以传入包含字符串
 	 **/
 	public function update ($data , $where)
 	{

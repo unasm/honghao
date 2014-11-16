@@ -100,12 +100,43 @@ class Select extends Honghao
 	}
 
 	/**
-	 * 用来初始化
+	 * 设置cache
 	 *
 	 **/
-	public function init()
+	public function cacheInit()
 	{
-		//debug_print_backtrace();
-		$this->token();
+		$this->DataBaseModel->createTable('cache');
+	}
+	/**
+	 * 读取对应的数据
+	 *
+	 * @return string
+	 **/
+	public function getCache($key)
+	{
+		$this->DataBaseModel->setTables('cache');
+		$key = trim($key);
+		$res = $this->DataBaseModel->select('value' , array('k' => $key));
+		if($res){
+			return $res[0]['value'];
+		}
+		return false;
+		//return $res && $res[0]['value'];
+	}
+	/**
+	 * 修改对应的配置
+	 * @param string	$key	对应的key值
+	 * @param string	$value	序列话之后的字符串
+	 */
+	public function setCache($key , $value){
+		$this->DataBaseModel->setTables('cache');
+		if($this->getCache($key)){
+			return $this->DataBaseModel->update(array('value' => $value) , array('k' => $key) );
+		} else {
+			return $this->DataBaseModel->insert(
+				array('k' , 'value'),
+				array(array($key , $value))
+			);
+		}
 	}
 }
