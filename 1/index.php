@@ -18,8 +18,6 @@ require PATH_ROOT . 'model/debug.php';
 require PATH_ROOT . 'model/honghao.php';
 //这里直接在route中调用了目标地址,直接跳转，或许这样不好
 require PATH_ROOT . 'model/route.php';
-echo "here is index";
-return;
 if(!function_exists('get_instance')){
 	function &get_instance()
 	{

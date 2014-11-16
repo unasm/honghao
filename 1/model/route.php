@@ -79,6 +79,11 @@ class Route
 			}
 		}
 		$len = count($routePath);
+		//去除index.php
+		if($len && $routePath[0] === 'index.php' ){
+			array_pop($routePath);
+			$len --;
+		}
 		$function = '';
 		$class = '';
 		$path = PATH_ROOT . "controller/";
