@@ -5,8 +5,7 @@
 
 //define your token
 define("TOKEN", "zhonghua");
-$wechatObj = new wechatCallbackapiTest();
-$wechatObj->valid();
+
 
 class wechatCallbackapiTest
 {

@@ -24,8 +24,8 @@ class Select extends Honghao
 	 **/
 	public function decodewxmsg()
 	{
-		var_dump($_POST);
-		echo "yes<br/>";
+		$this->load->model('wx');
+		$this->wx->reponseMsg();
 	}		
 	/**
 	 * 根据传入的数据获取对应的结果
