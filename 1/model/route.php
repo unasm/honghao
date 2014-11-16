@@ -80,7 +80,7 @@ class Route
 		}
 		$len = count($routePath);
 		//去除index.php
-		if($len && $routePath[0] === 'index.php' ){
+		if(array_key_exists('0' , $routePath) && $routePath[0] === 'index.php' ){
 			array_pop($routePath);
 			$len --;
 		}

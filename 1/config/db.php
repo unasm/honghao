@@ -4,10 +4,19 @@
  * Author    :    jiamin1
  * Mail      :    jiamin1@staff.sina.com.cn
  ************************************************************************/
-$config['db']['host'] = "localhost";
-$config['db']['userName'] = "root";
-$config['db']['password'] = "douunasm";
-$config['db']['dbName'] = "honghao";
+if(preg_match('/^tianyi.*/' , gethostname())){
+	$config['db']['host'] = "localhost";
+	$config['db']['userName'] = "root";
+	$config['db']['password'] = "douunasm";
+	$config['db']['dbName'] = "honghao";
+} else {
+	$config['db']['host'] = SAE_MYSQL_HOST_M . ':' . SAE_MYSQL_PORT;
+	$config['db']['userName'] = SAE_MYSQL_USER ;
+	$config['db']['password'] = SAE_MYSQL_PASS;
+	$config['db']['dbName'] = SAE_MYSQL_DB;
+//	$config['db']['port'] = SAE_MYSQL_PORT;
+}
+
 //三个交易所的网页保存在哪个表里面
 $config['shenpage'] = 'pages';
 $config['gangpage'] = 'pages';

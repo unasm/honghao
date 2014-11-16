@@ -117,6 +117,11 @@ class DataBaseModel
 		if(extension_loaded('mysqli')){
 			self::$link = mysqli_init();
 			$instance = &get_instance();
+			/*
+			if(array_key_exists('port' , $instance->config['db'])){
+				$instance->config['db']['host'] = $instance->config['db']['host'] . ':' . $instance->config['db']['port'];
+			}
+			 */
 			if(!self::$link->real_connect($instance->config['db']['host'] ,
 					$instance->config['db']['userName'] , 
 					$instance->config['db']['password'] , 
