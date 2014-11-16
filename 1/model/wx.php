@@ -7,7 +7,7 @@
 define("TOKEN", "zhonghua");
 
 
-class wechatCallbackapiTest
+class wx
 {
 	public function valid()
     {

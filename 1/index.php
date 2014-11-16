@@ -5,7 +5,7 @@ define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
 //如果是教研的话，就到此为止吧
 if(isset($_GET['signature']) && isset($_GET['timestamp']) && isset($_GET['nonce'])){
 	require PATH_ROOT . 'model/wx.php';
-	$wechatObj = new wechatCallbackapiTest();
+	$wechatObj = new wx();
 	$wechatObj->valid();
 	return;
 }

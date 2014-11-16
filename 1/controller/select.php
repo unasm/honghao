@@ -25,7 +25,7 @@ class Select extends Honghao
 	public function decodewxmsg()
 	{
 		$this->load->model('wx');
-		$this->wx->reponseMsg();
+		$this->wx->responseMsg();
 	}		
 	/**
 	 * 根据传入的数据获取对应的结果
