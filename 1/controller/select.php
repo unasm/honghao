@@ -27,9 +27,7 @@ class Select extends Honghao
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
 		if(!empty($res) && $res['content']){
-			var_dump($res);
-			$data = explode('|' , $res['content']);
-			var_dump($data);
+			$data = explode($this->config['delimate'] , $res['content']);
 			if(count($data) === 2){
 				$_GET['code'] = $data[0];
 				$_GET['time'] = $data[1];
@@ -99,11 +97,11 @@ class Select extends Honghao
 	}
 
 	/**
-	 * 将时间修改成为时间戳
+	 * 将data表时间修改成为时间戳
 	 *
 	 * @return void
 	 **/
-	public function fixTime()
+	protected  function fixTime()
 	{
 		$data = $this->DataBaseModel->select('did,time' ,array());
 		foreach($data as $row){
@@ -159,5 +157,28 @@ class Select extends Honghao
 				array(array($key , $value))
 			);
 		}
+	}
+
+	/**
+	 * 获取目前的自定义菜单
+	 *
+	 **/
+	public function getMenu()
+	{
+		$this->load->model('BaseModelHttp');
+		$menu = json_decode($this->BaseModelHttp->get(
+			"https://api.weixin.qq.com/cgi-bin/menu/get?access_token=" . $this->getToken()
+		) , true);
+		var_dump($menu);
+	}
+
+	/**
+	 * 给用户提示的按钮
+	 * 用户点击按钮，返回一段话，这里就是那一段话的生成
+	 **/
+	public function help()
+	{
+		$this->load->model('output');
+		$this->output->formStr("请输入股票代码以及财报时间,中间以{$this->config['delimate']}分开，如000001{$this->config['db']}2002Q2");
 	}
 }

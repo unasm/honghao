@@ -9,12 +9,12 @@
  **/
 class Honghao
 {
-	
+
 	static $instance;
 	protected $token;
 	function __construct()
 	{
-		
+
 		$this->load = new Loader ;
 		self::$instance = &$this;
 		$this->load->config('db');
@@ -22,7 +22,7 @@ class Honghao
 		if(!$this->token){
 			$this->token = $this->getToken();
 		}
-		*/
+		 */
 	}
 	/**
 	 * 获取对应的token
@@ -49,32 +49,28 @@ class Honghao
 			error("没有配置对应的appid和secret");	
 		}
 	}
-	
+
 	/**
 	 * 判断是否需要获取token
 	 *
 	 **/
 	public function getToken()
 	{
-		if(extension_loaded('memcached')){
-			$token = $this->getCache('token');
-			$flag = 0;
-			if($token ){
-				$token = json_decode($token , true);
-				if(time() < $token['expires_in'] ){
-					$flag = 1;
-				}
+		$token = $this->getCache('token');
+		$flag = 0;
+		if($token ){
+			$token = json_decode($token , true);
+			if(time() < $token['expires_in'] ){
+				$flag = 1;
 			}
-			if($flag){
-				return $token['access_token'];
-			} else {
-				$arr = $this->httpGetToken();
-				$arr['expires_in'] = $arr['expires_in'] + time();
-				$this->setCache('token' , json_encode($arr));
-				return $arr['access_token'];
-			}
+		}
+		if($flag){
+			return $token['access_token'];
 		} else {
-			error("please install memcached")	;
+			$arr = $this->httpGetToken();
+			$arr['expires_in'] = $arr['expires_in'] + time();
+			$this->setCache('token' , json_encode($arr));
+			return $arr['access_token'];
 		}
 	}
 }

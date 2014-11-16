@@ -82,8 +82,7 @@ class wx
         }
     }
 		
-	private function checkSignature()
-	{
+	private function checkSignature(){
         // you must define TOKEN by yourself
         if (!defined("TOKEN")) {
             throw new Exception('TOKEN is not defined!');
@@ -106,6 +105,7 @@ class wx
 			return false;
 		}
 	}
+	
 }
 
 ?>

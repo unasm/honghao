@@ -31,7 +31,7 @@ if(!function_exists('output')){
 	/**
 	 * 输入到微信端
 	 */
-	function output($value){
+	function output($value ,$type = 'wx'){
 		if(is_array($value)){
 			//var_dump($value);	
 			foreach($value as $idx => $data){
