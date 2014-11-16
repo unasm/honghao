@@ -19,7 +19,29 @@ class wx
         	exit;
         }
     }
+	/**
+	 * 获取用户传入的消息内容
+	 *
+	 * @return array
+	 **/
+	public function getInput()
+	{
+		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
 
+      	//extract post data
+		if (!empty($postStr)){
+                /* libxml_disable_entity_loader is to prevent XML eXternal Entity Injection,
+                   the best way is to check the validity of xml by yourself */
+			libxml_disable_entity_loader(true);
+			$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+			$res['fromUsername'] = $postObj->FromUserName;
+			$res['toUsername'] = $postObj->ToUserName;
+			$res['content'] = trim($postObj->Content);
+			$res['time'] =  $postObj->CreateTime;
+			$res['msgId'] = $postObj->MsgId;
+			return $res;
+		}
+	}
     public function responseMsg()
     {
 		//get post data, May be due to the different environments
