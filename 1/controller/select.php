@@ -22,10 +22,18 @@ class Select extends Honghao
 	 *
 	 * @return get
 	 **/
-	public function decodewxmsg()
+	public function index()
 	{
 		$this->load->model('wx');
-		$this->wx->responseMsg();
+		$res = $this->wx->getInput();
+		if(!empty($res) && $res['content']){
+			$data = explode(' ' , $res['content']);
+			if(count($data) === 2){
+				$_GET['code'] = $data[0];
+				$_GET['time'] = $data[1];
+				$this->getData();
+			}
+		}
 	}		
 	/**
 	 * 根据传入的数据获取对应的结果
@@ -33,10 +41,12 @@ class Select extends Honghao
 	 * @param	int/get		$code	股票的交易代码
 	 * @return	array
 	 **/
-	public function index()
+	public function getData()
 	{
+		/*
 		$_GET['code'] = '000001';
 		$_GET['time'] = '2002Q2';
+		 */
 		//使用原生态的，避免麻烦
 		$code = trim($_GET['code']);
 		if(!$this->validate->check($code , 'int' , 6)){
