@@ -22,7 +22,7 @@ $config['shenpage'] = 'pages';
 $config['gangpage'] = 'pages';
 $config['hupage'] = 'hupage';
 $config['gangpage'] = 'gangpage';
-
+$config['help'] = "请按照000001&2012Q2的格式输入查询,前面是股票的代码，后面2012Q2代表2012年第二季度，中间以&分割" ;
 //07开始 dd结尾的长数字
 $config['wx']['secret'] = "0723114f88d090f291fecbbb8dcf89dd";
 $config['wx']['grant_type'] = "client_credential";

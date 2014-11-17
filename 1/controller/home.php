@@ -36,14 +36,14 @@ class Home extends Honghao
 				$_GET['time'] = $data[1];
 				if(!$this->validate->check($_GET['code'] , 'int' , 6)){
 				//	output("输入的编号不对");
-					$this->output->formStr("请按照000001&2012Q2的格式输入查询" , $res);
+					$this->output->formStr($this->config['help'] . '1', $res);
 				}
 				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
-					$this->output->formStr("请按照000001&2012Q2的格式输入查询" , $res);
+					$this->output->formStr($this->config['help'] . '2', $res);
 				}
 				$out = $this->getData();
 			} else {
-				$this->output->formStr("请按照000001&2012Q2的格式输入查询" , $res);
+				$this->output->formStr($this-.config['help'] . '3', $res);
 			}
 		} else {
 			if($res){
