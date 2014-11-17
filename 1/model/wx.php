@@ -69,8 +69,8 @@ class wx
 			<CreateTime>%s</CreateTime>
 			<MsgType><![CDATA[%s]]></MsgType>
 			<Content><![CDATA[%s]]></Content>
-			<FuncFlag>0</FuncFlag>
-			</xml>\n";             
+			<FuncFlag>1</FuncFlag>
+			</xml>";             
 			echo sprintf($textTpl, $postObj->FromUserName, $postObj->ToUserName, time(), 'text', "hi");
 		}
 	}
