@@ -64,14 +64,14 @@ class wx
 			$res['time'] =  $postObj->CreateTime;
 			$res['msgId'] = $postObj->MsgId;
 		$textTpl = "<xml>
-			<ToUserName><![CDATA[%s]]></ToUserName>
-			<FromUserName><![CDATA[%s]]></FromUserName>
-			<CreateTime>%s</CreateTime>
-			<MsgType><![CDATA[%s]]></MsgType>
-			<Content><![CDATA[%s]]></Content>
+			<ToUserName><![CDATA[{$postObj->FromUserName}]]></ToUserName>
+			<FromUserName><![CDATA[{$postObj->ToUserName}]]></FromUserName>
+			<CreateTime>12321</CreateTime>
+			<MsgType><![CDATA[text]]></MsgType>
+			<Content><![CDATA[sdfads]]></Content>
 			<FuncFlag>1</FuncFlag>
 			</xml>";             
-			echo sprintf($textTpl, $postObj->FromUserName, $postObj->ToUserName, time(), 'text', "hi");
+			echo $textTpl;
 		}
 	}
     public function responseMsg()
