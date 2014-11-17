@@ -35,6 +35,7 @@ class wx
                    the best way is to check the validity of xml by yourself */
 			libxml_disable_entity_loader(true);
 			$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+			$postObj->Content = trim($postObj->Content);
 			return $postObj;
 			/*
 			$res['fromUsername'] = $postObj->FromUserName;

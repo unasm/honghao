@@ -29,8 +29,8 @@ class Home extends Honghao
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
 		$out = array();
-		if(!empty($res) && $res['content']){
-			$data = explode($this->config['delimate'] , $res['content']);
+		if(!empty($res) && $res->Content){
+			$data = explode($this->config['delimate'] , $res->Content);
 			if(count($data) === 2){
 				$_GET['code'] = $data[0];
 				$_GET['time'] = $data[1];
