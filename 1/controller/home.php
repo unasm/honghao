@@ -28,18 +28,20 @@ class Home extends Honghao
 		$this->load->model('output');
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
+		$out = array();
 		if(!empty($res) && $res['content']){
 			$data = explode($this->config['delimate'] , $res['content']);
 			if(count($data) === 2){
 				$_GET['code'] = $data[0];
 				$_GET['time'] = $data[1];
-				$this->getData();
+				$out = $this->getData();
 			}
 		} else {
 			if(isset($_GET['code']) && isset($_GET['time'])){
-				$this->getData();
+				$out = $this->getData();
 			}
 		}
+		$this->output->formStr("测试和\n测试" , $res);
 	}		
 	/**
 	 * 根据传入的数据获取对应的结果
@@ -99,7 +101,7 @@ class Home extends Honghao
 				$res[] =  $data[$i];
 			}
 		}
-		$this->output->formStr("测试和\n测试" , $res);
+		return $res;
 		//output($res);
 	}
 

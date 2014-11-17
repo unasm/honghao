@@ -29,7 +29,7 @@ class output {
 				$resultStr .= sprintf($textTpl, $obj->FromUserName, $obj->ToUserName, time() , $data);
 			}
 		} else {
-            $resultStr = sprintf($textTpl, $fromUser, $toUser, time(), $content);
+            $resultStr = sprintf($textTpl, $obj->FromUserName, $obj->ToUserName, time(), $content);
 		}
 		echo $resultStr;
 	}
