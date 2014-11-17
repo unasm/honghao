@@ -111,7 +111,8 @@ class Home extends Honghao
 		$out = array();
 		foreach($res as $idx => $value){
 			$tmp =  "披露时间: " . $value['time'] . "\n";
-			$tmp .= "<a href = '". $value['link']."'>" .$value['title']. "</a>";
+			$tmp .= "<a href = '". $value['link']."'>" .$value['title']. "</a>\n";
+			$tmp .= $value['link'];
 			$out[] = $tmp;
 		}
 		return $out;
