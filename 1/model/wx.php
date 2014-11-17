@@ -45,6 +45,35 @@ class wx
 			return $res;
 		}
 	}
+	public function test()
+	{
+		if(!array_key_exists('HTTP_RAW_POST_DATA' , $GLOBALS)){
+			return false;	
+		}
+		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+
+      	//extract post data
+		if (!empty($postStr)){
+                /* libxml_disable_entity_loader is to prevent XML eXternal Entity Injection,
+                   the best way is to check the validity of xml by yourself */
+			libxml_disable_entity_loader(true);
+			$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+			$res['fromUsername'] = $postObj->FromUserName;
+			$res['toUsername'] = $postObj->ToUserName;
+			$res['content'] = trim($postObj->Content);
+			$res['time'] =  $postObj->CreateTime;
+			$res['msgId'] = $postObj->MsgId;
+		$textTpl = "<xml>
+			<ToUserName><![CDATA[%s]]></ToUserName>
+			<FromUserName><![CDATA[%s]]></FromUserName>
+			<CreateTime>%s</CreateTime>
+			<MsgType><![CDATA[%s]]></MsgType>
+			<Content><![CDATA[%s]]></Content>
+			<FuncFlag>0</FuncFlag>
+			</xml>\n";             
+			echo sprintf($textTpl, $postObj->FromUserName, $postObj->ToUserName, time(), 'text', "hi");
+		}
+	}
     public function responseMsg()
     {
 		//get post data, May be due to the different environments

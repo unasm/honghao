@@ -26,6 +26,8 @@ class Home extends Honghao
 	{
 		$this->load->model('output');
 		$this->load->model('wx');
+		$this->wx->test();
+		return;
 		$res = $this->wx->getInput();
 		$this->output->test("tesing呵呵"  , $res['toUsername'] , $res['fromUsername']);
 		return;
