@@ -64,8 +64,8 @@ class wx
 			$res['time'] =  $postObj->CreateTime;
 			$res['msgId'] = $postObj->MsgId;
 		$textTpl = "<xml>
-			<ToUserName><![CDATA[{$postObj->FromUserName}]]></ToUserName>
-			<FromUserName><![CDATA[{$postObj->ToUserName}]]></FromUserName>
+			<ToUserName><![CDATA[{$postObj->ToUserName}]]></ToUserName>
+			<FromUserName><![CDATA[{$postObj->FromUserName}]]></FromUserName>
 			<CreateTime>12321</CreateTime>
 			<MsgType><![CDATA[text]]></MsgType>
 			<Content><![CDATA[sdfads]]></Content>
