@@ -24,8 +24,11 @@ class Home extends Honghao
 	 **/
 	public function index()
 	{
+		$this->load->model('output');
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
+		$this->output->formStr("tesing呵呵"  , $res['toUsername']);
+		return;
 		if(!empty($res) && $res['content']){
 			$data = explode($this->config['delimate'] , $res['content']);
 			if(count($data) === 2){
