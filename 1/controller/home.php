@@ -27,7 +27,7 @@ class Home extends Honghao
 		if (!empty($postStr)){
 			libxml_disable_entity_loader(true);
 			$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
-			$content = "您发送的是文本内容，内容为 : " . $postObj->Content;
+			$content = "您发送的是文本内容 : " . $postObj->Content;
 			$textTpl = "<xml>
 			<ToUserName><![CDATA[{$postObj->FromUserName}]]></ToUserName>
 			<FromUserName><![CDATA[{$postObj->ToUserName}]]></FromUserName>
