@@ -41,7 +41,7 @@ class Home extends Honghao
 				$out = $this->getData();
 			}
 		}
-		$this->output->formStr("测试和\n测试" , $res);
+		$this->output->formStr($out , $res);
 	}		
 	/**
 	 * 根据传入的数据获取对应的结果
@@ -101,7 +101,13 @@ class Home extends Honghao
 				$res[] =  $data[$i];
 			}
 		}
-		return $res;
+		$out = array();
+		foreach($res as $idx => $value){
+			$tmp =  "披露时间: " . $value['time'] . "\n";
+			$tmp .= "<a href = '". $value['link']."'>" .$value['title']. "</a>";
+			$out[] = $tmp;
+		}
+		return $out;
 		//output($res);
 	}
 

@@ -26,10 +26,12 @@ class output {
 		$resultStr = '';
 		if(is_array($content)){
 			foreach($content as $data)	{
-				$resultStr .= sprintf($textTpl, $obj->FromUserName, $obj->ToUserName, time() , $data);
+				$resultStr .= sprintf($textTpl, $obj->FromUserName, 
+					$obj->ToUserName, time() , $data);
 			}
 		} else {
-            $resultStr = sprintf($textTpl, $obj->FromUserName, $obj->ToUserName, time(), $content);
+			$resultStr = sprintf($textTpl, $obj->FromUserName, 
+				$obj->ToUserName, time(), $content);
 		}
 		echo $resultStr;
 	}
