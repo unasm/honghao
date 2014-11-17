@@ -15,9 +15,6 @@ class wx
 
         //valid signature , option
         if($this->checkSignature()){
-        	//echo $echoStr;
-			return true;
-        	exit;
         }
     }
 	/**
@@ -38,14 +35,18 @@ class wx
                    the best way is to check the validity of xml by yourself */
 			libxml_disable_entity_loader(true);
 			$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+			return $postObj;
+			/*
 			$res['fromUsername'] = $postObj->FromUserName;
 			$res['toUsername'] = $postObj->ToUserName;
 			$res['content'] = trim($postObj->Content);
 			$res['time'] =  $postObj->CreateTime;
 			$res['msgId'] = $postObj->MsgId;
 			return $res;
+			 */
 		}
 	}
+	//用来测试是否是争取的输入
 	public function test()
 	{
 		if(!array_key_exists('HTTP_RAW_POST_DATA' , $GLOBALS)){
