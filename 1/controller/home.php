@@ -17,6 +17,29 @@ class Home extends Honghao
 		$this->DataBaseModel->setTables('data');
 		$this->load->model('validate');
 	}
+	function receive(){
+		if(!array_key_exists('HTTP_RAW_POST_DATA' , $GLOBALS)){
+			return false;	
+		}
+		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+
+		//extract post data
+		if (!empty($postStr)){
+			libxml_disable_entity_loader(true);
+			$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+			$content = "您发送的是文本内容，内容为 : " . $postObj->Content;
+			$textTpl = "<xml>
+			<ToUserName><![CDATA[{$postObj->FromUserName}]]></ToUserName>
+			<FromUserName><![CDATA[{$postObj->ToUserName}]]></FromUserName>
+			<CreateTime>%s</CreateTime>
+			<MsgType><![CDATA[text]]></MsgType>
+			<Content><![CDATA[%s]]></Content>
+			<FuncFlag>%d</FuncFlag>
+			</xml>";             
+			echo sprintf($textTpl, time(), $content, '0');
+			//echo $textTpl;
+		}
+	}
 	/**
 	 * 获取从微信来的信息，并解码
 	 *
@@ -24,6 +47,8 @@ class Home extends Honghao
 	 **/
 	public function index()
 	{
+		$this->receive();
+		return;
 		$this->load->model('output');
 		$this->load->model('wx');
 		$this->wx->test();
