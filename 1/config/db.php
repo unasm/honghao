@@ -16,7 +16,7 @@ if(preg_match('/^tianyi.*/' , gethostname())){
 	$config['db']['dbName'] = SAE_MYSQL_DB;
 //	$config['db']['port'] = SAE_MYSQL_PORT;
 }
-$config['delimate'] = "&"
+$config['delimate'] = "&";
 //三个交易所的网页保存在哪个表里面
 $config['shenpage'] = 'pages';
 $config['gangpage'] = 'pages';

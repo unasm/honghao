@@ -26,6 +26,9 @@ class wx
 	 **/
 	public function getInput()
 	{
+		if(!array_key_exists('HTTP_RAW_POST_DATA' , $GLOBALS)){
+			return false;	
+		}
 		$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
 
       	//extract post data
