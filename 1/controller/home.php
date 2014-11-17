@@ -38,6 +38,7 @@ class Home extends Honghao
 				//	output("输入的编号不对");
 					$this->output->formStr($this->config['help'] . '1', $res);
 				}
+				$_GET['time'] = strtolower($_GET['time']);
 				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
 					$this->output->formStr($this->config['help'] . '2', $res);
 				}
@@ -69,7 +70,7 @@ class Home extends Honghao
 		//使用原生态的，避免麻烦
 
 		$code = trim($_GET['code']);
-		$time = strtolower(trim($_GET['time']));
+		$time = trim($_GET['time']);
 		$this->DataBaseModel->setTables('data');
 		$tmp = explode('q' , $time);
 		if($tmp[1] > 4){
