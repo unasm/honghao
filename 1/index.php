@@ -1,4 +1,5 @@
 <?php
+/*
 function test(){
 	if(!array_key_exists('HTTP_RAW_POST_DATA' , $GLOBALS)){
 		return false;	
@@ -7,8 +8,6 @@ function test(){
 
 	//extract post data
 	if (!empty($postStr)){
-			/* libxml_disable_entity_loader is to prevent XML eXternal Entity Injection,
-			   the best way is to check the validity of xml by yourself */
 		libxml_disable_entity_loader(true);
 		$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
 		$content = "您发送的是文本内容，内容为 : " . $postObj->Content;
@@ -26,6 +25,7 @@ function test(){
 }
 test();
 return;
+ */
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
 
