@@ -69,7 +69,6 @@ class wx
 			<CreateTime>12321</CreateTime>
 			<MsgType><![CDATA[text]]></MsgType>
 			<Content><![CDATA[sdfads]]></Content>
-			<FuncFlag>1</FuncFlag>
 			</xml>";             
 			echo $textTpl;
 		}

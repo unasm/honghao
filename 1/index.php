@@ -1,4 +1,31 @@
 <?php
+function test(){
+	if(!array_key_exists('HTTP_RAW_POST_DATA' , $GLOBALS)){
+		return false;	
+	}
+	$postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
+
+	//extract post data
+	if (!empty($postStr)){
+			/* libxml_disable_entity_loader is to prevent XML eXternal Entity Injection,
+			   the best way is to check the validity of xml by yourself */
+		libxml_disable_entity_loader(true);
+		$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+		$content = "您发送的是文本内容，内容为 : "
+		$textTpl = "<xml>
+		<ToUserName><![CDATA[{$postObj->FromUserName}]]></ToUserName>
+		<FromUserName><![CDATA[{$postObj->ToUserName}]]></FromUserName>
+		<CreateTime>%s</CreateTime>
+		<MsgType><![CDATA[text]]></MsgType>
+		<Content><![CDATA[%s]]></Content>
+		<FuncFlag>%d</FuncFlag>
+		</xml>";             
+		echo sprintf($textTpl, time(), $content, '0');
+		//echo $textTpl;
+	}
+}
+test();
+return;
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
 
