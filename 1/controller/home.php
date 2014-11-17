@@ -34,10 +34,21 @@ class Home extends Honghao
 			if(count($data) === 2){
 				$_GET['code'] = $data[0];
 				$_GET['time'] = $data[1];
+				if(!$this->validate->check($_GET['code'] , 'int' , 6)){
+				//	output("输入的编号不对");
+					$this->output->formStr("请按照000001&2012Q2的格式输入查询" , $res);
+				}
+				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
+					$this->output->formStr("请按照000001&2012Q2的格式输入查询" , $res);
+				}
 				$out = $this->getData();
+			} else {
+				$this->output->formStr("请按照000001&2012Q2的格式输入查询" , $res);
 			}
 		} else {
-			if(isset($_GET['code']) && isset($_GET['time'])){
+			if($res){
+				$this->output->formStr("请输入具体的查询内容" , $res);
+			} elseif (isset($_GET['code']) && isset($_GET['time'])){
 				$out = $this->getData();
 			}
 		}
@@ -56,14 +67,9 @@ class Home extends Honghao
 		$_GET['time'] = '2002Q2';
 		 */
 		//使用原生态的，避免麻烦
+
 		$code = trim($_GET['code']);
-		if(!$this->validate->check($code , 'int' , 6)){
-			output("输入的编号不对");
-		}
 		$time = strtolower(trim($_GET['time']));
-		if(!preg_match('/^\d{4}q\d$/' , $time)){
-			error("输入的时间格式不对" , E_ERROR);
-		}
 		$this->DataBaseModel->setTables('data');
 		$tmp = explode('q' , $time);
 		if($tmp[1] > 4){

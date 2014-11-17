@@ -24,7 +24,10 @@ class output {
 			<FuncFlag>0</FuncFlag>
 			</xml>";             
 		$resultStr = '';
-		if(is_array($content)){
+		if(empty($content) || !$content){
+			$resultStr = "没有对应的内容";		
+		} 
+		if (is_array($content)){
 			foreach($content as $data)	{
 				$resultStr .= sprintf($textTpl, $obj->FromUserName, 
 					$obj->ToUserName, time() , $data);
