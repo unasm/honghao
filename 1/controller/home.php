@@ -43,7 +43,7 @@ class Home extends Honghao
 				}
 				$out = $this->getData();
 			} else {
-				$this->output->formStr($this-.config['help'] . '3', $res);
+				$this->output->formStr($this->config['help'] . '3', $res);
 			}
 		} else {
 			if($res){
