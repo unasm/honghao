@@ -7,11 +7,10 @@ define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
 if(isset($_GET['signature']) && isset($_GET['timestamp']) && isset($_GET['nonce'])){
 	require PATH_ROOT . 'model/wx.php';
 	$wechatObj = new wx();
+	$wechatObj->test();
 	$wechatObj->valid();
 	return;
 }
-
-
 require PATH_ROOT . 'model/common.php';
 //require PATH_ROOT . 'model/view.php';
 //require PATH_ROOT . 'model/core.php';
