@@ -1,5 +1,4 @@
 <?php
-/*
 function test(){
 	if(!array_key_exists('HTTP_RAW_POST_DATA' , $GLOBALS)){
 		return false;	
@@ -25,7 +24,6 @@ function test(){
 }
 test();
 return;
- */
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
 
