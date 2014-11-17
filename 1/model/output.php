@@ -33,4 +33,21 @@ class output {
 		}
 		echo $resultStr;
 	}
+	/**
+	 * 测试微信输出
+	 *
+	 * @return void
+	 * @author Me
+	 **/
+	public function test($text , $from , $to)
+	{
+		$test = "<xml>
+			<ToUserName><![CDATA[{$from}]]></ToUserName>
+			<FromUserName><![CDATA[{$to}]]></FromUserName>
+			<CreateTime>12345678</CreateTime>
+			<MsgType><![CDATA[text]]></MsgType>
+			<Content><![CDATA[你好]]></Content>
+			</xml>";
+		echo  $test;
+	}
 }

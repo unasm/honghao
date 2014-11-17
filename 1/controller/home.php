@@ -27,7 +27,7 @@ class Home extends Honghao
 		$this->load->model('output');
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
-		$this->output->formStr("tesing呵呵"  , $res['toUsername']);
+		$this->output->test("tesing呵呵"  , $res['toUsername'] , $res['fromUsername']);
 		return;
 		if(!empty($res) && $res['content']){
 			$data = explode($this->config['delimate'] , $res['content']);
