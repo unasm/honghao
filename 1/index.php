@@ -11,7 +11,7 @@ function test(){
 			   the best way is to check the validity of xml by yourself */
 		libxml_disable_entity_loader(true);
 		$postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
-		$content = "您发送的是文本内容，内容为 : "
+		$content = "您发送的是文本内容，内容为 : " . $postObj->Content;
 		$textTpl = "<xml>
 		<ToUserName><![CDATA[{$postObj->FromUserName}]]></ToUserName>
 		<FromUserName><![CDATA[{$postObj->ToUserName}]]></FromUserName>
