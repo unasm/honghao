@@ -28,6 +28,8 @@ class Home extends Honghao
 		$this->load->model('output');
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
+		$_GET['time'] = "2012Q2";
+		$_GET['code'] = '000001';
 		$out = array();
 		if(!empty($res) && $res->Content){
 			$data = explode($this->config['delimate'] , $res->Content);
@@ -68,12 +70,11 @@ class Home extends Honghao
 		$_GET['time'] = '2002Q2';
 		 */
 		//使用原生态的，避免麻烦
-
 		$code = trim($_GET['code']);
-		$time = trim($_GET['time']);
+		$time = strtolower(trim($_GET['time']));
 		$this->DataBaseModel->setTables('data');
 		$tmp = explode('q' , $time);
-		if($tmp[1] > 4){
+		if(count($tmp) > 1 && $tmp[1] > 4){
 			error("输入的季度不对" , E_ERROR);
 		}
 		$start = strtotime($tmp[0] . '-' . ( 3 * $tmp[1] - 2) . '-' . '00');
