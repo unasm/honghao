@@ -25,7 +25,7 @@ class output {
 			</xml>";             
 		$resultStr = '';
 		if(empty($content) || !$content){
-			$resultStr = "没有对应的内容";		
+			$content = "没有您想要的财报";		
 		} 
 		if (is_array($content)){
 			foreach($content as $data)	{
