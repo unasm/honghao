@@ -125,8 +125,8 @@ class Home extends Honghao
 			$tmp .="\n";
 			$tmp .= $value['link'];
 			if(DEBUG){
-				//$tmp = "honghaotouzi.sinaapp.com/index.php/home/show";
-				$tmp = "<a href = 'http://mp.weixin.qq.com/mp/redirect?url=http://disclosure.szse.cn/finalpage/2002-04-18/573256.PDF#mp.weixin.qq.com'>tesing</a>";
+				$tmp = "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/show'> 点击</a>";
+				//$tmp = "<a href = 'http://mp.weixin.qq.com/mp/redirect?url=http://disclosure.szse.cn/finalpage/2002-04-18/573256.PDF#mp.weixin.qq.com'>tesing</a>";
 			}
 			$out[] = $tmp;
 		}
