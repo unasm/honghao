@@ -80,9 +80,11 @@ class Honghao
 	 **/
 	public function view($page , $data = array())
 	{
+		/*
 		echo "<pre>";
 		var_dump($data);
 		die;
+		 */
 		include PATH_ROOT . 'templates/'. $page;
 	}
 }
