@@ -7,6 +7,7 @@
 /**
  * 搜索获取对应的数据
  **/
+DEFINE("DEBUG" , 1);
 class Home extends Honghao
 {
 	
@@ -25,11 +26,14 @@ class Home extends Honghao
 	 **/
 	public function index()
 	{
+
 		$this->load->model('output');
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
-		$_GET['time'] = "2012Q2";
+		/*
+		$_GET['time'] = "2002Q2";
 		$_GET['code'] = '000001';
+		 */
 		$out = array();
 		if(!empty($res) && $res->Content){
 			$data = explode($this->config['delimate'] , $res->Content);
@@ -55,6 +59,10 @@ class Home extends Honghao
 				$out = $this->getData();
 			}
 		}
+		/*
+		$this->view('index.html' , $out[0]);
+		return;
+		 */
 		$this->output->formStr($out , $res);
 	}		
 	/**
@@ -116,12 +124,18 @@ class Home extends Honghao
 			$tmp .= "<a href = '". $value['link']."'>" .$value['title']. "</a>\n";
 			$tmp .="\n";
 			$tmp .= $value['link'];
+			if(DEBUG){
+				$tmp = "honghaotouzi.sinaapp.com/index.php/home/show";
+			}
 			$out[] = $tmp;
 		}
 		return $out;
 		//output($res);
 	}
-
+	
+	function show(){
+		$this->view('index.html');
+	}
 	/**
 	 * 将data表时间修改成为时间戳
 	 *
@@ -195,7 +209,6 @@ class Home extends Honghao
 		$menu = json_decode($this->BaseModelHttp->get(
 			"https://api.weixin.qq.com/cgi-bin/menu/get?access_token=" . $this->getToken()
 		) , true);
-		var_dump($menu);
 	}
 
 	/**

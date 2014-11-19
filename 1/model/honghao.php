@@ -73,4 +73,16 @@ class Honghao
 			return $arr['access_token'];
 		}
 	}
+	/**
+	 * 用来展示具体的页面的
+	 *  @param	string	$page	指定具体的页面，如index.html
+	 *  @param	array	$data	具体的数据
+	 **/
+	public function view($page , $data = array())
+	{
+		echo "<pre>";
+		var_dump($data);
+		die;
+		include PATH_ROOT . 'templates/'. $page;
+	}
 }
