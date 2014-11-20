@@ -42,6 +42,22 @@ class output {
 	 * 输出包含图文的信息
 	 * @param	array	$arr	包含想要数的内容的数组
 	 * @param	object	$obj	解析来的对象
+	 * @example 			
+	 * $arr = array(
+				array(
+					'title' => "这里是图文测试",
+					'desc' => "hello,world",
+					'pic' => 'http://img.ycwb.com/ent/attachement/jpg/site2/20131009/6cf0490dd6c713bf01d55c.jpg', 
+					'link' => 'http://disclosure.szse.cn/finalpage/2002-04-18/573256.PDF',
+				),
+				array(
+					'title' => "hi, here is tianyi speaking",
+					'desc' => "这里是文字的描述",
+					'pic' => 'http://img.ycwb.com/ent/attachement/jpg/site2/20131009/6cf0490dd6c713bf01d55c.jpg', 
+					'link' => 'http://www.honghaotouzi.sinaapp.com/index.php/home/show',
+
+					//'link' => 'http://mp.weixin.qq.com/mp/redirect?url=http://disclosure.szse.cn/finalpage/2002-04-18/573256.PDF#mp.weixin.qq.com'
+				),
 	 */
 	function PicArticle($arr , $obj){
 		$time = time();

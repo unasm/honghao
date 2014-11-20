@@ -60,25 +60,8 @@ class Home extends Honghao
 		}
 		if($error)return;
 		if(DEBUG){
-			$arr = array(
-				array(
-					'title' => "这里是图文测试",
-					'desc' => "hello,world",
-					'pic' => 'http://img.ycwb.com/ent/attachement/jpg/site2/20131009/6cf0490dd6c713bf01d55c.jpg', 
-					'link' => 'http://disclosure.szse.cn/finalpage/2002-04-18/573256.PDF',
-				),
-				/*
-				array(
-					'title' => "hi, here is tianyi speaking",
-					'desc' => "这里是文字的描述",
-					'pic' => 'http://img.ycwb.com/ent/attachement/jpg/site2/20131009/6cf0490dd6c713bf01d55c.jpg', 
-					'link' => 'http://www.honghaotouzi.sinaapp.com/index.php/home/show',
-
-					//'link' => 'http://mp.weixin.qq.com/mp/redirect?url=http://disclosure.szse.cn/finalpage/2002-04-18/573256.PDF#mp.weixin.qq.com'
-				),
-				 */
-			);
-			$this->output->PicArticle($arr , $res);
+			//$this->output->PicArticle($arr , $res);
+			$this->output->formStr($out , $res);
 		} else {
 			$this->output->formStr($this->config['help'] . '1', $res);
 		}
