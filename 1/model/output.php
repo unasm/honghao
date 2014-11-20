@@ -39,6 +39,33 @@ class output {
 		echo $resultStr;
 	}
 	/**
+	 * 输出包含图文的信息
+	 * @param	array	$arr	包含想要数的内容的数组
+	 * @param	object	$obj	解析来的对象
+	 */
+	function PicArticle($arr , $obj){
+		$time = time();
+		$len = count($arr);
+		$textTpl = "<xml>
+			<ToUserName><![CDATA[{$obj->FromUserName}]]></ToUserName>
+				<FromUserName><![CDATA[{$obj->ToUserName}]]></FromUserName>
+				<CreateTime>{$time}</CreateTime>
+				<MsgType><![CDATA[news]]></MsgType>	
+				<ArticleCount>{$len}</ArticleCount>
+				<Articles>";
+				foreach($arr as $article){
+					$textTpl .= "<item>
+						<Title><![CDATA[{$article['title']}]]></Title> 
+						<Description><![CDATA[{$article['desc']}]]></Description>
+						<PicUrl><![CDATA[{$article['pic']}]]></PicUrl>
+						<Url><![CDATA[{$article['link']}]]></Url>
+					</item>";
+				}
+	$textTpl .= "</Articles>
+			</xml> ";
+		echo $textTpl;
+	}
+	/**
 	 * 测试微信输出
 	 *
 	 * @return void
@@ -55,4 +82,6 @@ class output {
 			</xml>";
 		echo  $test;
 	}
+
+
 }

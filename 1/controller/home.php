@@ -30,10 +30,6 @@ class Home extends Honghao
 		$this->load->model('output');
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
-		/*
-		$_GET['time'] = "2002Q2";
-		$_GET['code'] = '000001';
-		 */
 		$out = array();
 		if(!empty($res) && $res->Content){
 			$data = explode($this->config['delimate'] , $res->Content);
@@ -41,8 +37,7 @@ class Home extends Honghao
 				$_GET['code'] = $data[0];
 				$_GET['time'] = $data[1];
 				if(!$this->validate->check($_GET['code'] , 'int' , 6)){
-				//	output("输入的编号不对");
-					$this->output->formStr($this->config['help'] . '1', $res);
+					$this->output->formStr($out , $res);
 				}
 				$_GET['time'] = strtolower($_GET['time']);
 				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
@@ -63,7 +58,25 @@ class Home extends Honghao
 		$this->view('index.html' , $out[0]);
 		return;
 		 */
-		$this->output->formStr($out , $res);
+		if(DEBUG){
+			$arr = array(
+				array(
+					'title' => "这里是图文测试",
+					'desc' => "hello,world",
+					'pic' => 'http://img.ycwb.com/ent/attachement/jpg/site2/20131009/6cf0490dd6c713bf01d55c.jpg', 
+					'link' => 'http://www.honghaotouzi.sinaapp.com/index.php/home/show',
+				),
+				array(
+					'title' => "hi, here is tianyi speaking",
+					'desc' => "这里是文字的描述",
+					'pic' => 'http://img.ycwb.com/ent/attachement/jpg/site2/20131009/6cf0490dd6c713bf01d55c.jpg', 
+					'link' => 'http://www.honghaotouzi.sinaapp.com/index.php/home/show',
+				),
+			);
+			$this->output->PicArticle($arr , $res);
+		} else {
+			$this->output->formStr($this->config['help'] . '1', $res);
+		}
 	}		
 	/**
 	 * 根据传入的数据获取对应的结果
