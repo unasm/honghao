@@ -31,33 +31,34 @@ class Home extends Honghao
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
 		$out = array();
+		$error = 0;
 		if(!empty($res) && $res->Content){
 			$data = explode($this->config['delimate'] , $res->Content);
 			if(count($data) === 2){
 				$_GET['code'] = $data[0];
 				$_GET['time'] = $data[1];
 				if(!$this->validate->check($_GET['code'] , 'int' , 6)){
-					$this->output->formStr($out , $res);
+					$this->output->formStr($this->config['help'] . '1', $res);
+					$error = 1;
 				}
 				$_GET['time'] = strtolower($_GET['time']);
 				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
 					$this->output->formStr($this->config['help'] . '2', $res);
+					$error = 1;
 				}
 				$out = $this->getData();
 			} else {
+				$error = 1;
 				$this->output->formStr($this->config['help'] . '3', $res);
 			}
 		} else {
 			if($res){
-				$this->output->formStr("请输入具体的查询内容" , $res);
+				$this->output->formStr($this->config['help'] , $res);
 			} elseif (isset($_GET['code']) && isset($_GET['time'])){
 				$out = $this->getData();
 			}
 		}
-		/*
-		$this->view('index.html' , $out[0]);
-		return;
-		 */
+		if($error)return;
 		if(DEBUG){
 			$arr = array(
 				array(
