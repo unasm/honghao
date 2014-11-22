@@ -57,96 +57,83 @@ class Shengetcode extends Getcode
 		//010305 一季度报告
 		//010307 三季度报告
 		//$notice = array('010301' , '010303' , '010305' , '010307');
-		$notice = array('010303' , '010305' , '010307');
-
+		$notice = array('010301' => 'q4', '010303' => 'q2' , '010305' => 'q1' , '010307' => 'q3');
 		$this->DataBaseModel->createTable($this->config['shenpage']);
-		for($i = 1;$i <= 999 ;$i++){
-			foreach ($notice as $note) {
-				//不足三位，前面补充0,确保最终是6位
-				$len = 3 - strlen($i);
-				while($len--) {
-					$i = '0'.$i;
+		for($i = 2;$i <= 999 ;$i++){
+			foreach($prefix as $pre){
+				//结合成完整的stockCode
+				$stockCode = $this->getStockCode($i, $pre);
+				foreach ($notice as $key => $value) {
+					//不足三位，前面补充0,确保最终是6位
+					$res = $this->createCode($stockCode , $key , $value);
+					if(!empty($res)){
+						for($j = 0,$len = count($res);$j < $len;$j++){
+							array_push($res[$j] , $value);
+						}
+						if($this->DataBaseModel->insert(					
+							array('code' , 'content' , 'pageId' , 'notice' , 'q_num'),
+							$res
+						)){
+							echo $stockCode . "\n";
+							flush();
+						}
+					}
 				}
-				$this->createCode($prefix , $i , $note);
 			}
 		}
 	}
-	
-	/**
-	 * 在对应的page表里面,解析出来对应的数据
-	 *
-	 **/
-	public function selectPage()
-	{
-		$this->DataBaseModel->setTables($this->config['shenpage']);
-		$data = $this->DataBaseModel->select(' notice , code ,content');
-		$this->DataBaseModel->createTable('data');
-		$baseUrl = "http://disclosure.szse.cn/";
-		$cnt = 0;
-		//header("Cache-control: no-cache");
-		foreach ($data  as $page ) {
-			$this->HtmlParserModel->parseStr(base64_decode($page['content']), array() , "big5");
-			$lines = $this->HtmlParserModel->find('.td2');
-			//从每一行td2中获取时间和标题，以及对应的下载连接
-			foreach($lines as $line){
-				$cnt++;
-				$tmpStr = $line->value;
 
-				//$tmpStr = mb_convert_encoding($tmpStr , 'big5' , 'auto');
-				// <span class="link1">[2014-10-24]</span>
-				// 匹配时间
-				preg_match('/\>\[(\d{4}-\d{2}-\d{2})\]/' , $tmpStr , $time);
-				if(count($time) != 2){
-					var_dump($tmpStr);
-					echo "<br/>";
-					Debug::output('time is wrong' , E_ERROR);
+	/**
+	 * 获取对应的股票的代码
+	 *
+	 * @return string
+	 **/
+	public function getStockCode($i, $prefix)
+	{
+		$len = 6 - strlen($prefix) - strlen($i);
+		while($len--) {
+			$i = '0'.$i;
+		}
+		return $prefix . $i;
+	}
+	/**
+	 * 根据传入的array 获取真正的页面
+	 * @param string	$stockCode	想要检测的code
+	 * @param int		$notice		年报的类型
+	 * @notice 这里没有香港的类型
+	 */
+	public function createCode($stockCode , $notice , $qNum){
+		$res = array();
+		$data = $this->DataBaseModel->select('pid ' , array( 'code' => $stockCode , 'notice' => $notice));
+		if(!$data || count($data) === 0 ){
+			//没有数据的情况下
+			$page = trim($this->getCompanyInfo($stockCode , $notice));
+			$pageState = $this->checkPageRight($page);
+			if($pageState && $pageState['now']){
+				//0,0的情况不保存
+				$res[] = array($stockCode , base64_encode($page) , 1 , $notice);
+				for($i = $pageState['now'] + 1; $i <= $pageState['total'];$i++){
+					//arr的顺序是stockCode , pageContent , page 页码 , notice;
+					$res[] = array(
+								$stockCode , 
+								base64_encode($this->getCompanyInfo($stockCode , $notice , $i)) 
+								,$i 
+								, $notice
+							);
 				}
-				//$tmpStr = "<a href=\"finalpage/2014-03-07/63646348.PDF\" target=\"new\">平安银行：2013年年度报告摘要</a>";
-				//匹配下载连接
-				preg_match('/href\=\s*[\'\"]?\s*([^"\']+)/' , $tmpStr , $download);
-				if(count($download) != 2){
-					var_dump($tmpStr);
-					echo "<br/>";
-					Debug::output('download link' , E_ERROR);
+				//Debug::output('for insert page all : ' . $stockCode , E_NOTICE);
+			} else {
+				//Debug::output('checkPageRight返回为false ,此时的code 为' . $tmpCode , E_NOTICE );
+			}
+		} else {
+			//Debug::output('之前已经获取数据成功' , E_NOTICE);
+			foreach($data as $row){
+				if($this->DataBaseModel->update(array('q_num' => $qNum) , array('pid' => $row['pid']))){
+					echo "update success\n";
 				}
-				//preg_match('/href\=\"([^\s]*)\"\s+/' , $tmpStr , $download);
-				//匹配文件大小
-				preg_match('/\>\s*\(\s*(\d*)\s*k\s*\)\s*/' , $tmpStr , $size);
-				if(count($size) != 2){
-					var_dump($tmpStr);
-					echo "<br/>";
-					Debug::output('size is wrong' , E_ERROR);
-				}
-				//$tmpStr = "<a href='finalpage/2008-04-22/38959757.PDF' target='new'>*ST宜地：2007年年度报告（补充后）</a>";
-				//匹配标题
-				preg_match('/\>\s*([^\>]*)\s*\<\s*\\/a\s*\>/' , $tmpStr , $title);
-				if(count($title) != 2){
-					var_dump($tmpStr);
-					echo "<br/>";
-					Debug::output('title is wrong' , E_ERROR);
-				} else {
-					$title[1] = mb_convert_encoding($title[1] ,'UTF-8', 'CP936');
-				}
-				echo $title[1] . "\n";
-				//die("yes");
-				//var_dump($page['content']);
-				//var_dump($tmpStr);
-				//flush;
-				//var_dump(mb_detect_encoding($title[1] , "GBK, UTF-8, UTF-16LE, UTF-16BE, ISO-8859-1 , BIG-5"));
-				//echo $title[1];
-				$this->DataBaseModel->insert(
-					array('time' , 'link' , 'size' , 'title' , 'notice' , 'code'), 
-					array(
-						array(
-							$time[1] ,
-						   	$baseUrl . $download[1] , 
-							$size[1] ,
-							$title[1],
-						   	$page['notice'] , $page['code'])
-					)
-				);
 			}
 		}
+		return $res;
 	}
 
 	/**
@@ -167,16 +154,18 @@ class Shengetcode extends Getcode
 	 * 根据对应的code获取对应公司的财报，不过这里只是包括了深圳证券交易所的
 	 * @param string	$code	上市公司的代码
 	 * @param string	$notice	年报的类型
+	 * @param int		$pageNo 页码
 	 **/
-	public function getCompanyInfo($code = "000001" , $notice = "010301")
+	public function getCompanyInfo($code = "000001" , $notice = "010301" , $pageNo = 1)
 	{
 		$args['stockCode'] = $code;
 		$args['keyword'] = "";
-		$args['noticeType'] = "010301";
+		$args['noticeType'] = $notice;
 		$args['startTime'] = "2001-01-01";
 		//这里的时间将来要修改
-		$args['endTime'] = "2014-10-25";
+		$args['endTime'] = $this->getTime('-');
 		$args['imageField'] = array("x"  => 0 , 'y' => 97);
+		$args['pageNo'] = $pageNo;
 		//$args['imageField'] = 17;
 		/* $args['tzy'] = "";
 		 */
@@ -230,7 +219,7 @@ class Shengetcode extends Getcode
 			}
 		}
 	}
-	
+
 	/**
 	 * 修改data中的title 编码，以免将来乱码
 	 *

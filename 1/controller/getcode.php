@@ -47,7 +47,9 @@ abstract class Getcode  extends Honghao{
 	 * @param int		$pos		从0～999已经扫描到的下表
 	 * @param int		$notice		年报的类型
 	 * @notice 这里没有香港的类型
+	 * @deprecated 有被废弃的可能性
 	 */
+	/*
 	public function createCode($prefix , $pos , $notice){
 		$res = array();
 		foreach($prefix as $code){
@@ -82,5 +84,6 @@ abstract class Getcode  extends Honghao{
 			}
 		}
 	}
+	 */
 }
 ?>

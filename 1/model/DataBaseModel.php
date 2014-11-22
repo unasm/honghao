@@ -62,6 +62,7 @@ class DataBaseModel
 				'pageId tinyint not null default 1 ,',//页码，当前页面是这个code的第几页，考虑分页的问题
 				'content text , ' , //网页的html内容，echo就是整个页面的
 				'notice char(10) , ' , 
+				'q_num char(5) not null , ' ,
 				'primary key(pid)'
 			),
 			//array('time' , 'link' , 'size' , 'title' , 'notice' , 'code'), 
