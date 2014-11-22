@@ -23,6 +23,21 @@ class Hugetcode extends Getcode
 		$this->load->model('DataBaseModel');
 		//$this->load->model('BaseModelHttp');
 	}
+
+	/**
+	 * 获取正确的公司代码
+	 * 
+	 * @param	int		$i	当前公司代码的加权部分
+	 * @return string
+	 **/
+	public function getStockCode($i , $prefix)
+	{
+		$len = 6 - strlen($prefix) - strlen($i);
+		while($len--){
+			$i = '0' . $i;
+		}
+		return $prefix . $i;
+	}
 	/**
 	 * 生成沪市的上市公司代码
 	 */
@@ -31,32 +46,36 @@ class Hugetcode extends Getcode
 		$this->DataBaseModel->setTables('pages');
 		$flagTime = strtotime('1999-0-0');
 		$prefix = "60";
+		//reportType = ALL  ,全部，包括年报，半年报，季度报
+		//DQBG 是定期公告的意思，临时公告是LSGG
+		$typeArr = array('YEARLY' => 'q4' , 'QUATER1' => 'q1' , 'QUATER2' => 'q2' , 'QUATER3' => 'q3');
 		for($code = 0;$code <= 9999;$code++){
-			$i = $code;
-			$len = 6 - strlen($prefix) - strlen($i);
-			while($len--){
-				$i = '0' . $i;
-			}
-			$i = $prefix . $i;
-			echo $i . "\n";
+			$stockCode = $this->getStockCode($code , $prefix);
+			echo $stockCode . "\n";
 			flush();
 			for($cnt = 0;$cnt < 16;){
 				$end = $this->getTime('-' , $cnt);					
 				$cnt +=3;
 				$start = $this->getTime('-' , $cnt);
-				$page = $this->getCompanyInfo(
-					"http://query.sse.com.cn/security/stock/queryCompanyStatementNew.do?jsonCallBack=jsonpCallback67854&isPagination=0" . 
-					"&productId={$i}&reportType2=DQBG&reportType=ALL&beginDate={$start}&endDate={$end}&_=1415495313414"
-				);
-				//reportType = ALL  ,全部，包括年报，半年报，季度报
-				//reportType2 是定期公告还是临时公告
-				$page = trim($page);
-				if($page){
-					//api接口一次吐出所有的数据，没有必要分页
+				$res = array();
+				$data = $this->DataBaseModel->select('pid'  , array() , 'where code = ' . $stockCode);
+				if(!$data || empty($data)){
+					foreach($typeArr as $type => $qNum){
+						$page = $this->getCompanyInfo(
+							"http://query.sse.com.cn/security/stock/queryCompanyStatementNew.do?jsonCallBack=jsonpCallback67854&isPagination=0" . 
+							"&productId={$stockCode}&reportType2=DQBG&reportType={$type}&beginDate={$start}&endDate={$end}&_=1415495313414"
+						);
+						if(count($this->decode($page))){
+							$res[] = array($stockCode, $page , $type  , $qNum);
+						} else {
+							//如果一个季度没数据，其他的季度也不用查询了
+							break;
+						}
+					}
+							//api接口一次吐出所有的数据，没有必要分页
 					$this->DataBaseModel->insert(
-						array('code' ,'content' ,'notice') , 
-						//DQBG 是定期公告的意思，临时公告是LSGG
-						array(array($i, $page , 'DQBG'))
+						array('code' ,'content' ,'notice' , 'q_num') , 
+						$res
 					);
 				}
 				if((int)strtotime($end) < (int)$flagTime){
@@ -123,6 +142,26 @@ class Hugetcode extends Getcode
 			$header , 200);
 		return $page;
 	}
+
+	/**
+	 * 对获取的数据进行解码，判断是不是有具体内容的
+	 *
+	 * @return array
+	 * @author Me
+	 **/
+	protected function decode($page)
+	{
+		preg_match("/^jsonpCallback67854\((.*)\)$/" , $page, $arr);
+		if(count($arr) != 2){
+			echo $lines['pid'] . "得到的arr != 2\n";
+			die;
+		}
+		$company = json_decode($arr[1] , true);
+		if(!array_key_exists('result' , $company)){
+			die("没有result\n");
+		}
+		return $company['result'];
+	}
 	/**
 	 * 从page数据库里面获取对应的内容
 	 *
@@ -138,17 +177,9 @@ class Hugetcode extends Getcode
 		foreach($data as $lines){
 			echo $lines['pid'] . "\n";
 			//var_dump(json_decode($lines['content']));
-			preg_match("/^jsonpCallback67854\((.*)\)$/" , $lines['content'], $arr);
-			if(count($arr) != 2){
-				echo $lines['pid'] . "得到的arr != 2\n";
-				continue;
-			}
-			$company = json_decode($arr[1] , true);
+			$company = $this->decode($lines['content']);
 			$result = array();
-			if(!array_key_exists('result' , $company)){
-				continue;
-			}
-			foreach($company['result'] as $row){
+			foreach($company as $row){
 				$tmp = array();
 				if($row['SSEDate'] && $row['title'] && 
 					$row['security_Code'] && $row['URL']){
