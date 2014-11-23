@@ -49,7 +49,7 @@ class Hugetcode extends Getcode
 		//reportType = ALL  ,全部，包括年报，半年报，季度报
 		//DQBG 是定期公告的意思，临时公告是LSGG
 		$typeArr = array('YEARLY' => 'q4' , 'QUATER1' => 'q1' , 'QUATER2' => 'q2' , 'QUATER3' => 'q3');
-		for($code = 0;$code <= 9999;$code++){
+		for($code = 6973;$code <= 9999;$code++){
 			$stockCode = $this->getStockCode($code , $prefix);
 			echo $stockCode . "\n";
 			flush();
@@ -153,8 +153,9 @@ class Hugetcode extends Getcode
 	{
 		preg_match("/^jsonpCallback67854\((.*)\)$/" , $page, $arr);
 		if(count($arr) != 2){
-			echo $lines['pid'] . "得到的arr != 2\n";
-			die;
+			var_dump($page);
+			echo  "得到的arr != 2\n";
+			return array();
 		}
 		$company = json_decode($arr[1] , true);
 		if(!array_key_exists('result' , $company)){

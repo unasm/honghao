@@ -245,4 +245,72 @@ class Shengetcode extends Getcode
 			);
 		}
 	}
+	/**
+	 * 在对应的page表里面,解析出来对应的数据
+	 *
+	 **/
+	public function selectPage()
+	{
+		$this->DataBaseModel->setTables($this->config['shenpage']);
+		$data = $this->DataBaseModel->select('q_num, notice , code ,content' , array('notice' => array('010301' , '010303' ,'010305' , '010307')));
+		$this->DataBaseModel->createTable('data');
+		$baseUrl = "http://disclosure.szse.cn/";
+		//header("Cache-control: no-cache");
+		foreach ($data  as $page ) {
+			$this->HtmlParserModel->parseStr(base64_decode($page['content']), array() , "big5");
+			$lines = $this->HtmlParserModel->find('.td2');
+			$res = array();
+			//从每一行td2中获取时间和标题，以及对应的下载连接
+			foreach($lines as $line){
+				$tmpStr = $line->value;
+				// <span class="link1">[2014-10-24]</span>
+				preg_match('/\>\[(\d{4}-\d{2}-\d{2})\]/' , $tmpStr , $time);
+				if(count($time) != 2){
+					var_dump($tmpStr);
+					echo "<br/>";
+					Debug::output('time is wrong' , E_ERROR);
+				}
+				//$tmpStr = "<a href=\"finalpage/2014-03-07/63646348.PDF\" target=\"new\">平安银行：2013年年度报告摘要</a>";
+				preg_match('/href\=\s*[\'\"]?\s*([^"\']+)/' , $tmpStr , $download);
+				if(count($download) != 2){
+					var_dump($tmpStr);
+					echo "<br/>";
+					Debug::output('download link' , E_ERROR);
+				}
+				//preg_match('/href\=\"([^\s]*)\"\s+/' , $tmpStr , $download);
+				//匹配文件大小
+				preg_match('/\>\s*\(\s*(\d*)\s*k\s*\)\s*/' , $tmpStr , $size);
+				if(count($size) != 2){
+					var_dump($tmpStr);
+					echo "<br/>";
+					Debug::output('size is wrong' , E_ERROR);
+				}
+				//$tmpStr = "<a href='finalpage/2008-04-22/38959757.PDF' target='new'>*ST宜地：2007年年度报告（补充后）</a>";
+				//匹配标题
+				preg_match('/\>\s*([^\>]*)\s*\<\s*\\/a\s*\>/' , $tmpStr , $title);
+				if(count($title) != 2){
+					var_dump($tmpStr);
+					echo "<br/>";
+					Debug::output('title is wrong' , E_ERROR);
+				} else {
+					$title[1] = mb_convert_encoding($title[1] ,'UTF-8', 'CP936');
+				}
+				echo $title[1] . "\n";
+				$res[] = array(
+							$time[1] ,$baseUrl . $download[1] , $size[1] , $title[1],
+							$page['notice'] , $page['code'] ,
+							$page['q_num'] ,
+							strtotime($time[1]),
+						);
+			}
+			$list = array('time' , 'link' , 'size' , 'title' , 'notice' , 'code' , 'q_num' , 'timestamp');
+			/*
+			var_dump($list);
+			var_dump($res[0]);
+			die;
+			 */
+			$this->DataBaseModel->insert($list , $res);
+		}
+	}
+
 }
