@@ -172,7 +172,9 @@ class Hugetcode extends Getcode
 		$this->DataBaseModel->setTables('pages');
 		//hu的pages是从2018开始的
 		//$data = $this->DataBaseModel->select('content , pid'  , array('pid' => 5457)  );
-		$data = $this->DataBaseModel->select('content , pid'  , array() , 'where pid > 2017' );
+		$data = $this->DataBaseModel->select('notice, q_num,content , pid'  , array() , ' where code >= 600000 && code <= 609999 ');
+		//$data = $this->DataBaseModel->select('notice, q_num,content , pid'  , array('notice' => array('YEARLY' , 'QUATER1' , 'QUATER2' , 'QUATER2')));
+		//$typeArr = array('YEARLY' => 'q4' , 'QUATER1' => 'q1' , 'QUATER2' => 'q2' , 'QUATER3' => 'q3');
 		$url = "http://www.sse.com.cn";
 		$this->DataBaseModel->setTables('data');
 		foreach($data as $lines){
@@ -182,21 +184,28 @@ class Hugetcode extends Getcode
 			$result = array();
 			foreach($company as $row){
 				$tmp = array();
-				if($row['SSEDate'] && $row['title'] && 
-					$row['security_Code'] && $row['URL']){
-					$tmp[] = $row['SSEDate'];
-					$tmp[] = $row['URL'];
-					$tmp[] = $row['title'];
-					$tmp[] = $row['security_Code'];
+				if(isset($row['SSEDate']) && isset($row['title']) && 
+					isset($row['security_Code']) && isset($row['URL'])){
+						$tmp = array(
+							$row['SSEDate'], 
+							$url . $row['URL'], 
+							$row['title'] , 
+							$row['security_Code'] ,
+							$lines['notice'] ,
+							$lines['q_num'],
+							strtotime($row['SSEDate']),
+						);
+					var_dump($tmp);
 					$result[] = $tmp;
-					echo $row['security_Code'] . $row['SSEDate'] ." " . $row['title'] . "\n";
+					//echo $row['security_Code'] . $row['SSEDate'] ." " . $row['title'] . "\n";
 					flush();
 				} else{
 					echo $lines['pid'] . "\n\n";
+					die("sdf");
 				}
 			}
 			$this->DataBaseModel->insert(
-				array('time' , 'link' , 'title' , 'code') , $result
+				array('time' , 'link' , 'title' , 'code' , 'notice' , 'q_num' , 'timestamp') , $result
 			) && printf("yes all\n\n");
 		}
 	}

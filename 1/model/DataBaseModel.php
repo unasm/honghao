@@ -74,7 +74,8 @@ class DataBaseModel
 				'title char(100) ,',
 				'notice char(10) , ',
 				'code char(10) , ' ,
-				'timestamp int  not null default -1' , 
+				'timestamp int  not null default -1 ,' , 
+				'q_num char(5) not null , ' ,
 				'primary key(did)',
 			),
 			'cache' => array(
@@ -223,7 +224,8 @@ class DataBaseModel
 		foreach($data as $key => $value){
 			if(is_array($value)){
 				//有待测试
-				$sql .= $key .' = in(' . implode(',' . $value) .') ';
+				$tmp = '\'' . implode('\',\' ' , $value) . '\'';
+				$sql .= $key .' in( ' . $tmp . ') ';
 			}else{
 				if($cnt){
 					$cnt -- ;
