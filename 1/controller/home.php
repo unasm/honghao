@@ -66,6 +66,32 @@ class Home extends Honghao
 			$this->output->formStr($this->config['help'] . '1', $res);
 		}
 	}		
+
+	/**
+	* 获取查询的时间区间
+	* 得到这个季度的开始和接下来两个季度的时间区间
+	 *
+	 **/
+	public function getSelectTime($time)
+	{
+		$time = strtolower(trim($_GET['time']));
+		$tmp = explode('q' , $time);
+		if($tmp[0] === '0' || $tmp[1] > 4){
+			error("输入的季度不对" , E_ERROR);
+		}
+		//$season = 3 * $tmp[1] - 2;
+		$start = $tmp[0] . '-' . (3 * $tmp[1] - 2) . '-' . '00';
+
+		$endSeason = 3 * $tmp[1] + 8;
+		if($endSeason > 12){
+			$tmp[0] += 1;
+			$endSeason = $endSeason % 12;
+		}
+		return array('start' => strtotime($start) , 
+			'end' =>strtotime($tmp[0] . '-' . ($endSeason) . '-' . '30') , 
+			'q_num' => 'q' . $tmp[1]
+			);
+	}
 	/**
 	 * 根据传入的数据获取对应的结果
 	 * @param	string/get	$time	2013Q3这种类型的数据
@@ -74,22 +100,14 @@ class Home extends Honghao
 	 **/
 	public function getData()
 	{
-		/*
 		$_GET['code'] = '000001';
-		$_GET['time'] = '2002Q2';
-		 */
+		//$_GET['time'] = '2002Q2';
+
 		//使用原生态的，避免麻烦
 		$code = trim($_GET['code']);
-		$time = strtolower(trim($_GET['time']));
 		$this->DataBaseModel->setTables('data');
-		$tmp = explode('q' , $time);
-		if(count($tmp) > 1 && $tmp[1] > 4){
-			error("输入的季度不对" , E_ERROR);
-		}
-		$start = strtotime($tmp[0] . '-' . ( 3 * $tmp[1] - 2) . '-' . '00');
-		$end  = strtotime($tmp[0] . '-' . ( 3 * $tmp[1]) . '-' . '30');
-		$data = $this->DataBaseModel->exec("select time ,link,did,title,code from " . $this->DataBaseModel->getTable() . " where code = {$code} && timestamp < {$end} && timestamp > {$start}");
-		//进行排重
+		$res = $this->getSelectTime($_GET['time']);
+		$data = $this->DataBaseModel->select("time ,link,did,title,code" ,  array() , " where code = {$code} && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
 
 		$res = array();
 		//去重,数据中有重复
@@ -118,6 +136,7 @@ class Home extends Honghao
 				$res[] =  $data[$i];
 			}
 		}
+		var_dump($res);
 		$out = array();
 		foreach($res as $idx => $value){
 			$tmp =  "披露时间: " . $value['time'] . "\n";
@@ -131,6 +150,7 @@ class Home extends Honghao
 			}
 			$out[] = $tmp;
 		}
+		//var_dump($out);
 		return $out;
 		//output($res);
 	}
@@ -173,7 +193,7 @@ class Home extends Honghao
 	 *
 	 * @return string
 	 **/
-	public function getCache($key)
+	protected function getCache($key)
 	{
 		$this->DataBaseModel->setTables('cache');
 		$key = trim($key);
@@ -189,7 +209,7 @@ class Home extends Honghao
 	 * @param string	$key	对应的key值
 	 * @param string	$value	序列话之后的字符串
 	 */
-	public function setCache($key , $value){
+	protected function setCache($key , $value){
 		$this->DataBaseModel->setTables('cache');
 		if($this->getCache($key)){
 			return $this->DataBaseModel->update(array('value' => $value) , array('k' => $key) );
@@ -221,5 +241,20 @@ class Home extends Honghao
 	{
 		$this->load->model('output');
 		$this->output->formStr("请输入股票代码以及财报时间,中间以{$this->config['delimate']}分开，如000001{$this->config['db']}2002Q2");
+	}
+	function testGetDateTime(){
+
+		$_GET['time'] = '2002Q4'	;
+		echo $_GET['time'] . "\n" ;
+		$this->getData();
+		$_GET['time'] = '2002Q3'	;
+		echo $_GET['time'] . "\n" ;
+		$this->getData();
+		$_GET['time'] = '2002Q2'	;
+		echo $_GET['time'] . "\n" ;
+		$this->getData();
+		$_GET['time'] = '2002Q1'	;
+		echo $_GET['time'] . "\n" ;
+		$this->getData();
 	}
 }
