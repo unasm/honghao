@@ -34,8 +34,10 @@ class Home extends Honghao
 		$error = 0;
 		if(!empty($res) && $res->Content){
 			$data = explode($this->config['delimate'] , $res->Content);
+			/*
 			$this->output->formStr($res->Content . '0', $res);
 			return;
+			 */
 			if(count($data) === 2){
 				$_GET['code'] = trim($data[0]);
 				$_GET['time'] = trim($data[1]);
