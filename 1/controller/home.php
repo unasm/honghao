@@ -41,7 +41,7 @@ class Home extends Honghao
 			if(count($data) === 2){
 				$_GET['code'] = trim($data[0]);
 				$_GET['time'] = trim($data[1]);
-				if(strlen($_GET['code'] > 7)){
+				if(strlen($_GET['code']) > 7){
 					$this->output->formStr('yes', $res);
 				} else{
 					$this->output->formStr('no', $res);
