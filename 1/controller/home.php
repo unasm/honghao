@@ -7,7 +7,7 @@
 /**
  * 搜索获取对应的数据
  **/
-DEFINE("DEBUG" , 1);
+DEFINE("DEBUG" , 0);
 class Home extends Honghao
 {
 	
@@ -47,6 +47,24 @@ class Home extends Honghao
 					$error = 1;
 				}
 				$out = $this->getData();
+				$ans = array();
+				foreach($out as $idx => $value){
+					$tmp =  "披露时间: " . $value['time'] . "\n";
+					$tmp .= "<a href = http://www.honghaotouzi.sinaapp.com/home/index?code={$_GET['code']}&&time={$_GET['time']} >" .$value['title']. "</a>\n";
+					$tmp .="\n";
+					if(DEBUG){
+						$tmp = "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/show'> 点击</a>";
+						//$tmp = "<a href = 'http://mp.weixin.qq.com/mp/redirect?url=http://disclosure.szse.cn/finalpage/2002-04-18/573256.PDF#mp.weixin.qq.com'>tesing</a>";
+					}
+					$ans[] = $tmp;
+				}
+				if($error)return;
+				if(DEBUG){
+					//$this->output->PicArticle($arr , $res);
+					$this->output->formStr($out , $res);
+				} else {
+					$this->output->formStr($this->config['help'] . '1', $res);
+				}
 			} else {
 				$error = 1;
 				$this->output->formStr($this->config['help'] . '3', $res);
@@ -55,16 +73,13 @@ class Home extends Honghao
 			if($res){
 				$this->output->formStr($this->config['help'] , $res);
 			} elseif (isset($_GET['code']) && isset($_GET['time'])){
+				//这种情况下，视为网页的正常访问
 				$out = $this->getData();
+				$this->showView($out);
+				return;
 			}
-		}
-		if($error)return;
-		if(DEBUG){
-			//$this->output->PicArticle($arr , $res);
-			$this->output->formStr($out , $res);
-		} else {
-			$this->output->formStr($this->config['help'] . '1', $res);
-		}
+		}		
+
 	}		
 
 	/**
@@ -101,7 +116,7 @@ class Home extends Honghao
 	public function getData()
 	{
 		$_GET['code'] = '000001';
-		//$_GET['time'] = '2002Q2';
+		$_GET['time'] = '2002Q2';
 
 		//使用原生态的，避免麻烦
 		$code = trim($_GET['code']);
@@ -136,28 +151,9 @@ class Home extends Honghao
 				$res[] =  $data[$i];
 			}
 		}
-		var_dump($res);
-		$out = array();
-		foreach($res as $idx => $value){
-			$tmp =  "披露时间: " . $value['time'] . "\n";
-			$tmp .= "http://www.baidu.com\n";
-			$tmp .= "<a href = '". $value['link']."'>" .$value['title']. "</a>\n";
-			$tmp .="\n";
-			$tmp .= $value['link'];
-			if(DEBUG){
-				$tmp = "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/show'> 点击</a>";
-				//$tmp = "<a href = 'http://mp.weixin.qq.com/mp/redirect?url=http://disclosure.szse.cn/finalpage/2002-04-18/573256.PDF#mp.weixin.qq.com'>tesing</a>";
-			}
-			$out[] = $tmp;
-		}
-		//var_dump($out);
-		return $out;
-		//output($res);
+		return $res;
 	}
 	
-	function show(){
-		$this->view('index.html');
-	}
 	/**
 	 * 将data表时间修改成为时间戳
 	 *
@@ -256,5 +252,15 @@ class Home extends Honghao
 		$_GET['time'] = '2002Q1'	;
 		echo $_GET['time'] . "\n" ;
 		$this->getData();
+	}
+
+	/**
+	 * 显示具体的页面
+	 **/
+	public function showView($output)
+	{
+		//echo "<a href = http://www.honghaotouzi.sinaapp.com/home/index?code={$_GET['code']}&&time={$_GET['time']} >sdfasdf</a>\n";
+		//echo  PATH_ROOT . 'view/down.php';
+		include PATH_ROOT . 'templates/down.php';
 	}
 }
