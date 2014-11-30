@@ -40,28 +40,11 @@ class Home extends Honghao
 			if(count($data) === 2){
 				$_GET['code'] = trim($data[0]);
 				$_GET['time'] = strtolower( trim($data[1]) );
-				/*
-				if(strlen($_GET['code']) > 7){
-					$this->output->formStr('yes', $res);
-				} else{
-					$this->output->formStr('no', $res);
-				}
-				 */
-
-				//return preg_match('/^\d+$/' , $value);
 				if(!preg_match('/^\d+$/' , $_GET['code'])){
 					$this->output->formStr($_GET['code'] . $this->config['help'] . '1', $res);
 					$error = 1;			
 					return;
 				}
-				/*
-				if(!$this->validate->check($_GET['code'] , 'int' , 6)){
-					$this->output->formStr($this->config['help'] . '1', $res);
-					$error = 1;
-					return;
-				}
-				 */
-				//$_GET['time'] = strtolower($_GET['time']);
 				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
 					$this->output->formStr($this->config['help'] . '2', $res);
 					$error = 1;
@@ -79,12 +62,7 @@ class Home extends Honghao
 					$ans[] = $tmp;
 				}
 				if($error)return;
-				if(DEBUG){
-					//$this->output->PicArticle($arr , $res);
-					$this->output->formStr($out , $res);
-				} else {
-					$this->output->formStr($this->config['help'] . '7', $res);
-				}
+				$this->output->formStr($ans , $res);
 			} else {
 				$error = 1;
 				$this->output->formStr($this->config['help'] . '3', $res);
