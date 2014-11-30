@@ -22,8 +22,9 @@ class validate
 		switch($type){
 			case 'int' :
 				if($max_length !== -1){
-					$len = strlen($value);
-					if($max_length < $len)return false;
+					if($max_length < strlen($value)){
+						return false;
+					}
 				}
 				return preg_match('/^\d+$/' , $value);
 			case 'date':
