@@ -47,7 +47,7 @@ class Home extends Honghao
 				}
 				if($error)return;
 				$out = $this->getData();
-				if(empty($content) || !$content){
+				if(empty($out)){
 					$this->output->formStr( "没有您想要的财报", $res);
 					return;
 				} 
