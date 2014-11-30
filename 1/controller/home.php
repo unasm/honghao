@@ -50,19 +50,13 @@ class Home extends Honghao
 					$error = 1;
 				}
 				$out = $this->getData();
-				$ans = array();
-				foreach($out as $idx => $value){
-					$tmp =  "披露时间: " . $value['time'] . "\n";
-					$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}' style = 'font-size:1.5em'><h2>" .$value['title']. "</h2></a>\n";
-					$tmp .="\n";
-					if(DEBUG){
-						$tmp = "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/show'> 点击</a>";
-						//$tmp = "<a href = 'http://mp.weixin.qq.com/mp/redirect?url=http://disclosure.szse.cn/finalpage/2002-04-18/573256.PDF#mp.weixin.qq.com'>tesing</a>";
-					}
-					$ans[] = $tmp;
-				}
 				if($error)return;
-				$this->output->formStr($ans , $res);
+				foreach($out as $idx => $value){
+					$tmp =  "披露时间: " . $value['time'] . "\n\n";
+					$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}' style = 'font-size:1.5em'>" .$value['title']. "</a>\n";
+					$tmp .="\n";
+					$this->output->formStr($tmp , $res);
+				}
 			} else {
 				$error = 1;
 				$this->output->formStr($this->config['help'] . '3', $res);
@@ -113,11 +107,9 @@ class Home extends Honghao
 	 **/
 	public function getData()
 	{
-		$_GET['code'] = '000001';
-		$_GET['time'] = '2002Q2';
 
 		//使用原生态的，避免麻烦
-		$code = trim($_GET['code']);
+		$code = $_GET['code'];
 		$this->DataBaseModel->setTables('data');
 		$res = $this->getSelectTime($_GET['time']);
 		$data = $this->DataBaseModel->select("time ,link,did,title,code" ,  array() , " where code = {$code} && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
