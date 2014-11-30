@@ -48,7 +48,7 @@ class Home extends Honghao
 					$this->output->formStr('no', $res);
 				}
 				 */
-				if($this->validate->check($_GET['code'] , 'int')){
+				if(!$this->validate->check($_GET['code'] , 'int')){
 					$this->output->formStr($this->config['help'] . '1', $res);
 					$error = 1;
 				}
