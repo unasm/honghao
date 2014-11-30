@@ -26,7 +26,6 @@ class Home extends Honghao
 	 **/
 	public function index()
 	{
-
 		$this->load->model('output');
 		$this->load->model('wx');
 		$res = $this->wx->getInput();
@@ -48,11 +47,12 @@ class Home extends Honghao
 					$this->output->formStr('no', $res);
 				}
 				 */
-				if(preg_match("/^\d+q\d+$/i"))){
+				if(!$this->validate->check($_GET['code'] , 'int' , 6)){
 					$this->output->formStr($this->config['help'] . '1', $res);
 					$error = 1;
+					return;
 				}
-				$_GET['time'] = strtolower($_GET['time']);
+				//$_GET['time'] = strtolower($_GET['time']);
 				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
 					$this->output->formStr($this->config['help'] . '2', $res);
 					$error = 1;
