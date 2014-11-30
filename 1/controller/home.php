@@ -47,6 +47,10 @@ class Home extends Honghao
 				}
 				if($error)return;
 				$out = $this->getData();
+				if(empty($content) || !$content){
+					$this->output->formStr( "没有您想要的财报", $res);
+					return;
+				} 
 				foreach($out as $idx => $value){
 					$tmp =  "披露时间: " . $value['time'] . "\n\n";
 					$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}' style = 'font-size:1.5em'>" .$value['title']. "</a>\n";
@@ -58,8 +62,6 @@ class Home extends Honghao
 				$this->output->formStr($this->config['help'] . '3', $res);
 			}
 		} else {
-			$_GET['time'] = '2012q2';
-			$_GET['code'] = '000001';
 			if($res){
 				$this->output->formStr($this->config['help'] , $res);
 			} elseif (isset($_GET['code']) && isset($_GET['time'])){
@@ -106,10 +108,10 @@ class Home extends Honghao
 	{
 
 		//使用原生态的，避免麻烦
-		$code = $_GET['code'];
+		//$code = $_GET['code'];
 		$this->DataBaseModel->setTables('data');
 		$res = $this->getSelectTime($_GET['time']);
-		$data = $this->DataBaseModel->select("time ,link,did,title,code" ,  array() , " where code = {$code} && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
+		$data = $this->DataBaseModel->select("time ,link,did,title,code" ,  array() , " where code = '{$_GET['code']}' && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
 		$res = array();
 		//去重,数据中有重复
 		for($i = 0 , $len = $data ? count($data) : 0 ; $i < $len ;$i++){
