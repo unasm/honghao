@@ -50,8 +50,9 @@ class Home extends Honghao
 
 				//return preg_match('/^\d+$/' , $value);
 				if(!preg_match('/^\d+$/' , $_GET['code'])){
-					$this->output->formStr($_GET['code'] . $this->config['help'] . '2', $res);
+					$this->output->formStr($_GET['code'] . $this->config['help'] . '1', $res);
 					$error = 1;			
+					return;
 				}
 				/*
 				if(!$this->validate->check($_GET['code'] , 'int' , 6)){
@@ -82,7 +83,7 @@ class Home extends Honghao
 					//$this->output->PicArticle($arr , $res);
 					$this->output->formStr($out , $res);
 				} else {
-					$this->output->formStr($this->config['help'] . '1', $res);
+					$this->output->formStr($this->config['help'] . '7', $res);
 				}
 			} else {
 				$error = 1;
