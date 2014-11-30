@@ -41,7 +41,7 @@ class Home extends Honghao
 			if(count($data) === 2){
 				$_GET['code'] = trim($data[0]);
 				$_GET['time'] = trim($data[1]);
-				if(preg_match('/^\d+$/' , $$_GET['code'])){
+				if(preg_match('/^\d+$/' , $_GET['code'])){
 					$this->output->formStr('yes', $res);
 				} else{
 					$this->output->formStr('no', $res);
