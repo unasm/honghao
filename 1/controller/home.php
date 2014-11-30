@@ -50,7 +50,7 @@ class Home extends Honghao
 				$ans = array();
 				foreach($out as $idx => $value){
 					$tmp =  "披露时间: " . $value['time'] . "\n";
-					$tmp .= "<a href = http://www.honghaotouzi.sinaapp.com/home/index?code={$_GET['code']}&&time={$_GET['time']} >" .$value['title']. "</a>\n";
+					$tmp .= "<a href = http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']} >" .$value['title']. "</a>\n";
 					$tmp .="\n";
 					if(DEBUG){
 						$tmp = "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/show'> 点击</a>";
