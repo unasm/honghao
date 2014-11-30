@@ -41,9 +41,8 @@ class Home extends Honghao
 			if(count($data) === 2){
 				$_GET['code'] = trim($data[0]);
 				$_GET['time'] = trim($data[1]);
-				$this->output->formStr($_GET['code']. '4', $res);
-				return;
-				if(!$this->validate->check($_GET['code'] , 'int' , 6)){
+				$this->output->formStr(strlen($_GET['code']) . '@5', $res);
+				if(!$this->validate->check($_GET['code'] , 'int' , 7)){
 					$this->output->formStr($this->config['help'] . '1', $res);
 					$error = 1;
 				}
