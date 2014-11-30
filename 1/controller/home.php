@@ -47,11 +47,19 @@ class Home extends Honghao
 					$this->output->formStr('no', $res);
 				}
 				 */
+
+				//return preg_match('/^\d+$/' , $value);
+				if(!preg_match('/^\d+$/' , $_GET['code'])){
+					$this->output->formStr($_GET['code'] . $this->config['help'] . '2', $res);
+					$error = 1;			
+				}
+				/*
 				if(!$this->validate->check($_GET['code'] , 'int' , 6)){
 					$this->output->formStr($this->config['help'] . '1', $res);
 					$error = 1;
 					return;
 				}
+				 */
 				//$_GET['time'] = strtolower($_GET['time']);
 				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
 					$this->output->formStr($this->config['help'] . '2', $res);
