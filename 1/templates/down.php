@@ -35,7 +35,7 @@
 		left:0;
 	}
 	#container{
-		margin-top:80px;
+		margin-top:60px;
 	}
 </style>
 </html>
