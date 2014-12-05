@@ -45,14 +45,15 @@ class Home extends Honghao
 					$this->output->formStr($this->config['help'] . '2', $res);
 					$error = 1;
 				}
+				$this->output->formStr( "没有您想要的财报", $res);
+				return;
 				if($error)return;
 				$out = $this->getData();
 				if(empty($out)){
 					$this->output->formStr( "没有您想要的财报", $res);
 					return;
 				} 
-				$this->output->formStr( "没有您想要的财报", $res);
-				return;
+
 				foreach($out as $idx => $value){
 					$tmp =  "披露时间: " . $value['time'] . "\n\n";
 					$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}'>" .$value['title']. "</a>\n";
