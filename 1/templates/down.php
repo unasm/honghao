@@ -7,7 +7,7 @@
 </head>
 <body>
 	<div id = "float">
-		<p>请点击右上方或者右下方的按钮，然后选择在浏览器中打开</p>
+		<p>请点击右上方或者右下方的按钮，选择在浏览器中打开</p>
 	</div>
 	<div id = "container">
 		<?php foreach($output as $data):?>
@@ -35,7 +35,7 @@
 		left:0;
 	}
 	#container{
-		margin-top:40px;
+		margin-top:80px;
 	}
 </style>
 </html>
