@@ -7,7 +7,7 @@
 /**
  * 搜索获取对应的数据
  **/
-DEFINE("DEBUG" , 0);
+DEFINE("DEBUG" , 1);
 class Home extends Honghao
 {
 	
@@ -53,7 +53,7 @@ class Home extends Honghao
 				} 
 				foreach($out as $idx => $value){
 					$tmp =  "披露时间: " . $value['time'] . "\n\n";
-					$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}' style = 'font-size:1.5em'>" .$value['title']. "</a>\n";
+					$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}'>" .$value['title']. "</a>\n";
 					$tmp .="\n";
 					$this->output->formStr($tmp , $res);
 				}
@@ -62,6 +62,10 @@ class Home extends Honghao
 				$this->output->formStr($this->config['help'] . '3', $res);
 			}
 		} else {
+			if(DEBUG){
+				$_GET['code'] = '000001';
+				$_GET['time'] = '2002Q2';
+			}
 			if($res){
 				$this->output->formStr($this->config['help'] , $res);
 			} elseif (isset($_GET['code']) && isset($_GET['time'])){
@@ -111,7 +115,9 @@ class Home extends Honghao
 		//$code = $_GET['code'];
 		$this->DataBaseModel->setTables('data');
 		$res = $this->getSelectTime($_GET['time']);
-		$data = $this->DataBaseModel->select("time ,link,did,title,code" ,  array() , " where code = '{$_GET['code']}' && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
+		$data = $this->DataBaseModel->select("time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
+		var_dump($data);
+		die;
 		$res = array();
 		//去重,数据中有重复
 		for($i = 0 , $len = $data ? count($data) : 0 ; $i < $len ;$i++){

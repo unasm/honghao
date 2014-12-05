@@ -10,6 +10,7 @@ if(!class_exists('Getcode')){
 /**
  * 具体实现深圳股市的实现
  **/
+define("DEBUG" , 1);
 class Shengetcode extends Getcode
 {
 	function __construct(){
@@ -47,11 +48,7 @@ class Shengetcode extends Getcode
 	 */
 	public function makeCode()
 	{
-		//深市A股，B股,配股
-		//$this->DataBaseModel->createTable('code');
-		//上市公司的前缀
 		$prefix = array('000' , '200' ,'080' ,'031');
-
 		//010301 年度报告
 		//010303 半年度报告
 		//010305 一季度报告
@@ -63,20 +60,22 @@ class Shengetcode extends Getcode
 			foreach($prefix as $pre){
 				//结合成完整的stockCode
 				$stockCode = $this->getStockCode($i, $pre);
+				$res = array();
 				foreach ($notice as $key => $value) {
-					//不足三位，前面补充0,确保最终是6位
-					$res = $this->createCode($stockCode , $key , $value);
-					if(!empty($res)){
-						for($j = 0,$len = count($res);$j < $len;$j++){
-							array_push($res[$j] , $value);
+					$tmp = $this->createCode($stockCode , $key , $value);
+					if(!empty($tmp)){
+						for($j = 0,$lenj = count($tmp); $j < $lenj; $j++){
+							$res[] = $tmp[$j];
 						}
-						if($this->DataBaseModel->insert(					
-							array('code' , 'content' , 'pageId' , 'notice' , 'q_num'),
-							$res
-						)){
-							echo $stockCode . "\n";
-							flush();
-						}
+					}
+				}
+				if(!empty($res)){
+					if($this->DataBaseModel->insert(					
+						array('code' , 'content' , 'pageId' , 'notice' , 'q_num'),
+						$res )
+					){
+						echo $stockCode . "\n";
+						flush();
 					}
 				}
 			}
@@ -111,14 +110,13 @@ class Shengetcode extends Getcode
 			$pageState = $this->checkPageRight($page);
 			if($pageState && $pageState['now']){
 				//0,0的情况不保存
-				$res[] = array($stockCode , base64_encode($page) , 1 , $notice);
+				$res[] = array($stockCode , base64_encode($page) , 1 , $notice , $qNum);
 				for($i = $pageState['now'] + 1; $i <= $pageState['total'];$i++){
 					//arr的顺序是stockCode , pageContent , page 页码 , notice;
 					$res[] = array(
 								$stockCode , 
 								base64_encode($this->getCompanyInfo($stockCode , $notice , $i)) 
-								,$i 
-								, $notice
+								,$i , $notice , $qNum
 							);
 				}
 				//Debug::output('for insert page all : ' . $stockCode , E_NOTICE);
@@ -126,7 +124,7 @@ class Shengetcode extends Getcode
 				//Debug::output('checkPageRight返回为false ,此时的code 为' . $tmpCode , E_NOTICE );
 			}
 		} else {
-			//Debug::output('之前已经获取数据成功' , E_NOTICE);
+			Debug::output('之前已经获取数据成功' , E_NOTICE);
 			foreach($data as $row){
 				if($this->DataBaseModel->update(array('q_num' => $qNum) , array('pid' => $row['pid']))){
 					echo "update success\n";
@@ -252,10 +250,9 @@ class Shengetcode extends Getcode
 	public function selectPage()
 	{
 		$this->DataBaseModel->setTables($this->config['shenpage']);
-		$data = $this->DataBaseModel->select('q_num, notice , code ,content' , array('notice' => array('010301' , '010303' ,'010305' , '010307')));
+		$data = $this->DataBaseModel->select('q_num, notice , code ,content' , array('notice' => array('010305' ,'010301' , '010303' , '010307') ));
 		$this->DataBaseModel->createTable('data');
 		$baseUrl = "http://disclosure.szse.cn/";
-		//header("Cache-control: no-cache");
 		foreach ($data  as $page ) {
 			$this->HtmlParserModel->parseStr(base64_decode($page['content']), array() , "big5");
 			$lines = $this->HtmlParserModel->find('.td2');
@@ -274,19 +271,15 @@ class Shengetcode extends Getcode
 				preg_match('/href\=\s*[\'\"]?\s*([^"\']+)/' , $tmpStr , $download);
 				if(count($download) != 2){
 					var_dump($tmpStr);
-					echo "<br/>";
 					Debug::output('download link' , E_ERROR);
 				}
 				//preg_match('/href\=\"([^\s]*)\"\s+/' , $tmpStr , $download);
-				//匹配文件大小
 				preg_match('/\>\s*\(\s*(\d*)\s*k\s*\)\s*/' , $tmpStr , $size);
 				if(count($size) != 2){
 					var_dump($tmpStr);
-					echo "<br/>";
 					Debug::output('size is wrong' , E_ERROR);
 				}
 				//$tmpStr = "<a href='finalpage/2008-04-22/38959757.PDF' target='new'>*ST宜地：2007年年度报告（补充后）</a>";
-				//匹配标题
 				preg_match('/\>\s*([^\>]*)\s*\<\s*\\/a\s*\>/' , $tmpStr , $title);
 				if(count($title) != 2){
 					var_dump($tmpStr);
@@ -295,7 +288,6 @@ class Shengetcode extends Getcode
 				} else {
 					$title[1] = mb_convert_encoding($title[1] ,'UTF-8', 'CP936');
 				}
-				echo $title[1] . "\n";
 				$res[] = array(
 							$time[1] ,$baseUrl . $download[1] , $size[1] , $title[1],
 							$page['notice'] , $page['code'] ,
@@ -304,12 +296,11 @@ class Shengetcode extends Getcode
 						);
 			}
 			$list = array('time' , 'link' , 'size' , 'title' , 'notice' , 'code' , 'q_num' , 'timestamp');
-			/*
-			var_dump($list);
-			var_dump($res[0]);
-			die;
-			 */
-			$this->DataBaseModel->insert($list , $res);
+			if($this->DataBaseModel->insert($list , $res)){
+				echo $page['notice'] . "<br/>";
+				echo $page['code'] . "<br/>";
+				flush();
+			}
 		}
 	}
 

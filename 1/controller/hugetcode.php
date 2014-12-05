@@ -49,16 +49,17 @@ class Hugetcode extends Getcode
 		//reportType = ALL  ,全部，包括年报，半年报，季度报
 		//DQBG 是定期公告的意思，临时公告是LSGG
 		$typeArr = array('YEARLY' => 'q4' , 'QUATER1' => 'q1' , 'QUATER2' => 'q2' , 'QUATER3' => 'q3');
-		for($code = 6973;$code <= 9999;$code++){
+		for($code = 1398;$code <= 9999;$code++){
 			$stockCode = $this->getStockCode($code , $prefix);
-			echo $stockCode . "\n";
-			flush();
-			for($cnt = 0;$cnt < 16;){
+			for($cnt = 0;$cnt < 20;){
 				$end = $this->getTime('-' , $cnt);					
 				$cnt +=3;
 				$start = $this->getTime('-' , $cnt);
+
+				echo $stockCode . ' ==> ' . $end . "\n";
+				flush();
 				$res = array();
-				$data = $this->DataBaseModel->select('pid'  , array() , 'where code = ' . $stockCode);
+				$data = $this->DataBaseModel->select('pid'  , array() , 'where code = ' . $stockCode . ' && pageId = ' . $cnt);
 				if(!$data || empty($data)){
 					foreach($typeArr as $type => $qNum){
 						$page = $this->getCompanyInfo(
@@ -66,15 +67,12 @@ class Hugetcode extends Getcode
 							"&productId={$stockCode}&reportType2=DQBG&reportType={$type}&beginDate={$start}&endDate={$end}&_=1415495313414"
 						);
 						if(count($this->decode($page))){
-							$res[] = array($stockCode, $page , $type  , $qNum);
-						} else {
-							//如果一个季度没数据，其他的季度也不用查询了
-							break;
+							$res[] = array($stockCode, $page , $type  , $qNum , $cnt);
 						}
 					}
-							//api接口一次吐出所有的数据，没有必要分页
+					//api接口一次吐出所有的数据，没有必要分页
 					$this->DataBaseModel->insert(
-						array('code' ,'content' ,'notice' , 'q_num') , 
+						array('code' ,'content' ,'notice' , 'q_num' , 'pageId') , 
 						$res
 					);
 				}
