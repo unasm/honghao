@@ -24,9 +24,7 @@ class output {
 			<FuncFlag>0</FuncFlag>
 			</xml>";             
 		$resultStr = '';
-		if(empty($content) || !$content){
-			$content = "没有您想要的财报";		
-		} 
+
 		if (is_array($content)){
 			foreach($content as $data)	{
 				$resultStr .= sprintf($textTpl, $obj->FromUserName, 

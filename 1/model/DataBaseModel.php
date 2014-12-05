@@ -222,18 +222,17 @@ class DataBaseModel
 		$cnt = 1;
 		if(!is_array($data))return $data;
 		foreach($data as $key => $value){
+			if(!$cnt){
+				$sql .= ' && ';	
+			} else {
+				$cnt = 0;
+			}
 			if(is_array($value)){
 				//有待测试
 				$tmp = '\'' . implode('\',\' ' , $value) . '\'';
 				$sql .= $key .' in( ' . $tmp . ') ';
 			}else{
-				if($cnt){
-					$cnt -- ;
-					$sql .= $key .' = \'' . $value . '\'';	
-
-				}else{
-					$sql .= ' && '  . $key .' = \'' . $value . '\'';	
-				}
+				$sql .= $key .' = \'' . $value . '\'';	
 			}
 		}
 		return $sql;
