@@ -45,8 +45,6 @@ class Home extends Honghao
 					$this->output->formStr($this->config['help'] . '2', $res);
 					$error = 1;
 				}
-				$this->output->formStr( "没有您想要的财报", $res);
-				return;
 				if($error)return;
 				$out = $this->getData();
 				if(empty($out)){
@@ -119,8 +117,6 @@ class Home extends Honghao
 		$this->DataBaseModel->setTables('data');
 		$res = $this->getSelectTime($_GET['time']);
 		$data = $this->DataBaseModel->select("time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
-		var_dump($data);
-		die;
 		$res = array();
 		//去重,数据中有重复
 		for($i = 0 , $len = $data ? count($data) : 0 ; $i < $len ;$i++){
