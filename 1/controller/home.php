@@ -33,8 +33,6 @@ class Home extends Honghao
 		$error = 0;
 		if(!empty($res) && $res->Content){
 			$data = explode($this->config['delimate'] , $res->Content);
-			$this->output->formStr("sdfa" , $res);
-			return;
 			if(count($data) === 2){
 				$_GET['code'] = trim($data[0]);
 				$_GET['time'] = strtolower( trim($data[1]) );
@@ -53,6 +51,8 @@ class Home extends Honghao
 					$this->output->formStr( "没有您想要的财报", $res);
 					return;
 				} 
+				$this->output->formStr( "没有您想要的财报", $res);
+				return;
 				foreach($out as $idx => $value){
 					$tmp =  "披露时间: " . $value['time'] . "\n\n";
 					$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}'>" .$value['title']. "</a>\n";
