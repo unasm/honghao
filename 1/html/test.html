@@ -1,0 +1,50 @@
+<!DOCTYPE html> 
+<html xmlns:wb="http://open.weibo.com/wb">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<title>测试微博登陆</title>
+	<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3187389869&debug=true" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript" charset="utf-8" src = "./jquery.js"></script>
+</head>
+<body>
+	<wb:share-button type = "button" size = "middle"></wb:share-button>
+	<br/>
+	<wb:login-button type="3,2" >登录按钮</wb:login-button>
+	<form action="{$action}" method="POST" accept-charset="utf-8" enctype = "multipart/form-data">
+		<input type="file" name="file">
+		<input type="text" name="status" value="这里是status">
+		<input type="submit" name="sub" value="提交" />
+	</form>
+	<!--
+	<br/>
+	<input type="button" name="toLogin" value="去登录微博" id = "toLogin">
+	-->
+	<!--
+	<div id = "wb_connect_btn">
+	-->
+	</div>
+</body>
+	<script type="text/javascript" charset="utf-8">
+/*
+		WB2.anyWhere(function(W){
+			W.widget.connectButton({
+					id:'wb_connect_btn',
+					type:'5,1',
+					callback: {
+						login:function(o){
+							console.log(o);
+						},
+						logout: function(){
+							console.log("logout");
+						}
+					}
+				});
+		});
+window.onload = function(){
+			WB2.login(function(){
+				alert("您已经登录");
+			});
+}
+*/
+	</script>
+</html>
