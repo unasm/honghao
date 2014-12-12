@@ -48,7 +48,7 @@ class Shengetcode extends Getcode
 	 */
 	public function makeCode()
 	{
-		$prefix = array('000' , '200' ,'080' ,'031');
+		$prefix = array('000' , '200' ,'300' , '900' , '002');
 		//010301 年度报告
 		//010303 半年度报告
 		//010305 一季度报告
