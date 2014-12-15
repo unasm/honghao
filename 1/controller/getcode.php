@@ -27,12 +27,11 @@ abstract class Getcode  extends Honghao{
 	 * @param	string	$sep	日期之间的分隔符
 	 * @return string 
 	 **/
-	public function getTime($sep = '' , $year = 0 )
+	public function getTime($sep = '' , $year = 0  , $month = 0)
 	{
-		return date('Y' . $sep . 'm' . $sep . 'd' , time() - 31536000 * $year);
+		return date('Y' . $sep . 'm' . $sep . 'd' , time() - 31536000 * $year - 2628000 * $month);
 	}
 	public function makecode(){}
-	//public function getCompanyInfo(){}
 
 	/**
 	 * 检验是不是正确的，想要的深圳股票的返回页面

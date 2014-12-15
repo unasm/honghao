@@ -10,7 +10,7 @@
 DEFINE("DEBUG" , 0);
 class Home extends Honghao
 {
-	
+
 	function __construct()
 	{
 		parent::__construct()	;
@@ -64,7 +64,7 @@ class Home extends Honghao
 			}
 		} else {
 			if(DEBUG){
-				$_GET['code'] = '000001';
+				$_GET['code'] = '600000';
 				$_GET['time'] = '2002Q2';
 			}
 			if($res){
@@ -72,6 +72,8 @@ class Home extends Honghao
 			} elseif (isset($_GET['code']) && isset($_GET['time'])){
 				//这种情况下，视为网页的正常访问
 				$out = $this->getData();
+				var_dump($out);
+				echo "<br/>\n\n";
 				$this->showView($out);
 			}
 		}		
@@ -79,8 +81,8 @@ class Home extends Honghao
 	}		
 
 	/**
-	* 获取查询的时间区间
-	* 得到这个季度的开始和接下来两个季度的时间区间
+	 * 获取查询的时间区间
+	 * 得到这个季度的开始和接下来两个季度的时间区间
 	 *
 	 **/
 	public function getSelectTime($time)
@@ -101,7 +103,7 @@ class Home extends Honghao
 		return array('start' => strtotime($start) , 
 			'end' =>strtotime($tmp[0] . '-' . ($endSeason) . '-' . '30') , 
 			'q_num' => 'q' . $tmp[1]
-			);
+		);
 	}
 	/**
 	 * 根据传入的数据获取对应的结果
@@ -146,7 +148,7 @@ class Home extends Honghao
 		}
 		return $res;
 	}
-	
+
 	/**
 	 * 将data表时间修改成为时间戳
 	 *
@@ -214,12 +216,72 @@ class Home extends Honghao
 	 * 获取目前的自定义菜单
 	 *
 	 **/
+	public function setMenu()
+	{
+		$this->load->model('BaseModelHttp');
+		$json = "{
+			'button': [
+				{
+					'type': 'click', 
+					'name': '歌曲', 
+					'key': 'sdf'
+				}, 
+				{
+					'name': '菜单', 
+					'sub_button': [{
+							'type': 'view', 
+							'name': '搜索', 
+							'url': 'http://www.soso.com/'
+						}, {
+							'type': 'view', 
+								'name': '视频', 
+								'url': 'http://v.qq.com/'
+						}, {
+							'type': 'click', 
+							'name': '赞', 
+							'key': 'sdf'
+						}
+					]
+				},
+				{
+					'name': '扫码', 
+					'sub_button': [
+				        {
+							'type': 'scancode_waitmsg', 
+							'name': '扫码带提示', 
+		                    'key': 'rselfmenu_0_0', 
+							'sub_button': [ ]
+						}, 
+						{
+							'type': 'scancode_push', 
+							'name': '扫码推事件', 
+							'key': 'rselfmenu_0_1', 
+		                    'sub_button': []
+						}
+					]
+				}
+			]
+		}";
+		//$args = array('body' => $this->menu());
+		$cookie = "TS0161f2e5=017038eb49f82ff258da49262d1e360f4b6a79f3def09c326cd35c5a3d78955ed4d5534763";
+		$menu = $this->BaseModelHttp->post(
+			"https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" . $this->getToken(),
+			$this->menu(), array(), 50 
+		);
+		var_dump($menu);
+	}
+
+	/**
+	 * 获取目前的自定义菜单
+	 *
+	 **/
 	public function getMenu()
 	{
 		$this->load->model('BaseModelHttp');
-		$menu = json_decode($this->BaseModelHttp->get(
+		$menu = $this->BaseModelHttp->get(
 			"https://api.weixin.qq.com/cgi-bin/menu/get?access_token=" . $this->getToken()
-		) , true);
+		);
+		var_dump($menu);
 	}
 
 	/**
@@ -255,5 +317,64 @@ class Home extends Honghao
 		//echo "<a href = http://www.honghaotouzi.sinaapp.com/home/index?code={$_GET['code']}&&time={$_GET['time']} >sdfasdf</a>\n";
 		//echo  PATH_ROOT . 'view/down.php';
 		include PATH_ROOT . 'templates/down.php';
+	}
+	function menu() {
+	$data = ' {
+			 "button":[
+			 {	
+				  "type":"click",
+				  "name":"今日歌曲",
+				  "key":"V1001_TODAY_MUSIC"
+			  },
+			  {
+				   "type":"click",
+				   "name":"歌手简介",
+				   "key":"V1001_TODAY_SINGER"
+			  },
+			  {
+				   "name":"菜单",
+				   "sub_button":[
+				   {	
+					   "type":"view",
+					   "name":"搜索",
+					   "url":"http://www.soso.com/"
+					},
+					{
+					   "type":"view",
+					   "name":"视频",
+					   "url":"http://v.qq.com/"
+					},
+					{
+					   "type":"click",
+					   "name":"赞一下我们",
+					   "key":"V1001_GOOD"
+					}]
+			   }]
+		 }';
+		return $data;
+		/*
+			 $ch = curl_init();
+			 curl_setopt($ch, CURLOPT_URL, "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" . $this->getToken());
+			 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+			 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+			 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+			 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MSIE 5.01; Windows NT 5.0)');
+			 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+			 curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
+			 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+			 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			 $tmpInfo = curl_exec($ch);
+			 if (curl_errno($ch)) {
+			  echo curl_error($ch);
+			 }
+			
+			 curl_close($ch);
+			  
+			echo $tmpInfo; 
+		*/
+		$menu = $this->BaseModelHttp->post(
+			"https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" . $this->getToken(),
+			$data, array(), 50 
+		);
 	}
 }

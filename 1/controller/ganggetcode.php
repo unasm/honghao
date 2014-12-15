@@ -100,7 +100,6 @@ class Ganggetcode extends Getcode
 	 */
 	public function makeCode()
 	{
-
 		/**
 		 * 159年报 ,160年中报， 161季度财报
 		 *  -2为所有
@@ -108,7 +107,7 @@ class Ganggetcode extends Getcode
 		//$fp = fopen('gang.html' , 'w') or die("open file failed");
 		$this->DataBaseModel->setTables($this->config['gangpage']);
 		$overflow = array();
-		for($i = 1;$i <= 8356;$i++){
+		for($i = 0;$i <= 8356;$i++){
 			$stockCode = $this->getStockCode($i);
 			$res = array();
 			$res = $this->DataBaseModel->select('pid , code' , array('code' => $stockCode , 'notice' => '-2'));
@@ -143,25 +142,22 @@ class Ganggetcode extends Getcode
 			}
 			flush();
 		}
-		echo "\n\n以下是超过了20的\n";
-		var_dump($overflow);
-		/*
-			$page = $this->getCompanyInfo( $i,
-				array(
-					'ctl00$rdo_SelectDocType' => 'rbPrior2006',
-					'ctl00$sel_tier_2' => '-2' , 
-					'ctl00$sel_DocTypePrior2006' => 11500,
-				)
-			);
-		 */
 	}
 
 	/**
 	 * 获取页面里面的
+	 *
+	 * $res[] = array($title[1] , $size[1] , $time[1] , strtotime($time[1]),$baseUrl . $download[1] , $q_num);
+	 * @param	string	$page	页面的内容构成的str
+	 * @return	array(title , size ,time ,timestamp , url,q_num);
 	 */	
 	function getPageRows($page){
 		$this->HtmlParserModel->parseStr($page, array(), "BIG5");
 		$lines = $this->HtmlParserModel->find('#ctl00_gvMain');
+		if(empty($lines) || !trim($lines[0]->value)){
+			echo "no data\n";
+			return false;
+		}
 		$this->HtmlParserModel->parseStr($lines[0]->value , array() , 'BIG5');
 		$lines = $this->HtmlParserModel->find('tr');
 		$res = array();
@@ -259,13 +255,27 @@ class Ganggetcode extends Getcode
 				$res[$i][] = $page['notice'];
 			}
 			flush();
+			$this->dataInsert($res);
 			//$res[] = array($title[1] , $size[1] , $time[1] , strtotime($time[1]),$baseUrl . $download[1] , $q_num);
+			/*
 			$this->DataBaseModel->insert( 
 				array('title' , 'size', 'time' , 'timestamp' , 'link' , 'q_num' , 'code' , 'notice'), 
 				$res) && print("insert success{$data[$j]['code']}");
+			 */
 		}
 	}
-
+	
+	/**
+	 * 根据getPageRows 插入对应的数据
+	 *
+	 * @return boolen
+	 **/
+	public function dataInsert($res)
+	{
+		return $this->DataBaseModel->insert( 
+				array('title' , 'size', 'time' , 'timestamp' , 'link' , 'q_num' , 'code' , 'notice'), 
+				$res);
+	}
 	/**
 	 * 检验输入的值是否正确,网页的编码，数据的编码
 	 *
@@ -292,8 +302,9 @@ class Ganggetcode extends Getcode
 	 * 根据对应的code获取对应公司的财报，不过这里只是包括了深圳证券交易所的
 	 * @param string	$code	上市公司的代码
 	 * @param string	$notice	年报的类型
+	 * @param boolen	$new	决定是抓取新的信息，还是全部的信息	
 	 **/
-	public function getCompanyInfo($code = '00001' , $notice)
+	public function getCompanyInfo($code = '00001' , $notice  , $new = false)
 	{
 		//$args['stockCode'] = $code;
 		//这里的时间将来要修改
@@ -303,12 +314,24 @@ class Ganggetcode extends Getcode
 		$args['ctl00$rdo_SelectSortBy'] = 'rbDateTime';
 
 		$args['ctl00$sel_defaultDateRange'] = "SevenDays";
-		$args['ctl00$sel_DateOfReleaseTo_y'] = '2014';
-		$args['ctl00$sel_DateOfReleaseTo_m'] = '11';
-		$args['ctl00$sel_DateOfReleaseTo_d'] = '04';
-		$args['ctl00$sel_DateOfReleaseFrom_y'] = "2007";
-		$args['ctl00$sel_DateOfReleaseFrom_m'] = '06';
-		$args['ctl00$sel_DateOfReleaseFrom_d'] = '25';
+		$args['ctl00$sel_DateOfReleaseTo_y'] = '20' . date('y');
+		$args['ctl00$sel_DateOfReleaseTo_m'] = date('m');
+		$args['ctl00$sel_DateOfReleaseTo_d'] = date('d');
+		if($new){
+			//抓取最近一个月内的信息
+			$args['ctl00$sel_DateOfReleaseFrom_y'] = "20" . date('y');
+			$args['ctl00$sel_DateOfReleaseFrom_m'] = date('m') - 1;
+			if(strlen($args['ctl00$sel_DateOfReleaseFrom_m']) === 1){
+				$args['ctl00$sel_DateOfReleaseFrom_m'] = '0' . $args['ctl00$sel_DateOfReleaseFrom_m'];
+			}
+			$args['ctl00$sel_DateOfReleaseFrom_d'] = date('d');	
+		} else {
+			//否则只抓取 2007年之后的全部信息
+			$args['ctl00$sel_DateOfReleaseFrom_y'] = "2007";
+			$args['ctl00$sel_DateOfReleaseFrom_m'] = '06';
+			$args['ctl00$sel_DateOfReleaseFrom_d'] = '25';
+		}
+
 		$args['ctl00$rdo_SelectDateOfRelease'] = 'rbManualRange';
 		$args['ctl00$ddlTierTwoGroup']  = '2,1';
 		$args['ctl00$ddlTierTwo'] = '59,1,7';
@@ -321,7 +344,7 @@ class Ganggetcode extends Getcode
 		$args['ctl00$txt_stock_code'] = $code;
 		$args['ctl00$hfAlert'] = '';
 		$args['ctl00$hfStatus'] = 'ACM';
-		$args['ctl00$txt_today'] = 20141104;
+		//$args['ctl00$txt_today'] = $this->getTime();
 		$args['__VIEWSTATEENCRYPTED'] = '';
 		//重写args的参数
 		foreach($notice as $key => $value){
@@ -483,4 +506,42 @@ class Ganggetcode extends Getcode
 		}
 		return false;
 	}
+	/**
+	 * 更新最新发布的信息
+	 */
+	public function refresh()
+	{
+		$this->DataBaseModel->setTables('data');
+		$overflow = array();
+		for($i = 0;$i <= 8356;$i++){
+			$stockCode = $this->getStockCode($i);
+			$res = array();
+			$page = $this->getCompanyInfo(
+				$stockCode,
+				array(
+					'ctl00$rdo_SelectDocType' => 'rbAfter2006',
+					'ctl00$sel_tier_2' => '-2'
+				), 
+				true
+			);
+			$rows = $this->getPageRows($page);
+			if(!$rows  || empty($rows)){
+				continue;
+			}
+			//$res[] = array($title[1] , $size[1] , $time[1] , strtotime($time[1]),$baseUrl . $download[1] , $q_num);
+			foreach($rows as $data){
+				$store = $this->DataBaseModel->select('count(*) as num' , array('code' => $stockCode , 'timestamp' => $data[3] , 'q_num' => $data[5]));
+				$data[] = $stockCode;
+				$data[] =  '-2';
+				if($this->dataInsert(array($data))){
+				} else {
+					echo "insert failed";
+					die;
+				}
+			}
+			echo $stockCode. "\n";
+			flush();
+		}
+	}
+
 }
