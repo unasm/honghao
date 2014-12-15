@@ -162,6 +162,39 @@ class Hugetcode extends Getcode
 		}
 		return $company['result'];
 	}
+
+	/**
+	 * 获取每一行数据
+	 *
+	 * @return array
+	 **/
+	public function getPageRows($company , $lines)
+	{
+		$result = array();
+		$url = "http://www.sse.com.cn";
+		foreach($company as $row){
+			$tmp = array();
+			if(isset($row['SSEDate']) && isset($row['title']) && 
+				isset($row['security_Code']) && isset($row['URL'])){
+					$tmp = array(
+						$row['SSEDate'], 
+						$url . $row['URL'], 
+						$row['title'] , 
+						$row['security_Code'] ,
+						$lines['notice'] ,
+						$lines['q_num'],
+						strtotime($row['SSEDate']),
+					);
+				$result[] = $tmp;
+				//echo $row['security_Code'] . $row['SSEDate'] ." " . $row['title'] . "\n";
+				flush();
+			} else{
+				echo $lines['pid'] . "\n\n";
+				die("sdf");
+			}
+		}
+		return $result;
+	}
 	/**
 	 * 从page数据库里面获取对应的内容
 	 *
@@ -174,37 +207,58 @@ class Hugetcode extends Getcode
 		//$data = $this->DataBaseModel->select('notice, q_num,content , pid'  , array() , ' where code >= 600000 && code <= 609999 ');
 		$data = $this->DataBaseModel->select('notice, q_num,content , pid'  , array('notice' => array('YEARLY' , 'QUATER1' , 'QUATER2' , 'QUATER3')));
 		//$typeArr = array('YEARLY' => 'q4' , 'QUATER1' => 'q1' , 'QUATER2' => 'q2' , 'QUATER3' => 'q3');
-		$url = "http://www.sse.com.cn";
 		$this->DataBaseModel->setTables('data');
 		foreach($data as $lines){
 			echo $lines['notice'] . "\n";
-			//var_dump(json_decode($lines['content']));
 			$company = $this->decode($lines['content']);
-			$result = array();
-			foreach($company as $row){
-				$tmp = array();
-				if(isset($row['SSEDate']) && isset($row['title']) && 
-					isset($row['security_Code']) && isset($row['URL'])){
-						$tmp = array(
-							$row['SSEDate'], 
-							$url . $row['URL'], 
-							$row['title'] , 
-							$row['security_Code'] ,
-							$lines['notice'] ,
-							$lines['q_num'],
-							strtotime($row['SSEDate']),
-						);
-					$result[] = $tmp;
-					//echo $row['security_Code'] . $row['SSEDate'] ." " . $row['title'] . "\n";
-					flush();
-				} else{
-					echo $lines['pid'] . "\n\n";
-					die("sdf");
-				}
-			}
+			$res = $this->getPageRows($company , $lines);
 			$this->DataBaseModel->insert(
 				array('time' , 'link' , 'title' , 'code' , 'notice' , 'q_num' , 'timestamp') , $result
 			) && printf("yes all\n\n");
+		}
+	}
+
+	/**
+	 * 刷新数据
+	 * 抓取最新的数据
+	 *
+	 * @return boolen
+	 **/
+	public function refresh(){
+		$this->DataBaseModel->setTables('data');
+		$prefix = "60";
+		//reportType = ALL  ,全部，包括年报，半年报，季度报
+		//DQBG 是定期公告的意思，临时公告是LSGG
+		$typeArr = array('YEARLY' => 'q4' , 'QUATER1' => 'q1' , 'QUATER2' => 'q2' , 'QUATER3' => 'q3');
+		//上海股票最大的代码是3998
+		for($code = 0;$code <= 4400;$code++){
+			$stockCode = $this->getStockCode($code , $prefix);
+			$end = $this->getTime('-' , 0);					
+			$start = $this->getTime('-' , 1);
+			echo $stockCode . ' ==> ' . $start . "\n";
+			flush();
+			$res = array();
+			foreach($typeArr as $type => $qNum){
+				$page = $this->getCompanyInfo(
+					"http://query.sse.com.cn/security/stock/queryCompanyStatementNew.do?jsonCallBack=jsonpCallback67854&isPagination=0" . 
+					"&productId={$stockCode}&reportType2=DQBG&reportType={$type}&beginDate={$start}&endDate={$end}&_=1415495313414"
+				);
+				$res = $this->getPageRows( $this->decode($page) , array('notice' => $type , 'q_num' => $qNum) );
+				foreach($res as $data){
+					$stored = $this->DataBaseModel->select(
+						' * '  , 
+						array('code' => $stockCode , 'q_num' => $qNum , 'time' => $data[0] )
+					);	
+					if(empty($stored)){
+						echo "new data\n";
+						var_dump($data);
+						die;
+						$this->DataBaseModel->insert(
+							array('time' , 'link' , 'title' , 'code' , 'notice' , 'q_num' , 'timestamp') , $data
+						);
+					}
+				}			
+			}
 		}
 	}
 }

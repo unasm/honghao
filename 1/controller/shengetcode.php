@@ -48,7 +48,9 @@ class Shengetcode extends Getcode
 	 */
 	public function makeCode()
 	{
-		$prefix = array('000' , '200' ,'080' ,'031');
+		//抓取遗漏的数据
+		$prefix = array('000' , '200' ,'300' , '900' , '002' ,'301' , '311');
+		// 301 , 311 是以后会增加的
 		//010301 年度报告
 		//010303 半年度报告
 		//010305 一季度报告
@@ -73,7 +75,7 @@ class Shengetcode extends Getcode
 					if($this->DataBaseModel->insert(					
 						array('code' , 'content' , 'pageId' , 'notice' , 'q_num'),
 						$res )
-					){
+					) {
 						echo $stockCode . "\n";
 						flush();
 					}
@@ -100,22 +102,29 @@ class Shengetcode extends Getcode
 	 * @param string	$stockCode	想要检测的code
 	 * @param int		$notice		年报的类型
 	 * @notice 这里没有香港的类型
+	 * @return	页面的数组
 	 */
 	public function createCode($stockCode , $notice , $qNum){
 		$res = array();
 		$data = $this->DataBaseModel->select('pid ' , array( 'code' => $stockCode , 'notice' => $notice));
 		if(!$data || count($data) === 0 ){
 			//没有数据的情况下
-			$page = trim($this->getCompanyInfo($stockCode , $notice));
+			$args = array();
+			$args['stockCode'] = $stockCode;
+			$args['noticeType'] = $notice;
+			$args['startTime'] = "2001-01-01";
+			$page = trim($this->getCompanyInfo($args));
+
 			$pageState = $this->checkPageRight($page);
 			if($pageState && $pageState['now']){
 				//0,0的情况不保存
 				$res[] = array($stockCode , base64_encode($page) , 1 , $notice , $qNum);
 				for($i = $pageState['now'] + 1; $i <= $pageState['total'];$i++){
 					//arr的顺序是stockCode , pageContent , page 页码 , notice;
+					$args['pageNo'] = $i;
 					$res[] = array(
 								$stockCode , 
-								base64_encode($this->getCompanyInfo($stockCode , $notice , $i)) 
+								base64_encode($this->getCompanyInfo($args)) 
 								,$i , $notice , $qNum
 							);
 				}
@@ -154,19 +163,23 @@ class Shengetcode extends Getcode
 	 * @param string	$notice	年报的类型
 	 * @param int		$pageNo 页码
 	 **/
-	public function getCompanyInfo($code = "000001" , $notice = "010301" , $pageNo = 1)
+	//public function getCompanyInfo($code = "000001" , $notice = "010301" , $pageNo = 1)
+	public function getCompanyInfo($args)
 	{
-		$args['stockCode'] = $code;
+		//$args['stockCode'] = $code;
 		$args['keyword'] = "";
-		$args['noticeType'] = $notice;
-		$args['startTime'] = "2001-01-01";
+		//$args['noticeType'] = $notice;
+		if(!isset($args['startTime'])){
+			$args['startTime'] = "2001-01-01";
+		}
 		//这里的时间将来要修改
-		$args['endTime'] = $this->getTime('-');
+		if(!isset($args['endTime'])){
+			$args['endTime'] = $this->getTime('-');
+		}
 		$args['imageField'] = array("x"  => 0 , 'y' => 97);
-		$args['pageNo'] = $pageNo;
-		//$args['imageField'] = 17;
-		/* $args['tzy'] = "";
-		 */
+		if(!isset($args['pageNo'])){
+			$args['pageNo'] = '1';
+		}
 		$header = array(
 			"Host: disclosure.szse.cn" ,
 			"Referer: http://disclosure.szse.cn/m/drgg.htm"	, 
@@ -243,6 +256,105 @@ class Shengetcode extends Getcode
 			);
 		}
 	}
+
+	/**
+	 * 获取页面内部的数据
+	 *
+	 * @return array
+	 **/
+	public function getPageRows($str , $page )
+	{
+		$res = array();
+		$this->HtmlParserModel->parseStr($str , array() , "big5");
+		$lines = $this->HtmlParserModel->find('.td2');
+		$baseUrl = "http://disclosure.szse.cn/";
+		foreach($lines as $line){
+			$tmpStr = $line->value;
+			// <span class="link1">[2014-10-24]</span>
+			preg_match('/\>\[(\d{4}-\d{2}-\d{2})\]/' , $tmpStr , $time);
+			if(count($time) != 2){
+				var_dump($tmpStr);
+				echo "<br/>";
+				Debug::output('time is wrong' , E_ERROR);
+			}
+			//$tmpStr = "<a href=\"finalpage/2014-03-07/63646348.PDF\" target=\"new\">平安银行：2013年年度报告摘要</a>";
+			preg_match('/href\=\s*[\'\"]?\s*([^"\']+)/' , $tmpStr , $download);
+			if(count($download) != 2){
+				var_dump($tmpStr);
+				Debug::output('download link' , E_ERROR);
+			}
+			//preg_match('/href\=\"([^\s]*)\"\s+/' , $tmpStr , $download);
+			preg_match('/\>\s*\(\s*(\d*)\s*k\s*\)\s*/' , $tmpStr , $size);
+			if(count($size) != 2){
+				var_dump($tmpStr);
+				$size[1] = 0;
+			}
+			//$tmpStr = "<a href='finalpage/2008-04-22/38959757.PDF' target='new'>*ST宜地：2007年年度报告（补充后）</a>";
+			preg_match('/\>\s*([^\>]*)\s*\<\s*\\/a\s*\>/' , $tmpStr , $title);
+			if(count($title) != 2){
+				var_dump($tmpStr);
+				echo "<br/>";
+				Debug::output('title is wrong' , E_ERROR);
+			} else {
+				$title[1] = mb_convert_encoding($title[1] ,'UTF-8', 'CP936');
+			}
+			$res[] = array(
+						$time[1] ,$baseUrl . $download[1] , $size[1] , $title[1],
+						$page['notice'] , $page['code'] ,
+						$page['q_num'] ,
+						strtotime($time[1]),
+					);
+		}
+		return $res;
+	}
+
+	/**
+	 * 获取最新的数据，并且保存
+	 */
+	function refresh(){
+		//抓取遗漏的数据
+		$prefix = array('000' , '200' ,'300' , '900' , '002' ,'301' , '311');
+		// 301 , 311 是以后会增加的
+		//010301 年度报告
+		//010303 半年度报告
+		//010305 一季度报告
+		//010307 三季度报告
+		//$notice = array('010301' , '010303' , '010305' , '010307');
+		$notice = array('010301' => 'q4', '010303' => 'q2' , '010305' => 'q1' , '010307' => 'q3');
+		$this->DataBaseModel->setTables('data');
+		$list = array('time' , 'link' , 'size' , 'title' , 'notice' , 'code' , 'q_num' , 'timestamp');
+		for($i = 1;$i <= 999 ;$i++){
+			foreach($prefix as $pre){
+				$stockCode = $this->getStockCode($i, $pre);
+				echo $stockCode . "<br/>\n";
+				foreach ($notice as $key => $value) {
+					$args['stockCode'] = $stockCode;
+					$args['noticeType'] = $key;
+					$args['startTime'] = $this->getTime('-', 1, 1);
+					$page = trim($this->getCompanyInfo($args));
+					$pageState = $this->checkPageRight($page);
+					if($pageState && $pageState['now']){
+						$res = $this->getPageRows(
+							$page , 
+							array('notice' => $key , 'code' => $stockCode , 'q_num' => $value)
+						);	
+						foreach($res as $row){
+							$stored = $this->DataBaseModel->select('max(did)' , array('code' => $stockCode ,'timestamp' => $row[7] ));
+							if(empty($stored)){
+								$flag = $this->DataBaseModel->insert(
+									$list , array($row)
+								);	
+								if($flag){
+									var_dump($row);
+								}
+							}
+						}
+					}
+				}
+				flush();
+			}
+		}
+	}
 	/**
 	 * 在对应的page表里面,解析出来对应的数据
 	 *
@@ -253,50 +365,8 @@ class Shengetcode extends Getcode
 		$data = $this->DataBaseModel->select('q_num, notice , code ,content' , array('notice' => array('010305' ,'010301' , '010303' , '010307') ));
 		//$prefix = array('000' , '200' ,'080' ,'031');
 		$this->DataBaseModel->createTable('data');
-		$baseUrl = "http://disclosure.szse.cn/";
 		foreach ($data  as $page ) {
-			$this->HtmlParserModel->parseStr(base64_decode($page['content']), array() , "big5");
-			$lines = $this->HtmlParserModel->find('.td2');
-			$res = array();
-			//从每一行td2中获取时间和标题，以及对应的下载连接
-			foreach($lines as $line){
-				$tmpStr = $line->value;
-				// <span class="link1">[2014-10-24]</span>
-				preg_match('/\>\[(\d{4}-\d{2}-\d{2})\]/' , $tmpStr , $time);
-				if(count($time) != 2){
-					var_dump($tmpStr);
-					echo "<br/>";
-					Debug::output('time is wrong' , E_ERROR);
-				}
-				//$tmpStr = "<a href=\"finalpage/2014-03-07/63646348.PDF\" target=\"new\">平安银行：2013年年度报告摘要</a>";
-				preg_match('/href\=\s*[\'\"]?\s*([^"\']+)/' , $tmpStr , $download);
-				if(count($download) != 2){
-					var_dump($tmpStr);
-					Debug::output('download link' , E_ERROR);
-				}
-				//preg_match('/href\=\"([^\s]*)\"\s+/' , $tmpStr , $download);
-				preg_match('/\>\s*\(\s*(\d*)\s*k\s*\)\s*/' , $tmpStr , $size);
-				if(count($size) != 2){
-					var_dump($tmpStr);
-					//Debug::output('size is wrong' , E_ERROR);
-					$size[1] = 0;
-				}
-				//$tmpStr = "<a href='finalpage/2008-04-22/38959757.PDF' target='new'>*ST宜地：2007年年度报告（补充后）</a>";
-				preg_match('/\>\s*([^\>]*)\s*\<\s*\\/a\s*\>/' , $tmpStr , $title);
-				if(count($title) != 2){
-					var_dump($tmpStr);
-					echo "<br/>";
-					Debug::output('title is wrong' , E_ERROR);
-				} else {
-					$title[1] = mb_convert_encoding($title[1] ,'UTF-8', 'CP936');
-				}
-				$res[] = array(
-							$time[1] ,$baseUrl . $download[1] , $size[1] , $title[1],
-							$page['notice'] , $page['code'] ,
-							$page['q_num'] ,
-							strtotime($time[1]),
-						);
-			}
+			$res = $this->getPageRows(base64_decode($page['content']) , $page);	
 			$list = array('time' , 'link' , 'size' , 'title' , 'notice' , 'code' , 'q_num' , 'timestamp');
 			if($this->DataBaseModel->insert($list , $res)){
 				echo $page['notice'] . "\n";

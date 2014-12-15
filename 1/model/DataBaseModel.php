@@ -143,7 +143,6 @@ class DataBaseModel
 	 */
 	public  function insert($tabItem, $data)
 	{
-		//ob_flush();
 		if(!is_array($tabItem)){
 			error("这里发送了错误，输入的数据不是数组");
 		}
@@ -151,7 +150,7 @@ class DataBaseModel
 			error("输入数据不是数组");
 		}
 		if(empty($data))return true;
-		$sql = 'INSERT INTO `' . $this->tableName . '` ( `' . implode('`,`' , $tabItem) . '` ) VALUES';
+		$sql = 'INSERT INTO `' . $this->tableName . '` ( `' . implode('`,`' , $tabItem) . '` ) VALUES ';
 		foreach($data as $row){
 			// count 的效率是O(1)的
 			if(count($tabItem) !== count($row)){
@@ -191,7 +190,7 @@ class DataBaseModel
 		if(!$result){
 			error('select mysql error : ' . mysqli_error(self::$link));
 		}
-		if($result->num_rows === 0)return false;
+		if($result->num_rows === 0)return array();
 		return $this->getResult($result);
 
 		return $rows;
