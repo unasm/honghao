@@ -72,8 +72,6 @@ class Home extends Honghao
 			} elseif (isset($_GET['code']) && isset($_GET['time'])){
 				//这种情况下，视为网页的正常访问
 				$out = $this->getData();
-				var_dump($out);
-				echo "<br/>\n\n";
 				$this->showView($out);
 			}
 		}		
@@ -268,7 +266,6 @@ class Home extends Honghao
 			"https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" . $this->getToken(),
 			$this->menu(), array(), 50 
 		);
-		var_dump($menu);
 	}
 
 	/**
