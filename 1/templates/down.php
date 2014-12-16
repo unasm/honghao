@@ -28,7 +28,7 @@
 	#float{
 		background:rgba(0,0,0,0.6);	
 		width:100%;
-		color:rgb(80, 212, 80);
+		color:rgb(161, 161, 236);
 		font-size:1.2em;
 		position:absolute;
 		top:0;
@@ -38,7 +38,7 @@
 		margin-top:60px;
 	}
     #float strong{
-        color:rgb(200, 255, 198);
+        color:blue;
         font-size:1.1em;
     }
 </style>
