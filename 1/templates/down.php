@@ -38,7 +38,7 @@
 		margin-top:60px;
 	}
     #float strong{
-        color:rgb(171, 238, 181);
+        color:rgb(200, 255, 198);
         font-size:1.1em;
     }
 </style>
