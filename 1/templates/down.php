@@ -7,7 +7,7 @@
 </head>
 <body>
 	<div id = "float">
-		<p>请点击右上方或者右下方的按钮，选择在<strong>浏览器中打开</strong></p>
+		<p>请点击右上方或者右下方的按钮，选择在<strong>浏览器</strong>中打开</p>
 	</div>
 	<div id = "container">
 		<?php foreach($output as $data):?>
@@ -28,7 +28,7 @@
 	#float{
 		background:rgba(0,0,0,0.6);	
 		width:100%;
-		color:rgb(73, 235, 73);
+		color:rgb(80, 212, 80);
 		font-size:1.2em;
 		position:absolute;
 		top:0;
@@ -39,6 +39,7 @@
 	}
     #float strong{
         color:rgb(171, 238, 181);
+        font-size:1.1em;
     }
 </style>
 </html>
