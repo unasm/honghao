@@ -37,5 +37,8 @@
 	#container{
 		margin-top:60px;
 	}
+    #float strong{
+        color:rgb(171, 238, 181);
+    }
 </style>
 </html>
