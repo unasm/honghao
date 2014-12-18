@@ -32,36 +32,12 @@ class Home extends Honghao
 		$out = array();
 		$error = 0;
 		if(!empty($res) && $res->Content){
-			$data = explode($this->config['delimate'] , $res->Content);
-			if(count($data) === 2){
-				$_GET['code'] = trim($data[0]);
-				$_GET['time'] = strtolower( trim($data[1]) );
-				if(!preg_match('/^\d+$/' , $_GET['code'])){
-					$this->output->formStr($_GET['code'] . $this->config['help'] . '1', $res);
-					$error = 1;			
-					return;
-				}
-				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
-					$this->output->formStr($this->config['help'] . '2', $res);
-					$error = 1;
-				}
-				if($error)return;
-				$out = $this->getData();
-				if(empty($out)){
-					$this->output->formStr( "没有您想要的财报", $res);
-					return;
-				} 
-
-				foreach($out as $idx => $value){
-					$tmp =  "披露时间: " . $value['time'] . "\n\n";
-					$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}'>" .$value['title']. "</a>\n";
-					$tmp .="\n";
-					$this->output->formStr($tmp , $res);
-				}
-			} else {
-				$error = 1;
-				$this->output->formStr($this->config['help'] . '3', $res);
+			if($res->MsgType == 'text'){
+				$this->text($res);
+			} elseif($res->MsgType == 'event'){
+				$this->output->formStr("收到请回复" , $res);
 			}
+			$data = explode($this->config['delimate'] , $res->Content);
 		} else {
 			if(DEBUG){
 				$_GET['code'] = '600000';
@@ -78,6 +54,42 @@ class Home extends Honghao
 
 	}		
 
+	/**
+	 * 返回文本消息
+	 *
+	 * @return boolen
+	 **/
+	public function text($obj)
+	{
+		if(count($data) === 2){
+			$_GET['code'] = trim($data[0]);
+			$_GET['time'] = strtolower( trim($data[1]) );
+			if(!preg_match('/^\d+$/' , $_GET['code'])){
+				$this->output->formStr($_GET['code'] . $this->config['help'] . '1', $obj);
+				$error = 1;			
+				return;
+			}
+			if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
+				$this->output->formStr($this->config['help'] . '2', $obj);
+				$error = 1;
+			}
+			if($error)return;
+			$out = $this->getData();
+			if(empty($out)){
+				$this->output->formStr( "没有您想要的财报", $obj);
+				return;
+			} 
+			foreach($out as $idx => $value){
+				$tmp =  "披露时间: " . $value['time'] . "\n\n";
+				$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}'>" .$value['title']. "</a>\n";
+				$tmp .="\n";
+				$this->output->formStr($tmp , $obj);
+			}
+		} else {
+			$error = 1;
+			$this->output->formStr($this->config['help'] . '3', $obj);
+		}
+	}
 	/**
 	 * 获取查询的时间区间
 	 * 得到这个季度的开始和接下来两个季度的时间区间
