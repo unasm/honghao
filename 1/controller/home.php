@@ -37,7 +37,6 @@ class Home extends Honghao
 			} elseif($res->MsgType == 'event'){
 				$this->output->formStr("收到请回复" , $res);
 			}
-			$data = explode($this->config['delimate'] , $res->Content);
 		} else {
 			if(DEBUG){
 				$_GET['code'] = '600000';
@@ -61,6 +60,7 @@ class Home extends Honghao
 	 **/
 	public function text($obj)
 	{
+		$data = explode($this->config['delimate'] , $res->Content);
 		if(count($data) === 2){
 			$_GET['code'] = trim($data[0]);
 			$_GET['time'] = strtolower( trim($data[1]) );
