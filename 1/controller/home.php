@@ -35,7 +35,9 @@ class Home extends Honghao
 			if($res->MsgType == 'text'){
 				$this->text($res);
 			} elseif($res->MsgType == 'event'){
-				$this->output->formStr("收到请回复" , $res);
+				$this->output->formStr(
+					"感谢关注鸿昊投资，本平台提供在上海证券交易所，深证证券交易所以及香港联合交易所上市的公司财务报告检索下载功能，让专业的投资者可以利用零碎时间，随时随地随意的查阅上市公司的财务报表。使用方法参见检索帮助" ,
+				   	$res);
 			}
 		} else {
 			if(DEBUG){
