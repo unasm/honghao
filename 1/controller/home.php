@@ -60,7 +60,7 @@ class Home extends Honghao
 	 **/
 	public function text($obj)
 	{
-		$data = explode($this->config['delimate'] , $res->Content);
+		$data = explode($this->config['delimate'] , $obj->Content);
 		if(count($data) === 2){
 			$_GET['code'] = trim($data[0]);
 			$_GET['time'] = strtolower( trim($data[1]) );
