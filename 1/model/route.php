@@ -15,16 +15,16 @@ class Route
 	function __construct()
 	{
 		$urlArr = array();
-		if(isset($_SERVER['argv'])){
+		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST']){
+			$url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$urlArr = parse_url($url);
+			$urlArr['path'] = trim($urlArr['path'] , "/");	
+		}else{
 			if($_SERVER['argc'] > 1){
 				$urlArr['path'] = $_SERVER['argv'][1];
 			}else{
 				$urlArr['path'] = '';
-			}
-		}else{
-			$url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-			$urlArr = parse_url($url);
-			$urlArr['path'] = trim($urlArr['path'] , "/");	
+			}	
 		}
 		if(!$urlArr['path'] || empty($urlArr)){
 			$urlArr['path'] = 'home';

@@ -118,6 +118,9 @@ class DataBaseModel
 		//$this->dbConfig = $this->cofig['db'];
 		if(extension_loaded('mysqli')){
 			self::$link = mysqli_init();
+			if(!self::$link){
+				die("database init failed");
+			}
 			$instance = &get_instance();
 			/*
 			if(array_key_exists('port' , $instance->config['db'])){
