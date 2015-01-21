@@ -169,6 +169,7 @@ class DataBaseModel
 		$result = self::$link->query($sql);
 		if(!$result){
 			//error('mysql error : ' . self::$link->errno);
+			echo "\n" . $sql . "\n";
 			error('insert mysql error : ' . mysqli_error(self::$link));
 			//echo "创建表失败 : " . mysqli_error(self::$link). "<br/>";
 		}
@@ -269,7 +270,10 @@ class DataBaseModel
 		}
 		return true;
 	}
-
+	
+	function delete ($did){
+		return self::$link->query( 'delete from ' . $this->tableName . ' where did = ' . $did );
+	}
 	/**
 	 * 传入一条sql，无条件执行
 	 *

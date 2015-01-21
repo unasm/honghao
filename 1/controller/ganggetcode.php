@@ -14,13 +14,16 @@ define("DEBUG" , true);
 class Ganggetcode extends Getcode
 {
 	const MAXCODE = 9000;
+	const codeLength = 5;
 	function __construct(){
 		parent::__construct();
+		ini_set('memory_limit' , '-1');
 		$this->load->model('DataBaseModel');
 		$this->load->model('Encode');
 		//修改运行时间的上限
 		set_time_limit(0);
 		$this->encoding = 'BIG5';
+		$this->load->model('HtmlParserModel');
 		header("Content-type : text/html; charset=big5");
 	}
 	function show(){
@@ -59,28 +62,28 @@ class Ganggetcode extends Getcode
 	 **/
 	public function getStockCode($i , $prefix = '')
 	{
-		$len = 5 - strlen($i);
+		$len = self::codeLength - strlen($i);
 		while($len --){
 			$i = '0' . $i;
 		}	
 		return $prefix . $i;
 	}
 
-	function test(){
-		$page = file_get_contents('game.html' , true);
-		$data = $this->getViewState($page);
-		var_dump($data);
-	}
 	/**
 	 * 解析具体的页面
 	 * @param	string	$page	页面对应的str
 	 * @todo 验证是不是超过20
 	 */
 	public function parsePage($page){
-		$encode = 'big5';
-		$this->load->model('HtmlParserModel');
-		$this->HtmlParserModel->parseStr($page ,array() , $encode);
+		//$encode = 'big5';
+		$parser = new HtmlParserModel();
+		/*
+		$parser->parseStr($data);
+		$this->HtmlParserModel->parseStr($page ,array() , $this->encoding);
 		$str = $this->HtmlParserModel->find("#ctl00_gvMain_ctl01_lbPageCount");
+		 */
+		$parser->parseStr($page , array() , $this->encoding);
+		$str = $parser->find("#ctl00_gvMain_ctl01_lbPageCount");
 		if(!$str || empty($str)){
 			return false;
 		}
@@ -108,7 +111,7 @@ class Ganggetcode extends Getcode
 		//$fp = fopen('gang.html' , 'w') or die("open file failed");
 		$this->DataBaseModel->setTables($this->config['gangpage']);
 		$overflow = array();
-		for($i = 0;$i <= self::MAXCODE;$i++){
+		for($i = 8363;$i <= self::MAXCODE;$i++){
 			$stockCode = $this->getStockCode($i);
 			$res = array();
 			$res = $this->DataBaseModel->select('pid , code' , array('code' => $stockCode , 'notice' => '-2'));
@@ -233,20 +236,27 @@ class Ganggetcode extends Getcode
 		//去除空格以免 年  报这种情景
 		$arr = explode(' ' , $title);
 		$title = implode('' , $arr);
-		//$title = "撒旦年如何了";
-		if(strstr($title , '年报') || strstr($title  , '年報') || strstr($title , '年度')){
-			return 'q4';
-		}
-		if(strstr($title , '第三')){
-			return 'q3';
-		}
-		if(strstr($title , '中期') || strstr($title , '半年') || strstr($title , '中報')){
+		/*
+		$title = "長江實業二零一三年度中期報告";
+		var_dump(strpos($title , '年报'));
+		var_dump(strpos($title , '年度'));
+		var_dump(strpos($title , '年報'));
+		die;
+		 */
+		if(strpos($title , '第2') || strpos($title , '第二') || strpos($title , '中期') || strpos($title , '半年') || strpos($title , '中報')){
 			return 'q2';
 		}
-		if(strstr($title , '第一')){
+		if(strpos($title , '第三') || strpos($title , '第3')){
+			return 'q3';
+		}
+		if(strpos($title , '第一') || strpos($title , '第1')){
 			return 'q1';
 		}
+		if(strpos($title , '年报') || strpos($title  , '年報') || strpos($title , '年度')){
+			return 'q4';
+		}
 		return false;
+
 	}
 	/**
 	 * 在对应的page表里面,解析出来对应的数据
@@ -258,15 +268,27 @@ class Ganggetcode extends Getcode
 		$this->DataBaseModel->setTables('data');
 		for($j = 0,$jlen = count($data);$j < $jlen;$j++){
 			$page = $data[$j];
+			echo strlen($data[$j]['code']);
+			if(strlen($data[$j]['code']) !== 5){
+				continue;	
+			}
 			//var_dump(base64_decode($page['content']));
 			$res = $this->getPageRows(base64_decode($page['content']));
 			for($i = 0;$i < count($res);$i++){
 				$res[$i][] = $page['code'];
 				$res[$i][] = $page['notice'];
 			}
+			$dbst = $this->dataInsert($res);
+			if(!$dbst){
+				echo "insert Error\n";
+				var_dump($dbst);
+				//var_dump($res);
+				foreach($res as $row){
+					echo 'title length is ' . strlen($res[0]) . "\n";
+				}
+				die;
+			}
 			flush();
-			var_dump($res);
-			//$this->dataInsert($res);
 			//$res[] = array($title[1] , $size[1] , $time[1] , strtotime($time[1]),$baseUrl . $download[1] , $q_num);
 			/*
 			$this->DataBaseModel->insert( 
@@ -455,7 +477,12 @@ class Ganggetcode extends Getcode
 		//获取第二页`
 		$overflow = array();
 		foreach ($data  as $page ) {
-			$page['content'] = base64_decode($page['content']);
+			if(strlen($page['code']) !== 5){
+				echo "continuing\n";
+				continue;	
+			}
+			$page['content'] = trim(base64_decode($page['content']));
+			echo strlen($page['content']) . "\n";
 			$res = $this->parsePage($page['content']);
 			if(empty($res) || $res['total'] <= 20 ){
 				continue;
@@ -468,11 +495,10 @@ class Ganggetcode extends Getcode
 			}
 			$secPage = $this->httpGetSecPage($state);
 			$res = $this->parsePage($secPage);
-			var_dump($res);
 			if($res['now'] > 19){
 				$this->DataBaseModel->insert(
-					array('code' , 'pageId' , 'content' , 'notice'),
-					array(array( $page['code'],'2' ,base64_encode($secPage) , '-2'))
+					array('code' , 'pageId' , 'content' , 'notice' , 'q_num'),
+					array(array( $page['code'],'2' ,base64_encode($secPage) , '-2' , '-1'))
 				) && printf( "{$page['code']} insert success<br/>\n\n");	
 			}
 			if($res['total'] > 40){
@@ -509,9 +535,9 @@ class Ganggetcode extends Getcode
 	 **/
 	public function getViewState($page)
 	{
-		$this->load->model('Parser');
-		$this->Parser->parseStr($page, array(), "BIG5");
-		$lines = $this->Parser->find('input[type]');
+		$this->load->model('HtmlParserModel');
+		$this->HtmlParserModel->parseStr($page, array(), "BIG5");
+		$lines = $this->HtmlParserModel->find('input[type]');
 		foreach($lines as $row){
 			if(!preg_match('/input\s+/' , $row->value)){
 				return $row->value;
@@ -557,4 +583,41 @@ class Ganggetcode extends Getcode
 		}
 	}
 
+	/**
+	 * 清楚data表里面的香港的数据
+	 *
+	 **/
+	public function clean()
+	{
+		$this->DataBaseModel->setTables('data');
+		$data = $this->DataBaseModel->select('did, notice , code ', array(), ' where code < 9000 && notice = -2');
+		//$this->DataBaseModel->setTables('data');
+		for($j = 0,$jlen = count($data);$j < $jlen;$j++){
+			if(strlen($data[$j]['code']) === 5){
+				$this->DataBaseModel->delete( $data[$j]['did']);
+			}
+		}	
+	}
+
+	/**
+	 * 清楚data表里面的香港的数据
+	 *
+	 **/
+	public function showOneData()
+	{
+		header("Content-type : text/html; charset=utf-8");
+		$this->DataBaseModel->setTables('data');
+		$data = $this->DataBaseModel->select('* ', array(), ' where code < 9000 && notice = -2');
+		//$this->DataBaseModel->setTables('data');
+		for($j = 0,$jlen = count($data);$j < $jlen;$j++){
+			echo "<pre>";
+			var_dump($data[$j]);
+			die;
+			/*
+			if(strlen($data[$j]['code']) === 5){
+				$this->DataBaseModel->delete( $data[$j]['did']);
+			}
+			 */
+		}	
+	}
 }
