@@ -4,11 +4,12 @@
  * Author    :    jiamin1
  * Mail      :    jiamin1@staff.sina.com.cn
  ************************************************************************/
-if(preg_match('/^tianyi.*/' , gethostname())){
-	$config['db']['host'] = "localhost";
+if(PC){
+//if(preg_match('/^bogon.*/' , gethostname())){
+	$config['db']['host'] = "127.0.0.1";
 	$config['db']['userName'] = "root";
-	$config['db']['password'] = "douunasm";
-	$config['db']['dbName'] = "honghao";
+	$config['db']['password'] = "asdf";
+	$config['db']['dbName'] = "honghaotouzi";
 } else {
 	$config['db']['host'] = SAE_MYSQL_HOST_M . ':' . SAE_MYSQL_PORT;
 	$config['db']['userName'] = SAE_MYSQL_USER ;

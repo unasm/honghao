@@ -7,7 +7,7 @@
 /**
  * 搜索获取对应的数据
  **/
-DEFINE("DEBUG" , 0);
+DEFINE("DEBUG" , 1);
 class Home extends Honghao
 {
 
@@ -41,8 +41,8 @@ class Home extends Honghao
 			}
 		} else {
 			if(DEBUG){
-				$_GET['code'] = '600000';
-				$_GET['time'] = '2002Q2';
+				$_GET['code'] = '600100';
+				$_GET['time'] = '2009Q2';
 			}
 			if($res){
 				$this->output->formStr($this->config['help'] , $res);
@@ -117,6 +117,21 @@ class Home extends Honghao
 			'q_num' => 'q' . $tmp[1]
 		);
 	}
+
+	/**
+	 * 对比两个时间，是不是同一年的
+	 * @param	int		$timeA		2009的样式
+	 * @param	int		$timeB		2003-01-21的样式
+	 * @return bool
+	 **/
+	public function checkTime($timeA, $timeB)
+	{
+		$tmp = explode('-' , $timeB);
+		if($tmp[0] === $timeA){
+			return true;	
+		}
+		return false;
+	}
 	/**
 	 * 根据传入的数据获取对应的结果
 	 * @param	string/get	$time	2013Q3这种类型的数据
@@ -129,11 +144,16 @@ class Home extends Honghao
 		//使用原生态的，避免麻烦
 		//$code = $_GET['code'];
 		$this->DataBaseModel->setTables('data');
+		$year = explode('Q', strtoupper($_GET['time']));
 		$res = $this->getSelectTime($_GET['time']);
-		$data = $this->DataBaseModel->select("time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
+		$data = $this->DataBaseModel->select("time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && q_num = '{$res['q_num']}'");
+		//$data = $this->DataBaseModel->select("time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
 		$res = array();
-		//去重,数据中有重复
+		//对比年份，去重,数据中有重复
 		for($i = 0 , $len = $data ? count($data) : 0 ; $i < $len ;$i++){
+			if(!$this->checkTime($year[0] , $data[$i]['time'])){
+				continue;
+			}
 			$flag = 1;
 			for($j = $i+1; $j < $len;$j++){
 				$tmpflag = 1;
