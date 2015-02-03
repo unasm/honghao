@@ -313,7 +313,7 @@ class Shengetcode extends Getcode
 	 */
 	function refresh(){
 		//抓取遗漏的数据
-		$prefix = array('000' , '200' ,'300' , '900' , '002' ,'301' , '311');
+		$prefix = array('002' , '200' ,'300' , '900' , '000' ,'301' , '311');
 		// 301 , 311 是以后会增加的
 		//010301 年度报告
 		//010303 半年度报告
@@ -323,10 +323,10 @@ class Shengetcode extends Getcode
 		$notice = array('010301' => 'q4', '010303' => 'q2' , '010305' => 'q1' , '010307' => 'q3');
 		$this->DataBaseModel->setTables('data');
 		$list = array('time' , 'link' , 'size' , 'title' , 'notice' , 'code' , 'q_num' , 'timestamp');
-		for($i = 1;$i <= 999 ;$i++){
+		for($i = 0 ;$i <= 999 ;$i++){
 			foreach($prefix as $pre){
 				$stockCode = $this->getStockCode($i, $pre);
-				echo $stockCode . "<br/>\n";
+				echo $stockCode . "\n";
 				foreach ($notice as $key => $value) {
 					$args['stockCode'] = $stockCode;
 					$args['noticeType'] = $key;
@@ -339,12 +339,23 @@ class Shengetcode extends Getcode
 							array('notice' => $key , 'code' => $stockCode , 'q_num' => $value)
 						);	
 						foreach($res as $row){
-							$stored = $this->DataBaseModel->select('max(did)' , array('code' => $stockCode ,'timestamp' => $row[7] ));
-							if(empty($stored)){
+							$stored = $this->DataBaseModel->select('*' , array('code' => $stockCode ,'timestamp' => $row[7] ));
+							$flag = 0;
+							foreach($stored as $old){
+								//标题相同，已经插入了
+								if($old['title'] === $row[3]){
+									$flag = 1;
+									break;
+								}
+							}
+							
+							//完全没类似数据
+							if($flag === 0){
 								$flag = $this->DataBaseModel->insert(
 									$list , array($row)
 								);	
 								if($flag){
+									echo "insert success\n";
 									var_dump($row);
 								}
 							}

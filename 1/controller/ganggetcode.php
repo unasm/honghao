@@ -122,12 +122,13 @@ class Ganggetcode extends Getcode
 				}
 				continue;
 			}
-			$page = $this->getCompanyInfo($stockCode,
-				array(
+			$page = $this->getCompanyInfo($stockCode,array());
+/*
+			array(
 					'ctl00$rdo_SelectDocType' => 'rbAfter2006',
 					'ctl00$sel_tier_2' => '-2'
 				)
-			);
+*/
 			$res = $this->parsePage($page);
 			if(!empty($res) && $res){
 				if($res['total'] > 20){
@@ -339,6 +340,12 @@ class Ganggetcode extends Getcode
 	 **/
 	public function getCompanyInfo($code = '00001' , $notice  , $new = false)
 	{
+		if(empty($notice)){
+			$notice =  array(
+					'ctl00$rdo_SelectDocType' => 'rbAfter2006',
+					'ctl00$sel_tier_2' => '-2'
+				);
+		}
 		//viewState 可以从网页上获取,网页中有嵌套 http://www.hkexnews.hk/listedco/listconews/advancedsearch/search_active_main_c.aspx
 		//$args['stockCode'] = $code;
 		//这里的时间将来要修改
@@ -555,14 +562,7 @@ class Ganggetcode extends Getcode
 		for($i = 0;$i <= self::MAXCODE;$i++){
 			$stockCode = $this->getStockCode($i);
 			$res = array();
-			$page = $this->getCompanyInfo(
-				$stockCode,
-				array(
-					'ctl00$rdo_SelectDocType' => 'rbAfter2006',
-					'ctl00$sel_tier_2' => '-2'
-				), 
-				true
-			);
+			$page = $this->getCompanyInfo($stockCode,array(),true);
 			$rows = $this->getPageRows($page);
 			if(!$rows  || empty($rows)){
 				continue;

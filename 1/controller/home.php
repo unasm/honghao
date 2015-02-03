@@ -41,8 +41,8 @@ class Home extends Honghao
 			}
 		} else {
 			if(DEBUG){
-				$_GET['code'] = '600100';
-				$_GET['time'] = '2009Q2';
+				$_GET['code'] = '300011';
+				$_GET['time'] = '2014Q4';
 			}
 			if($res){
 				$this->output->formStr($this->config['help'] , $res);
@@ -65,7 +65,8 @@ class Home extends Honghao
 		$data = explode($this->config['delimate'] , $obj->Content);
 		if(count($data) === 2){
 			$_GET['code'] = trim($data[0]);
-			$_GET['time'] = strtolower( trim($data[1]) );
+			$_GET['time'] = strtolower( trim($data[1]) );	
+			$error = 0;
 			if(!preg_match('/^\d+$/' , $_GET['code'])){
 				$this->output->formStr($_GET['code'] . $this->config['help'] . '1', $obj);
 				$error = 1;			
@@ -83,7 +84,7 @@ class Home extends Honghao
 			} 
 			foreach($out as $idx => $value){
 				$tmp =  "披露时间: " . $value['time'] . "\n\n";
-				$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}'>" .$value['title']. "</a>\n";
+				$tmp .= "<a href = '" . BASE_URL . "/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}'>" .$value['title']. "</a>\n";
 				$tmp .="\n";
 				$this->output->formStr($tmp , $obj);
 			}
@@ -127,7 +128,8 @@ class Home extends Honghao
 	public function checkTime($timeA, $timeB)
 	{
 		$tmp = explode('-' , $timeB);
-		if($tmp[0] === $timeA){
+		// 发布时间 可能晚一点
+		if($tmp[0] === $timeA || ($tmp[0]) === ($timeA - 1) ){
 			return true;	
 		}
 		return false;
@@ -145,13 +147,15 @@ class Home extends Honghao
 		//$code = $_GET['code'];
 		$this->DataBaseModel->setTables('data');
 		$year = explode('Q', strtoupper($_GET['time']));
-		$res = $this->getSelectTime($_GET['time']);
-		$data = $this->DataBaseModel->select("time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && q_num = '{$res['q_num']}'");
+		$timeInfo = $this->getSelectTime($_GET['time']);
+		//var_dump($timeInfo);
+		$data = $this->DataBaseModel->select("timestamp,time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && q_num = '{$timeInfo['q_num']}'");
 		//$data = $this->DataBaseModel->select("time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
 		$res = array();
 		//对比年份，去重,数据中有重复
 		for($i = 0 , $len = $data ? count($data) : 0 ; $i < $len ;$i++){
-			if(!$this->checkTime($year[0] , $data[$i]['time'])){
+			//保留这个季度的开始以及接下来两个季度的相同季度的财报
+			if($timeInfo['start'] >= $data[$i]['timestamp'] || $timeInfo['end'] <= $data[$i]['timestamp']){
 				continue;
 			}
 			$flag = 1;
