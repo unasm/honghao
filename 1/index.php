@@ -1,5 +1,5 @@
 <?php
-define("PC" , 1);
+define("PC" , 'sae');
 date_default_timezone_set('Asia/Shanghai');
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );

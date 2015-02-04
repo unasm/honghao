@@ -4,13 +4,13 @@
  * Author    :    jiamin1
  * Mail      :    jiamin1@staff.sina.com.cn
  ************************************************************************/
-if(PC){
+if(PC === 'pc'){
 //if(preg_match('/^bogon.*/' , gethostname())){
 	$config['db']['host'] = "127.0.0.1";
 	$config['db']['userName'] = "root";
 	$config['db']['password'] = "asdf";
 	$config['db']['dbName'] = "honghaotouzi";
-} else {
+} elseif(PC === 'sae') {
 	$config['db']['host'] = SAE_MYSQL_HOST_M . ':' . SAE_MYSQL_PORT;
 	$config['db']['userName'] = SAE_MYSQL_USER ;
 	$config['db']['password'] = SAE_MYSQL_PASS;
