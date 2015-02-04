@@ -15,6 +15,7 @@ class wx
 
         //valid signature , option
         if($this->checkSignature()){
+			echo $echoStr;
         }
     }
 	/**
