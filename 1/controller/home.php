@@ -41,8 +41,8 @@ class Home extends Honghao
 			}
 		} else {
 			if(DEBUG){
-				$_GET['code'] = '300011';
-				$_GET['time'] = '2014Q4';
+				$_GET['code'] = '000001';
+				$_GET['time'] = '2012Q2';
 			}
 			if($res){
 				$this->output->formStr($this->config['help'] , $res);
@@ -142,7 +142,6 @@ class Home extends Honghao
 	 **/
 	public function getData()
 	{
-
 		//使用原生态的，避免麻烦
 		//$code = $_GET['code'];
 		$this->DataBaseModel->setTables('data');
@@ -150,6 +149,7 @@ class Home extends Honghao
 		$timeInfo = $this->getSelectTime($_GET['time']);
 		//var_dump($timeInfo);
 		$data = $this->DataBaseModel->select("timestamp,time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && q_num = '{$timeInfo['q_num']}'");
+		
 		//$data = $this->DataBaseModel->select("time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
 		$res = array();
 		//对比年份，去重,数据中有重复
