@@ -572,10 +572,12 @@ class Ganggetcode extends Getcode
 				$store = $this->DataBaseModel->select('count(*) as num' , array('code' => $stockCode , 'timestamp' => $data[3] , 'q_num' => $data[5]));
 				$data[] = $stockCode;
 				$data[] =  '-2';
-				if($this->dataInsert(array($data))){
-				} else {
-					echo "insert failed";
-					die;
+				if(count($store) == 0){
+					if($this->dataInsert(array($data))){
+					} else {
+						echo "insert failed";
+						die;
+					}
 				}
 			}
 			echo $stockCode. "\n";
