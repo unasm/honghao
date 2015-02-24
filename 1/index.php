@@ -1,4 +1,5 @@
 <?php
+die("honghao");
 define("PC" , 'sae');
 date_default_timezone_set('Asia/Shanghai');
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
