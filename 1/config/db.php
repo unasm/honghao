@@ -16,6 +16,11 @@ if(PC === 'pc'){
 	$config['db']['password'] = SAE_MYSQL_PASS;
 	$config['db']['dbName'] = SAE_MYSQL_DB;
 //	$config['db']['port'] = SAE_MYSQL_PORT;
+} elseif(PC === 'aws'){
+	$config['db']['host'] = "127.0.0.1";
+	$config['db']['userName'] = "root";
+	$config['db']['password'] = "123456";
+	$config['db']['dbName'] = "honghao";
 }
 $config['delimate'] = "@";
 //三个交易所的网页保存在哪个表里面

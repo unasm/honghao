@@ -569,14 +569,17 @@ class Ganggetcode extends Getcode
 			}
 			//$res[] = array($title[1] , $size[1] , $time[1] , strtotime($time[1]),$baseUrl . $download[1] , $q_num);
 			foreach($rows as $data){
-				$store = $this->DataBaseModel->select('count(*) as num' , array('code' => $stockCode , 'timestamp' => $data[3] , 'q_num' => $data[5]));
-				$data[] = $stockCode;
-				$data[] =  '-2';
-				if(count($store) == 0){
-					if($this->dataInsert(array($data))){
-					} else {
-						echo "insert failed";
-						die;
+				$stored = $this->DataBaseModel->select('count(*) as num' , array('code' => $stockCode , 'timestamp' => $data[3] , 'q_num' => $data[5]));
+				if($stored && $stored[0]['num'] == '0'){
+					echo $stockCode . "\n";
+					$data[] = $stockCode;
+					$data[] =  '-2';
+					if(count($store) == 0){
+						if($this->dataInsert(array($data))){
+						} else {
+							echo "insert failed";
+							die;
+						}
 					}
 				}
 			}

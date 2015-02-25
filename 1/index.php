@@ -1,20 +1,18 @@
 <?php
-die("honghao");
-define("PC" , 'sae');
+define("PC" , 'aws');
 date_default_timezone_set('Asia/Shanghai');
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
 define("BASE_URL" , 'http://honghaotouzi.sinaapp.com/');
 
  // 如果是教研的话，就到此为止吧
-/*
 if(isset($_GET['signature']) && isset($_GET['timestamp']) && isset($_GET['nonce'])){
 	require PATH_ROOT . 'model/wx.php';
 	$wechatObj = new wx();
 	$wechatObj->valid();
 	return;
 }
- */
+
 require PATH_ROOT . 'model/common.php';
 //require PATH_ROOT . 'model/view.php';
 //require PATH_ROOT . 'model/core.php';
