@@ -362,7 +362,7 @@ class Ganggetcode extends Getcode
 		if($new){
 			//抓取最近一个月内的信息
 			$args['ctl00$sel_DateOfReleaseFrom_y'] = "20" . date('y');
-			$args['ctl00$sel_DateOfReleaseFrom_m'] = date('m') - 1;
+			$args['ctl00$sel_DateOfReleaseFrom_m'] = date('m') - 3;
 			if(strlen($args['ctl00$sel_DateOfReleaseFrom_m']) === 1){
 				$args['ctl00$sel_DateOfReleaseFrom_m'] = '0' . $args['ctl00$sel_DateOfReleaseFrom_m'];
 			}
@@ -574,12 +574,10 @@ class Ganggetcode extends Getcode
 					echo $stockCode . "\n";
 					$data[] = $stockCode;
 					$data[] =  '-2';
-					if(count($store) == 0){
-						if($this->dataInsert(array($data))){
-						} else {
-							echo "insert failed";
-							die;
-						}
+					var_dump($data);
+					if(!$this->dataInsert(array($data))){
+						echo "insert failed";
+						die;
 					}
 				}
 			}
