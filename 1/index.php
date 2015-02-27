@@ -3,9 +3,12 @@ define("PC" , 'aws');
 date_default_timezone_set('Asia/Shanghai');
 define("PATH_ROOT" , rtrim(dirname(__FILE__) , "/") . "/");
 define('BasePath' , rtrim(dirname(__FILE__) , '/') . "/" );
-define("BASE_URL" , 'http://honghaotouzi.sinaapp.com/');
+
+//这里应该可以做成自动的
+define("BASE_URL" , 'http://54.65.203.160/');
 
  // 如果是教研的话，就到此为止吧
+/*
 if(isset($_GET['signature']) && isset($_GET['timestamp']) && isset($_GET['nonce'])){
 	require PATH_ROOT . 'model/wx.php';
 	$wechatObj = new wx();
@@ -13,6 +16,7 @@ if(isset($_GET['signature']) && isset($_GET['timestamp']) && isset($_GET['nonce'
 	return;
 }
 
+*/
 require PATH_ROOT . 'model/common.php';
 //require PATH_ROOT . 'model/view.php';
 //require PATH_ROOT . 'model/core.php';

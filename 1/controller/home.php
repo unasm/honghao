@@ -7,7 +7,7 @@
 /**
  * 搜索获取对应的数据
  **/
-DEFINE("DEBUG" , 1);
+DEFINE("DEBUG" , 0);
 class Home extends Honghao
 {
 

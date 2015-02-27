@@ -323,7 +323,7 @@ class Shengetcode extends Getcode
 		$notice = array('010301' => 'q4', '010303' => 'q2' , '010305' => 'q1' , '010307' => 'q3');
 		$this->DataBaseModel->setTables('data');
 		$list = array('time' , 'link' , 'size' , 'title' , 'notice' , 'code' , 'q_num' , 'timestamp');
-		for($i = 0 ;$i <= 999 ;$i++){
+		for($i = 580 ;$i <= 999 ;$i++){
 			foreach($prefix as $pre){
 				$stockCode = $this->getStockCode($i, $pre);
 				echo $stockCode . "\n";
@@ -348,7 +348,7 @@ class Shengetcode extends Getcode
 									break;
 								}
 							}
-							
+
 							//完全没类似数据
 							if($flag === 0){
 								$flag = $this->DataBaseModel->insert(

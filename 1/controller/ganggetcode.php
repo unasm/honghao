@@ -559,8 +559,9 @@ class Ganggetcode extends Getcode
 	{
 		$this->DataBaseModel->setTables('data');
 		$overflow = array();
-		for($i = 0;$i <= self::MAXCODE;$i++){
+		for($i = 2000;$i <= self::MAXCODE;$i++){
 			$stockCode = $this->getStockCode($i);
+			echo $stockCode . "\n";
 			$res = array();
 			$page = $this->getCompanyInfo($stockCode,array(),true);
 			$rows = $this->getPageRows($page);
@@ -571,7 +572,6 @@ class Ganggetcode extends Getcode
 			foreach($rows as $data){
 				$stored = $this->DataBaseModel->select('count(*) as num' , array('code' => $stockCode , 'timestamp' => $data[3] , 'q_num' => $data[5]));
 				if($stored && $stored[0]['num'] == '0'){
-					echo $stockCode . "\n";
 					$data[] = $stockCode;
 					$data[] =  '-2';
 					var_dump($data);
