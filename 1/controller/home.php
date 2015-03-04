@@ -7,7 +7,7 @@
 /**
  * 搜索获取对应的数据
  **/
-DEFINE("DEBUG" , 0);
+DEFINE("DEBUG" , 1);
 class Home extends Honghao
 {
 
@@ -41,8 +41,8 @@ class Home extends Honghao
 			}
 		} else {
 			if(DEBUG){
-				$_GET['code'] = '000001';
-				$_GET['time'] = '2012Q2';
+				$_GET['code'] = '600984';
+				$_GET['time'] = '2014Q4';
 			}
 			if($res){
 				$this->output->formStr($this->config['help'] , $res);
@@ -160,8 +160,9 @@ class Home extends Honghao
 			}
 			$flag = 1;
 			for($j = $i+1; $j < $len;$j++){
-				$tmpflag = 1;
+				//$tmpflag = 1;
 				//echo $j . "<br/>";
+				/*
 				foreach($data[$i] as $key => $value){
 					//did ，自增不比较
 					if($key === 'did'){
@@ -172,11 +173,17 @@ class Home extends Honghao
 						break;
 					}
 				}
+				*/
 				//出现了完全相同搞得情况，证明,不是想要的
+				if(trim($data[$i]['title']) == trim($data[$i]['title'])){
+					$flag = 0;
+				}
+				/*
 				if($tmpflag){
 					$flag = 0;
 					break;
 				}
+				*/
 			}
 			if($flag){
 				$res[] =  $data[$i];

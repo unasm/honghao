@@ -231,10 +231,10 @@ class Hugetcode extends Getcode
 		//DQBG 是定期公告的意思，临时公告是LSGG
 		$typeArr = array('YEARLY' => 'q4' , 'QUATER1' => 'q1' , 'QUATER2' => 'q2' , 'QUATER3' => 'q3');
 		//上海股票最大的代码是3998
-		for($code = 1475;$code <= 4400;$code++){
+		for($code = 0;$code <= 4400;$code++){
 			$stockCode = $this->getStockCode($code , $prefix);
 			$end = $this->getTime('-' , 0);					
-			$start = $this->getTime('-' , 3);
+			$start = $this->getTime('-' , 1);
 			echo $stockCode . ' ==> ' . $start . "\n";
 			flush();
 			$res = array();
@@ -249,7 +249,13 @@ class Hugetcode extends Getcode
 						' * '  , 
 						array('code' => $stockCode , 'q_num' => $qNum , 'time' => $data[0] )
 					);	
-					if(empty($stored)){
+					$flag = 0;
+					foreach($stored as $row){
+						if( trim($row['title']) == trim($data[2])){
+							$flag = 1;
+						}
+					}
+					if($flag === 0){
 						echo "new data\n";
 						var_dump($data);
 						$rs = $this->DataBaseModel->insert(
