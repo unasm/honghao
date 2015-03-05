@@ -7,7 +7,7 @@
 /**
  * 搜索获取对应的数据
  **/
-DEFINE("DEBUG" , 1);
+DEFINE("DEBUG" , 0);
 class Home extends Honghao
 {
 
@@ -159,6 +159,7 @@ class Home extends Honghao
 				continue;
 			}
 			$flag = 1;
+//var_dump($data[$i]);
 			for($j = $i+1; $j < $len;$j++){
 				//$tmpflag = 1;
 				//echo $j . "<br/>";
@@ -175,7 +176,7 @@ class Home extends Honghao
 				}
 				*/
 				//出现了完全相同搞得情况，证明,不是想要的
-				if(trim($data[$i]['title']) == trim($data[$i]['title'])){
+				if(trim($data[$i]['title']) == trim($data[$j]['title'])){
 					$flag = 0;
 				}
 				/*

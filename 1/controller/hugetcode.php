@@ -231,7 +231,7 @@ class Hugetcode extends Getcode
 		//DQBG 是定期公告的意思，临时公告是LSGG
 		$typeArr = array('YEARLY' => 'q4' , 'QUATER1' => 'q1' , 'QUATER2' => 'q2' , 'QUATER3' => 'q3');
 		//上海股票最大的代码是3998
-		for($code = 0;$code <= 4400;$code++){
+		for($code = 220;$code <= 4400;$code++){
 			$stockCode = $this->getStockCode($code , $prefix);
 			$end = $this->getTime('-' , 0);					
 			$start = $this->getTime('-' , 1);
