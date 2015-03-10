@@ -13,7 +13,7 @@ define("DEBUG" , true);
  **/
 class Ganggetcode extends Getcode
 {
-	const MAXCODE = 9000;
+	const MAXCODE = 8400;
 	const codeLength = 5;
 	function __construct(){
 		parent::__construct();
@@ -559,7 +559,7 @@ class Ganggetcode extends Getcode
 	{
 		$this->DataBaseModel->setTables('data');
 		$overflow = array();
-		for($i = 2000;$i <= self::MAXCODE;$i++){
+		for($i = 0;$i <= self::MAXCODE;$i++){
 			$stockCode = $this->getStockCode($i);
 			echo $stockCode . "\n";
 			$res = array();
