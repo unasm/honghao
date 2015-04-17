@@ -53,10 +53,15 @@ if(!class_exists('Loader')){
 						){
 							return;	
 						}
-						include PATH_ROOT .$funcName . '/' .  $class . '.php';
+						//如果存在.的话，证明是有后缀名的
+						if(strpos($class, '.')){
+							include PATH_ROOT .$funcName . '/' .  $class;
+						} else {
+							include PATH_ROOT .$funcName . '/' .  $class . '.php';
+							//echo $class . "<br/>";
+							$instance->$class = new $class();
+						}
 						$this->is_loaded[$funcName][$class] = true;
-						//echo $class . "<br/>";
-						$instance->$class = new $class();
 							//$instance->$funcName->$class = new $class;
 					}
 				} else {

@@ -1,380 +1,204 @@
 <?php
 /*************************************************************************
- * File Name :    select.php
- * Author    :    jiamin1
- * Mail      :    jiamin1@staff.sina.com.cn
+ * File Name :    xueqiu.php
+ * Author    :    unasm
+ * Mail      :    unasm@sina.cn
  ************************************************************************/
 /**
- * 搜索获取对应的数据
+ * 获取雪球的信息
  **/
-DEFINE("DEBUG" , 0);
-class Home extends Honghao
+if(!class_exists('Getcode')){
+	require 'getcode.php';
+}
+define("DEBUG", false);
+class Home extends Getcode
 {
-
+	const RETRY = 3;
 	function __construct()
 	{
-		parent::__construct()	;
+		parent::__construct();
+		$this->load->model('HtmlParserModel')	;
 		$this->load->model('DataBaseModel');
-		$this->DataBaseModel->setTables('data');
-		$this->load->model('validate');
+	}
+	public static function getCookie(){
+		return "xq_a_token=cd4627d424e2788da0f6befb9e3d71437e07828a; xq_r_token=f042a845683871779b0be87f75686be3d4293b85; __utmt=1; __utma=1.2028982786.1427082007.1428927400.1429028807.4; __utmb=1.1.10.1429028807; __utmc=1; __utmz=1.1427082007.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); Hm_lvt_1db88642e346389874251b5a1eded6e3=1427082007,1428827605,1428855668; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1429028807";
 	}
 
 	/**
-	 * 获取从微信来的信息，并解码
+	 * 解析对应的数据
 	 *
-	 * @return get
+	 **/
+	public function getList()
+	{
+		$cookie = self::getCookie();
+		//public static function get($req, array $header = array(), $timeout = self::DAGGER_HTTP_TIMEOUT, $cookie = '', $redo = self::DAGGER_HTTP_REDO, $maxredirect = self::DAGGER_HTTP_MAXREDIRECT) {
+		$data = $this->BaseModelHttp->get(
+			"http://xueqiu.com/fund/quote/list.json?type=136&parent_type=13&order=desc&orderBy=percent&page=1&size=300&_=1428927429565", 
+			array(), 
+			20,
+			$cookie
+		);
+		//file_put_contents('/Users/tianyi/Desktop/xueqiu.html',$data, true);
+		$data = json_decode($data, true);
+
+		if(isset($data['stocks'])){
+			$this->DataBaseModel->setTables('list');
+			foreach($data['stocks'] as $stock){
+				//echo count($stock) . "\n";
+				if(count($stock) !== 19){
+					echo __LINE__ .  "是个很奇怪的stock";
+					var_dump($stock);
+					exit;
+				}
+				$symbol = $stock['symbol'];
+				unset($stock['symbol']);
+				$data = array();
+				foreach($stock as $key => $value){
+					$data[] = array( $symbol, $key, $value );	
+				}
+				$items = array('symbol', 'item', 'value');
+				for($j = 0;$j < self::RETRY;$j++){
+					$rs = $this->DataBaseModel->insert($items, $data);
+					if($rs){
+						break;	
+					} else {
+						sleep(1);
+					}
+				}
+			}
+		} else {
+			echo "no stock data\n";
+		}
+
+		//$page = $this->BaseModelHttp->get("http://xueqiu.com/hq#exchange=CN&plate=5_2_6&firstName=5&secondName=5_2&fundtype=136&pfundtype=13&page=2", array(), 20, $cookie);
+	}
+
+	/**
+	 * 获取当前的交易价格
+	 *
+	 **/
+	public function getCurrent($page)
+	{
+		$this->HtmlParserModel->parseStr($page);
+		$stocks = $this->HtmlParserModel->find('#currentQuote');
+		$value = $stocks[0]->value;
+		preg_match("/data\-current\=\s*\"(\d+\.\d*)\"\s*/", $value, $res);
+		if(is_numeric($res[1])){
+			return $res[1];
+		}
+		echo "it is not current value\n";
+		var_dump($value);
+		exit;
+		return false;
+		//var_dump($stocks[0]->value);
+		//var_dump($stocks->value);
+	}
+
+	/**
+	 * 获取详情页的信息
+	 *
+	 * @return void
+	 * @author Me
+	 **/
+	private function getPage($code = 'SZ163112')
+	{
+		$href = "http://xueqiu.com/S/" . $code ;
+		$page = $this->BaseModelHttp->get($href,array(), 20,self::getCookie());
+		$this->HtmlParserModel->parseStr($page);
+		preg_match("/SNB.data.quote\s*\=\s*(\{[^}]*\})/", $page, $res);
+		$ts = json_decode($res[1], true);
+		if($ts && is_array($ts)){
+			return $ts;	
+		}
+		echo __LINE__ . "没有获取想要的信息";
+		var_dump($page);
+		exit;
+	}
+	/**
+	 * 获取全部的详情信息，
+	 *
+	 **/
+	public function getAllDet()
+	{
+		$symbol = $this->DataBaseModel->exec('select distinct symbol from list ');
+		$this->DataBaseModel->setTables('param');
+		foreach($symbol as $code){
+			var_dump($code['symbol']);
+			$arr = $this->getPage($code['symbol']);
+			if (!isset($arr['symbol']) || $arr['symbol'] !== $code['symbol']) {
+				exit(__LINE__ . "行没有想要的返回值");
+			}
+			unset($arr['symbol']);
+			$data = array();
+			foreach ($arr as $key => $value) {
+				$data[] = array($code['symbol'], $key, $value);
+			}
+			$items = array('symbol', 'item', 'value');
+			for($i = 0;$i < self::RETRY;$i++){
+				$rs = $this->DataBaseModel->insert($items, $data);
+				if($rs){
+					break;
+				} else {
+					sleep(1);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 显示页面
+	 *
 	 **/
 	public function index()
 	{
-		$this->load->model('output');
-		$this->load->model('wx');
-		$res = $this->wx->getInput();
-		$out = array();
-		$error = 0;
-		if(!empty($res) && $res->Content){
-			$data = explode($this->config['delimate'] , $res->Content);
-			if(count($data) === 2){
-				$_GET['code'] = trim($data[0]);
-				$_GET['time'] = strtolower( trim($data[1]) );
-				if(!preg_match('/^\d+$/' , $_GET['code'])){
-					$this->output->formStr($_GET['code'] . $this->config['help'] . '1', $res);
-					$error = 1;			
-					return;
-				}
-				if(!preg_match('/^\d{4}q\d$/' , $_GET['time'])){
-					$this->output->formStr($this->config['help'] . '2', $res);
-					$error = 1;
-				}
-				if($error)return;
-				$out = $this->getData();
-				if(empty($out)){
-					$this->output->formStr( "没有您想要的财报", $res);
-					return;
-				} 
-
-				foreach($out as $idx => $value){
-					$tmp =  "披露时间: " . $value['time'] . "\n\n";
-					$tmp .= "<a href = 'http://www.honghaotouzi.sinaapp.com/index.php/home/index?code={$_GET['code']}&&time={$_GET['time']}'>" .$value['title']. "</a>\n";
-					$tmp .="\n";
-					$this->output->formStr($tmp , $res);
-				}
-			} else {
-				$error = 1;
-				$this->output->formStr($this->config['help'] . '3', $res);
-			}
-		} else {
-			if(DEBUG){
-				$_GET['code'] = '600000';
-				$_GET['time'] = '2002Q2';
-			}
-			if($res){
-				$this->output->formStr($this->config['help'] , $res);
-			} elseif (isset($_GET['code']) && isset($_GET['time'])){
-				//这种情况下，视为网页的正常访问
-				$out = $this->getData();
-				var_dump($out);
-				echo "<br/>\n\n";
-				$this->showView($out);
-			}
-		}		
-
-	}		
-
+		//$this->load->model("Xueqiu");
+		$list = $this->selectViewList();
+		include PATH_ROOT  . 'view/index.html';
+	}
 	/**
-	 * 获取查询的时间区间
-	 * 得到这个季度的开始和接下来两个季度的时间区间
+	 * 处理雪球所需要的数据
 	 *
+	 * @return assoc array
 	 **/
-	public function getSelectTime($time)
+	private function selectViewList()
 	{
-		$time = strtolower(trim($_GET['time']));
-		$tmp = explode('q' , $time);
-		if($tmp[0] === '0' || $tmp[1] > 4){
-			error("输入的季度不对" , E_ERROR);
+		$list = $this->selectList();
+		$symbol = array();
+		foreach($list as $sym){
+			$symbol[]	 = $sym['symbol'];
 		}
-		//$season = 3 * $tmp[1] - 2;
-		$start = $tmp[0] . '-' . (3 * $tmp[1] - 2) . '-' . '00';
-
-		$endSeason = 3 * $tmp[1] + 8;
-		if($endSeason > 12){
-			$tmp[0] += 1;
-			$endSeason = $endSeason % 12;
+	
+		$dets = $this->selectParam($symbol)	;
+		foreach($dets as $k => $v){
+			$dets[$k] = array_merge($dets[$k], $list[$k]);
 		}
-		return array('start' => strtotime($start) , 
-			'end' =>strtotime($tmp[0] . '-' . ($endSeason) . '-' . '30') , 
-			'q_num' => 'q' . $tmp[1]
-		);
+		$overflow = array();
+		foreach($dets as $key => $code){
+			$tmp = round( ($code['current'] - $code['pe_lyr']	) / $code['pe_lyr'] * 100, 3);
+			$overflow[] = $tmp;
+			$dets[$key]['overflow'] = $tmp;
+		}
+		array_multisort($overflow, SORT_DESC, SORT_NUMERIC,$dets);
+		return $dets;
+	}
+	
+	//获取雪球的list
+	protected function selectList(){
+		$items = implode('\',\'' , array('percent','name', 'subscription_status', 'redemption_status') );
+		$sql = "select `symbol`, `value`, `item` from list where item in('{$items}')";
+		$datas = $this->DataBaseModel->exec($sql);
+		return $this->DataBaseModel->format($datas, 'symbol', 'item' , 'value');
 	}
 	/**
-	 * 根据传入的数据获取对应的结果
-	 * @param	string/get	$time	2013Q3这种类型的数据
-	 * @param	int/get		$code	股票的交易代码
-	 * @return	array
-	 **/
-	public function getData()
-	{
-
-		//使用原生态的，避免麻烦
-		//$code = $_GET['code'];
-		$this->DataBaseModel->setTables('data');
-		$res = $this->getSelectTime($_GET['time']);
-		$data = $this->DataBaseModel->select("time ,link,did,title,code , q_num" ,  array() , " where code = '{$_GET['code']}' && timestamp < {$res['end']} && timestamp > {$res['start']} && q_num = '{$res['q_num']}'");
-		$res = array();
-		//去重,数据中有重复
-		for($i = 0 , $len = $data ? count($data) : 0 ; $i < $len ;$i++){
-			$flag = 1;
-			for($j = $i+1; $j < $len;$j++){
-				$tmpflag = 1;
-				//echo $j . "<br/>";
-				foreach($data[$i] as $key => $value){
-					//did ，自增不比较
-					if($key === 'did'){
-						continue;
-					}
-					if(trim($data[$i][$key]) !== trim(($data[$j][$key]))){
-						$tmpflag = 0;
-						break;
-					}
-				}
-				//出现了完全相同搞得情况，证明,不是想要的
-				if($tmpflag){
-					$flag = 0;
-					break;
-				}
-			}
-			if($flag){
-				$res[] =  $data[$i];
-			}
-		}
-		return $res;
-	}
-
-	/**
-	 * 将data表时间修改成为时间戳
+	 * 获取参数
 	 *
-	 * @return void
-	 **/
-	protected  function fixTime()
-	{
-		$data = $this->DataBaseModel->select('did,time' ,array());
-		foreach($data as $row){
-			if(preg_match("/^\d{4}-\d{2}-\d{2}$/" , $row['time'])){
-				$this->DataBaseModel->update(
-					array('timestamp' => strtotime($row['time'])),
-					array('did' => $row['did'] )
-				);
-				echo $row['did'] . "\n";
-			} else {
-				echo 'error: ' . $row['did'] . "\n";
-				die;
-			}
-		}
-	}
-
-	/**
-	 * 设置cache
-	 *
-	 **/
-	public function cacheInit()
-	{
-		$this->DataBaseModel->createTable('cache');
-	}
-	/**
-	 * 读取对应的数据
-	 *
-	 * @return string
-	 **/
-	protected function getCache($key)
-	{
-		$this->DataBaseModel->setTables('cache');
-		$key = trim($key);
-		$res = $this->DataBaseModel->select('value' , array('k' => $key));
-		if($res){
-			return $res[0]['value'];
-		}
-		return false;
-		//return $res && $res[0]['value'];
-	}
-	/**
-	 * 修改对应的配置
-	 * @param string	$key	对应的key值
-	 * @param string	$value	序列话之后的字符串
+	 * @param	array $symbol	股票的代码数组
 	 */
-	protected function setCache($key , $value){
-		$this->DataBaseModel->setTables('cache');
-		if($this->getCache($key)){
-			return $this->DataBaseModel->update(array('value' => $value) , array('k' => $key) );
-		} else {
-			return $this->DataBaseModel->insert(
-				array('k' , 'value'),
-				array(array($key , $value))
-			);
-		}
-	}
-
-	/**
-	 * 获取目前的自定义菜单
-	 *
-	 **/
-	public function setMenu()
-	{
-		$this->load->model('BaseModelHttp');
-		$json = "{
-			'button': [
-				{
-					'type': 'click', 
-					'name': '歌曲', 
-					'key': 'sdf'
-				}, 
-				{
-					'name': '菜单', 
-					'sub_button': [{
-							'type': 'view', 
-							'name': '搜索', 
-							'url': 'http://www.soso.com/'
-						}, {
-							'type': 'view', 
-								'name': '视频', 
-								'url': 'http://v.qq.com/'
-						}, {
-							'type': 'click', 
-							'name': '赞', 
-							'key': 'sdf'
-						}
-					]
-				},
-				{
-					'name': '扫码', 
-					'sub_button': [
-				        {
-							'type': 'scancode_waitmsg', 
-							'name': '扫码带提示', 
-		                    'key': 'rselfmenu_0_0', 
-							'sub_button': [ ]
-						}, 
-						{
-							'type': 'scancode_push', 
-							'name': '扫码推事件', 
-							'key': 'rselfmenu_0_1', 
-		                    'sub_button': []
-						}
-					]
-				}
-			]
-		}";
-		//$args = array('body' => $this->menu());
-		$cookie = "TS0161f2e5=017038eb49f82ff258da49262d1e360f4b6a79f3def09c326cd35c5a3d78955ed4d5534763";
-		$menu = $this->BaseModelHttp->post(
-			"https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" . $this->getToken(),
-			$this->menu(), array(), 50 
-		);
-		var_dump($menu);
-	}
-
-	/**
-	 * 获取目前的自定义菜单
-	 *
-	 **/
-	public function getMenu()
-	{
-		$this->load->model('BaseModelHttp');
-		$menu = $this->BaseModelHttp->get(
-			"https://api.weixin.qq.com/cgi-bin/menu/get?access_token=" . $this->getToken()
-		);
-		var_dump($menu);
-	}
-
-	/**
-	 * 给用户提示的按钮
-	 * 用户点击按钮，返回一段话，这里就是那一段话的生成
-	 **/
-	public function help()
-	{
-		$this->load->model('output');
-		$this->output->formStr("请输入股票代码以及财报时间,中间以{$this->config['delimate']}分开，如000001{$this->config['db']}2002Q2");
-	}
-	function testGetDateTime(){
-
-		$_GET['time'] = '2002Q4'	;
-		echo $_GET['time'] . "\n" ;
-		$this->getData();
-		$_GET['time'] = '2002Q3'	;
-		echo $_GET['time'] . "\n" ;
-		$this->getData();
-		$_GET['time'] = '2002Q2'	;
-		echo $_GET['time'] . "\n" ;
-		$this->getData();
-		$_GET['time'] = '2002Q1'	;
-		echo $_GET['time'] . "\n" ;
-		$this->getData();
-	}
-
-	/**
-	 * 显示具体的页面
-	 **/
-	public function showView($output)
-	{
-		//echo "<a href = http://www.honghaotouzi.sinaapp.com/home/index?code={$_GET['code']}&&time={$_GET['time']} >sdfasdf</a>\n";
-		//echo  PATH_ROOT . 'view/down.php';
-		include PATH_ROOT . 'templates/down.php';
-	}
-	function menu() {
-	$data = ' {
-			 "button":[
-			 {	
-				  "type":"click",
-				  "name":"今日歌曲",
-				  "key":"V1001_TODAY_MUSIC"
-			  },
-			  {
-				   "type":"click",
-				   "name":"歌手简介",
-				   "key":"V1001_TODAY_SINGER"
-			  },
-			  {
-				   "name":"菜单",
-				   "sub_button":[
-				   {	
-					   "type":"view",
-					   "name":"搜索",
-					   "url":"http://www.soso.com/"
-					},
-					{
-					   "type":"view",
-					   "name":"视频",
-					   "url":"http://v.qq.com/"
-					},
-					{
-					   "type":"click",
-					   "name":"赞一下我们",
-					   "key":"V1001_GOOD"
-					}]
-			   }]
-		 }';
-		return $data;
-		/*
-			 $ch = curl_init();
-			 curl_setopt($ch, CURLOPT_URL, "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" . $this->getToken());
-			 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-			 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-			 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-			 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MSIE 5.01; Windows NT 5.0)');
-			 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			 curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
-			 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-			 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			 $tmpInfo = curl_exec($ch);
-			 if (curl_errno($ch)) {
-			  echo curl_error($ch);
-			 }
-			
-			 curl_close($ch);
-			  
-			echo $tmpInfo; 
-		*/
-		$menu = $this->BaseModelHttp->post(
-			"https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" . $this->getToken(),
-			$data, array(), 50 
-		);
+	protected function selectParam($symbol){
+		$symStr = implode("','", $symbol);
+		$items = implode("','", array('volume', 'current', 'pe_lyr'));
+		$sql = "select symbol,item,value from param where item in('{$items}') && `symbol` in('{$symStr}')";
+		$dets = $this->DataBaseModel->exec($sql);
+		return 	$this->DataBaseModel->format($dets, 'symbol', 'item' , 'value');
 	}
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html> 
+<html lang = "zh-cn">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" href="css/index.css" type="text/css" media="screen" charset="utf-8">
+	<title>下载页面</title>
+</head>
+<body>
+	<table>
+		<thead>
+			<tr>
+				<th>股票代码</th>
+				<th>股票名字</th>
+				<th>市价</th>
+				<th>涨跌幅</th>
+				<th>净值</th>
+				<th>溢价率</th>
+				<th>成交量</th>
+				<th>申购状态</th>
+				<th>赎回状态</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach ($list as $li ) : ?>
+			<tr>
+				<td><?php  echo $li['symbol']?></td>
+				<td><?php  echo $li['name']?></td>
+				<td><?php  echo $li['current']?></td>
+				<td><?php  echo $li['percent']?></td>
+				<td><?php  echo $li['pe_lyr']?></td>
+				<td><?php  echo $li['overflow']?></td>
+				<td><?php  echo $li['volume']?></td>
+				<td><?php  echo $li['volume']?></td>
+				<td>
+					<?php  
+					if($li['subscription_status']){
+						echo "暂停申购"	;
+					} else {
+						echo "可申购"	;
+					}
+					?>
+				</td>
+				<td>
+					<?php  
+					if($li['redemption_status']){
+						echo "暂停赎回"	;
+					} else {
+						echo "可赎回"	;
+					}
+					?>
+				</td>
+			</tr>
+			<?php endforeach; ?>
+		</tbody>
+	</table>
+</body>
+</html>

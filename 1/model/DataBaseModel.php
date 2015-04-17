@@ -276,5 +276,35 @@ class DataBaseModel
 	{
 		return $this->getResult(self::$link->query($sql));
 	}
+
+	/**
+	 * 整理kv表设计下的返回值，使之称为关联数组
+	 *
+	 * @param	array	$arr	需要整理的数组
+	 * @param	string	$link	关联起来所有数据的关联字符
+	 * @param	string	$key	关联起来所有数据的key
+	 * @param	string	$val	关联起来所有数据的value
+	 *
+	 * @return assoc array
+	 * @author jiamin1
+	 **/
+	public function format($arr,$link , $key , $val)
+	{
+		$res = array();
+		foreach($arr as  $param){
+			$tmpv = $param[$val];
+			$tmpk = $param[$key];
+			if (!isset( $res[ $param[$link] ] )) {
+				
+				unset($param[$val]);
+				unset($param[$key]);
+				//避免冗余，
+				//保留冗余
+				$res[$param[$link]] = $param;
+			}
+			$res[$param[$link]][$tmpk]  =  $tmpv;
+		}
+		return $res;
+	}
 	public function __destruct(){self::$link->close();}
 }
