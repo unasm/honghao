@@ -23,13 +23,12 @@
 		<tbody>
 			<?php foreach ($list as $li ) : ?>
 			<tr>
-				<td><?php  echo $li['symbol']?></td>
-				<td><?php  echo $li['name']?></td>
+				<td><a href = "http://xueqiu.com/S/<?php echo $li['symbol'] ?>"> <?php  echo $li['symbol']?> </a></td>
+				<td class = "name" title = "<?php echo $li['name'] ?>"><?php  echo $li['name']?></td>
 				<td><?php  echo $li['current']?></td>
 				<td><?php  echo $li['percent']?></td>
 				<td><?php  echo $li['pe_lyr']?></td>
 				<td><?php  echo $li['overflow']?></td>
-				<td><?php  echo $li['volume']?></td>
 				<td><?php  echo $li['volume']?></td>
 				<td>
 					<?php  

@@ -4,8 +4,30 @@
   * Mail :         unasm@sina.cn
   * Last_Modified: 2015-04-18 01:01:39
  ************************************************************************/
+a{
+	text-decoration:none;
+}
+body , a{
+	color:black;
+}
 body{
 	Background:green;
 	width:960px;
 	margin:0px auto;
+}
+.name{
+	width:120px;
+	display:block;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
+td,th{
+	padding:5px 15px;
+}
+tr:hover{
+	Background:gray;
+}
+th{
+	text-align:left;
 }
