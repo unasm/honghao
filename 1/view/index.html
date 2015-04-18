@@ -24,7 +24,11 @@
 			<?php foreach ($list as $li ) : ?>
 			<tr>
 				<td><a href = "http://xueqiu.com/S/<?php echo $li['symbol'] ?>"> <?php  echo $li['symbol']?> </a></td>
-				<td class = "name" title = "<?php echo $li['name'] ?>"><?php  echo $li['name']?></td>
+				<td class = "name" title = "<?php echo $li['name'] ?>">
+					<a href = "http://xueqiu.com/S/<?php echo $li['symbol'] ?>">
+						<?php  echo $li['name']?>
+					</a>
+				</td>
 				<td><?php  echo $li['current']?></td>
 				<td><?php  echo $li['percent']?></td>
 				<td><?php  echo $li['pe_lyr']?></td>

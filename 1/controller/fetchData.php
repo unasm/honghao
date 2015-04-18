@@ -4,19 +4,32 @@
  * Author    :    unasm
  * Mail      :    unasm@sina.cn
  ************************************************************************/
+if(!class_exists('Getcode')){
+	require 'getcode.php';
+}
 class FetchData extends Getcode{
 	const RETRY = 3;
 	//刷新页面的时候，检查的页面数
 	const CheckPages = 3;
+	static $cookie;
 	//保存cookie
-	public static function getCookie(){
-		return "xq_a_token=cd4627d424e2788da0f6befb9e3d71437e07828a; xq_r_token=f042a845683871779b0be87f75686be3d4293b85; __utmt=1; __utma=1.2028982786.1427082007.1428927400.1429028807.4; __utmb=1.1.10.1429028807; __utmc=1; __utmz=1.1427082007.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); Hm_lvt_1db88642e346389874251b5a1eded6e3=1427082007,1428827605,1428855668; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1429028807";
-		$data = $this->BaseModelHttp->get(
-			"http://xueqiu.com/fund/quote/list.json?type=136&parent_type=13&order=desc&orderBy=percent&page=1&size=300&_=1428927429565", 
-			array(), 
-			20,
-			$cookie
-		);
+	public  function getCookie(){
+		if(self::$cookie === NULL){
+			$data = $this->BaseModelHttp->get(
+				"http://xueqiu.com/",
+				//"http://xueqiu.com/fund/quote/list.json?type=136&parent_type=13&order=desc&orderBy=percent&page=1&size=300&_=1428927429565", 
+				array(), 
+				20
+			);
+			$header = BaseModelHttp::getLastHeader();
+			preg_match("/Set-Cookie\:\s*(xq_a_token=.*httpOnly)/", $header, $cookie);
+			if(count($cookie) === 2){
+				self::$cookie = $cookie[1];
+			} else {
+				exit("get cookie failed");
+			}
+		}
+		return self::$cookie;
 	}
 
 	/**
@@ -26,18 +39,20 @@ class FetchData extends Getcode{
 	 **/
 	public function index()
 	{
+		$this->load->model('DataBaseModel');
 		$symbol = $this->DataBaseModel->exec('select distinct symbol from list ');
 		$this->DataBaseModel->setTables('param');
 		$cnt = 2 * self::CheckPages;
+		$maxTimes =  $this->getMaxTimes();
+		$diff = 0;
 		foreach ($symbol as $code) {
-			$arr = $this->getPage($code);
+			$arr = $this->getPage($code['symbol']);
 			$pageData = $this->DataBaseModel->select('item,value',array('symbol' => $code , 'times' => $maxTimes));
-			//$pageData = $this->DataBaseModel->format($pageData, 'symbol', 'item', 'value');
-			var_dump($pageData);
-			var_dump($arr);
-			die;
 			foreach($pageData as $row) {
 				if ($arr[$row['item']] !== $row['value']) {
+					echo "diff \n";
+					var_dump($arr[$row['item']]);
+					var_dump($row['value']);
 					$diff ++;
 					break;
 				}
@@ -59,7 +74,7 @@ class FetchData extends Getcode{
 	 **/
 	public function getList()
 	{
-		$cookie = self::getCookie();
+		$cookie = $this->getCookie();
 		$data = $this->BaseModelHttp->get(
 			"http://xueqiu.com/fund/quote/list.json?type=136&parent_type=13&order=desc&orderBy=percent&page=1&size=300&_=1428927429565", 
 			array(), 
@@ -109,11 +124,7 @@ class FetchData extends Getcode{
 	private function getPage($code = 'SZ163112')
 	{
 		$href = "http://xueqiu.com/S/" . $code ;
-		for($i = 0; $i < self::RETRY; $i++){
-			$page = $this->BaseModelHttp->get($href,array(), 20,self::getCookie());
-			$header = BaseModelHttp::getLastHeader();
-			die;
-		}
+		$page = $this->BaseModelHttp->get($href,array(), 20, $this->getCookie());
 		$this->HtmlParserModel->parseStr($page);
 		preg_match("/SNB.data.quote\s*\=\s*(\{[^}]*\})/", $page, $res);
 		$ts = json_decode($res[1], true);

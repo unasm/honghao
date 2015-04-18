@@ -26,7 +26,8 @@ class Home extends Getcode
 	 **/
 	public function index()
 	{
-		
+		//setcookie("user","jiamin", time() + 3600)		;
+		setcookie("user","jiamin")		;
 		$list = $this->selectViewList();
 		include PATH_ROOT  . 'view/index.html';
 	}
