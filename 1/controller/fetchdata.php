@@ -7,7 +7,7 @@
 if(!class_exists('Getcode')){
 	require 'getcode.php';
 }
-class FetchData extends Getcode{
+class Fetchdata extends Getcode{
 	const RETRY = 3;
 	//刷新页面的时候，检查的页面数
 	const CheckPages = 3;
@@ -19,19 +19,34 @@ class FetchData extends Getcode{
 				"http://xueqiu.com/",
 				//"http://xueqiu.com/fund/quote/list.json?type=136&parent_type=13&order=desc&orderBy=percent&page=1&size=300&_=1428927429565", 
 				array(), 
-				20
+				10
 			);
 			$header = BaseModelHttp::getLastHeader();
 			preg_match("/Set-Cookie\:\s*(xq_a_token=.*httpOnly)/", $header, $cookie);
 			if(count($cookie) === 2){
 				self::$cookie = $cookie[1];
 			} else {
+				var_dump($data);
+				echo "adfa";
+				die;
 				exit("get cookie failed");
 			}
 		}
 		return self::$cookie;
 	}
-
+	//伪造ip
+	private static function _fakeIp(){
+		static $ip;
+		if($ip === NULL){
+			$arr = array();
+			for ($i = 0;$i < 4; $i++) {
+				$arr[] = rand(10,230)	;
+			}
+			$ip = implode('.', $arr);
+		}
+		return $ip;
+		//return '54.65.203.160';
+	}
 	/**
 	 * 控制调度,决定是不是要更新页面的数据
 	 *
@@ -50,9 +65,6 @@ class FetchData extends Getcode{
 			$pageData = $this->DataBaseModel->select('item,value',array('symbol' => $code , 'times' => $maxTimes));
 			foreach($pageData as $row) {
 				if ($arr[$row['item']] !== $row['value']) {
-					echo "diff \n";
-					var_dump($arr[$row['item']]);
-					var_dump($row['value']);
 					$diff ++;
 					break;
 				}
@@ -62,9 +74,15 @@ class FetchData extends Getcode{
 				break;	
 			}
 		}
-		if($diff >= self::CheckPages){
+		if($diff >= self::CheckPages || empty($symbol)){
+			echo "Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
+			$time = intval(microtime(true) * 1000 );
 			$this->getList();
 			$this->getParam();
+			$time = intval(microtime(true) * 1000) - $time;
+			echo "the fetch data process time is {$time} ms\n\n";
+		} else {
+			echo "No need to update\n";
 		}
 	}
 
@@ -127,11 +145,13 @@ class FetchData extends Getcode{
 		$page = $this->BaseModelHttp->get($href,array(), 20, $this->getCookie());
 		$this->HtmlParserModel->parseStr($page);
 		preg_match("/SNB.data.quote\s*\=\s*(\{[^}]*\})/", $page, $res);
-		$ts = json_decode($res[1], true);
-		if($ts && is_array($ts)){
-			return $ts;	
+		if(count($res) === 2){
+			$ts = json_decode($res[1], true);
+			if($ts && is_array($ts)){
+				return $ts;	
+			}
 		}
-		echo __LINE__ . "没有获取想要的信息";
+		echo __LINE__ . "没有获取想要的信息\n";
 		var_dump($page);
 		exit;
 	}

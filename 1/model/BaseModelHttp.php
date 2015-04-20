@@ -540,7 +540,18 @@ class BaseModelHttp {
 		}
 		return $header;
 	}
-
+	private static function _fakeIp(){
+		static $ip;
+		if($ip === NULL){
+			$arr = array();
+			for ($i = 0;$i < 4; $i++) {
+				$arr[] = rand(10,230)	;
+			}
+			$ip = implode('.', $arr);
+		}
+		return $ip;
+		//return '54.65.203.160';
+	}
 	private static function _set_curl_opts(&$ch, $args, $first = true) {
 		// 本函数不设置url
 		$opt = array();
@@ -591,6 +602,7 @@ class BaseModelHttp {
 		if (!empty($args['cookie'])) {
 			$opt[CURLOPT_COOKIE] = $args['cookie'];
 		}
+		//伪造访问ip
 		return curl_setopt_array($ch, $opt);
 	}
 	/**

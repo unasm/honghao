@@ -7,7 +7,7 @@
 if(defined("PLAT") && PLAT == 'pc'){
 	$config['db']['host'] = "127.0.0.1";
 	$config['db']['userName'] = "root";
-	$config['db']['password'] = "douunasm";
+	$config['db']['password'] = "123456";
 	$config['db']['dbName'] = "xueqiu";
 } elseif(defined("PLAT") && PLAT == 'sae') {
 	$config['db']['host'] = SAE_MYSQL_HOST_M . ':' . SAE_MYSQL_PORT;
