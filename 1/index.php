@@ -47,10 +47,7 @@ if(!function_exists('output')){
 }
 set_error_handler('myerror' , E_ALL);
 $route = new Route;
-echo $route->path . strtolower($route->class) . '.php';
-die;
 include $route->path . strtolower($route->class) . '.php';
-die;
 $route->class = ucwords($route->class);
 $tmp = new $route->class;
 $tmp->{$route->function}();

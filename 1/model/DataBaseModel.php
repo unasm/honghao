@@ -263,6 +263,7 @@ class DataBaseModel
 		if(!$flag){
 			//error('创建表失败， mysql error : ' . self::$link->errno);
 			Debug::output("更新表失败 : " . mysqli_error(self::$link). "<br/>" , E_ERROR);
+			return false;
 		}
 		return true;
 	}

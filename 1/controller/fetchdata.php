@@ -200,26 +200,76 @@ class Fetchdata extends Getcode{
 				self::getCookie()
 			);
 			
-			$data = $data && json_decode($data , true);
+			$data && $data =  json_decode($data , true);
 			if ($data === false) {
-				return false;
+				//失败了重新抓
+				continue;
 			}
 			$list = $data['chartlist'];
 			$time = array();
-			foreach ($list as $each){
-				$time[] = time($each['time']) ;
-				var_dump(time($each['time']));
-				die;
+			foreach ($list as $key => $each){
+				//更新成时间戳，方便处理
+				$tmp = strtotime($each['time']) ;
+				$list[$key]['time'] = $tmp;
+				$time[] = $tmp;
 			}
-			array_multisort($time , SORT_NUMERIC,$list);
+			array_multisort($time, SORT_NUMERIC, $list);
+			$res = array();
 			for ($i = 0, $len = count($list);$i < $len; $i++) {
-				if($list[$i]['volume'] == '0' && $list[$i]['current'] == $list[$i - 1]['current']){
-					unset($list[$i]);
+				if($i === 0 || $list[$i]['volume'] != '0' || $list[$i]['current'] != $list[$i - 1]['current']){
+					$res[] = $list[$i];
 				}
 			}
-			for ($i = 0, $len = count($list);$i < $len; $i++) {
-				var_dump($list[$i]);
+			return $res;
+			/*
+			for ($i = 0, $len = count($res);$i < $len; $i++) {
+				var_dump($res[$i]);
+			}
+			 */
+		}
+	}
+
+	/**
+	 * 更新目前的市场价格
+	 *
+	 * @return bool
+	 * @author jiamin1
+	 **/
+	public function freshPrice()
+	{
+		//$this->_setTimes();
+		//return;
+		$this->load->model("DataBaseModel")	;
+		$this->DataBaseModel->setTables('param');
+		$sys = $this->DataBaseModel->exec('select distinct symbol from list ');
+		$maxTimes =  $this->getMaxTimes();//这里应该考虑到锁的情况
+		foreach ($sys as $code) {
+			$arr = $this->getCurrent($code['symbol']);
+			if (is_array($arr)) {
+				$current = trim($arr[count($arr) - 1]['current']);
+				$flag = $this->DataBaseModel->update(
+					array('value' => $current),
+					array('times' => $maxTimes, 'item' => 'current', 'symbol' => $code['symbol'])
+				);
+				if($flag == false){
+					echo "更新失败\n";
+				} else {
+					echo "success\n";
+				}
 			}
 		}
+	}
+
+	/**
+	 * 设置当前最合适的times
+	 *
+	 * @return array
+	 * @author jiamin1
+	 **/
+	protected function _setTimes()
+	{
+		$time = time();
+		$time = strtotime("2013-03-12 11:00:00");
+		var_dump($time);
 	}
 }
