@@ -10,7 +10,7 @@ if(!class_exists('Getcode')){
 class Fetchdata extends Getcode{
 	const RETRY = 3;
 	//刷新页面的时候，检查的页面数
-	const CheckPages = 3;
+	const CheckPages = 6;
 	static $cookie;
 	//保存cookie
 	public  function getCookie(){
@@ -50,6 +50,8 @@ class Fetchdata extends Getcode{
 	/**
 	 * 控制调度,决定是不是要更新页面的数据
 	 *
+	 * 因为不可能将全部的数据都检查一遍，是不是有更新，所以采用了随机选择 2 * CheckPages 个，如果其中有一半数据更改了，就
+	 *
 	 * @author jiamin1
 	 **/
 	public function index()
@@ -57,33 +59,27 @@ class Fetchdata extends Getcode{
 		$this->load->model('DataBaseModel');
 		$symbol = $this->DataBaseModel->exec('select distinct symbol from list ');
 		$this->DataBaseModel->setTables('param');
-		$cnt = 2 * self::CheckPages;
 		$maxTimes =  $this->getMaxTimes();
 		$diff = 0;
-		foreach ($symbol as $code) {
-			$arr = $this->getPage($code['symbol']);
+		for ($start = rand(0,count($symbol) - 2 * self::CheckPages), $i = $start;$i < 2 * self::CheckPages + $start;$i++) {
+			$code = $symbol[$i]['symbol'];
+			$arr = $this->getPage($code);
 			$pageData = $this->DataBaseModel->select('item,value',array('symbol' => $code , 'times' => $maxTimes));
 			foreach($pageData as $row) {
-				if ($arr[$row['item']] !== $row['value']) {
+				if (trim($arr[$row['item']]) !== trim($row['value'])) {
 					$diff ++;
 					break;
 				}
 			}
-			$cnt --;
-			if($cnt === 0){
-				break;	
-			}
 		}
+		echo "Checking :: Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
 		if($diff >= self::CheckPages || empty($symbol)){
-			echo "Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
 			$time = intval(microtime(true) * 1000 );
 			$this->getList();
 			$this->getParam();
 			$time = intval(microtime(true) * 1000) - $time;
 			echo "the fetch data process time is {$time} ms\n\n";
-		} else {
-			echo "No need to update\n";
-		}
+		} 
 	}
 
 	/**
@@ -114,7 +110,7 @@ class Fetchdata extends Getcode{
 				unset($stock['symbol']);
 				$data = array();
 				foreach($stock as $key => $value){
-					$data[] = array( $symbol, $key, $value ,$maxTimes);	
+					$data[] = array( trim($symbol), trim($key), trim($value) ,$maxTimes);	
 				}
 				$items = array('symbol', 'item', 'value', 'times');
 				for($j = 0;$j < self::RETRY;$j++){
@@ -175,7 +171,7 @@ class Fetchdata extends Getcode{
 			unset($arr['symbol']);
 			$data = array();
 			foreach ($arr as $key => $value) {
-				$data[] = array($code['symbol'], trim($key), trim($value), $times);
+				$data[] = array(trim($code['symbol']), trim($key), trim($value), $times);
 			}
 			$items = array('symbol', 'item', 'value', 'times');
 			for($i = 0;$i < self::RETRY;$i++){
