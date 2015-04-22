@@ -28,7 +28,6 @@ class Fetchdata extends Getcode{
 			} else {
 				var_dump($data);
 				echo "adfa";
-				die;
 				exit("get cookie failed");
 			}
 		}
@@ -45,12 +44,11 @@ class Fetchdata extends Getcode{
 			$ip = implode('.', $arr);
 		}
 		return $ip;
-		//return '54.65.203.160';
 	}
 	/**
 	 * 控制调度,决定是不是要更新页面的数据
 	 *
-	 * 因为不可能将全部的数据都检查一遍，是不是有更新，所以采用了随机选择 2 * CheckPages 个，如果其中有一半数据更改了，就
+	 * 因为不可能将全部的数据都检查一遍，是不是有更新，所以采用了随机选择 2 * CheckPages 个，如果其中有一半数据更改了，就更新数据，判定雪球更新了数据
 	 *
 	 * @author jiamin1
 	 **/
@@ -79,18 +77,20 @@ class Fetchdata extends Getcode{
 			$this->getParam();
 			$time = intval(microtime(true) * 1000) - $time;
 			echo "the fetch data process time is {$time} ms\n\n";
-		} 
+		} else if($diff){
+			echo "Snow ball is changing ,but not enough\n";
+		}
 	}
 
 	/**
 	 * 解析对应的数据
 	 *
 	 **/
-	public function getList()
+	protected function getList()
 	{
 		$cookie = $this->getCookie();
 		$data = $this->BaseModelHttp->get(
-			"http://xueqiu.com/fund/quote/list.json?type=136&parent_type=13&order=desc&orderBy=percent&page=1&size=300&_=1428927429565", 
+			'http://xueqiu.com/fund/quote/list.json?type=136&parent_type=13&order=desc&orderBy=percent&page=1&size=300&_=1428927' . rand(0,100000), 
 			array(), 
 			20,
 			$cookie
@@ -156,7 +156,7 @@ class Fetchdata extends Getcode{
 	 * 获取全部的详情信息，
 	 *
 	 **/
-	public function getParam()
+	protected function getParam()
 	{
 		//获取想要搜索的股票的代码
 		$symbol = $this->DataBaseModel->exec('select distinct symbol from list ');
@@ -181,6 +181,44 @@ class Fetchdata extends Getcode{
 				} else {
 					sleep(10);
 				}
+			}
+		}
+	}
+
+	/**
+	 * 获取所有的基金当前价格
+	 *
+	 * @author jiamin1
+	 **/
+	public function getCurrent($code = "SZ161714")
+	{
+		for ($i = 0;$i < self::RETRY; $i++) {
+			$data = $this->BaseModelHttp->get(
+				'http://xueqiu.com/stock/forchart/stocklist.json?symbol=SZ160512&period=2d&_=14'  . rand(0, 100000),
+				array(), 
+				20,
+				self::getCookie()
+			);
+			
+			$data = $data && json_decode($data , true);
+			if ($data === false) {
+				return false;
+			}
+			$list = $data['chartlist'];
+			$time = array();
+			foreach ($list as $each){
+				$time[] = time($each['time']) ;
+				var_dump(time($each['time']));
+				die;
+			}
+			array_multisort($time , SORT_NUMERIC,$list);
+			for ($i = 0, $len = count($list);$i < $len; $i++) {
+				if($list[$i]['volume'] == '0' && $list[$i]['current'] == $list[$i - 1]['current']){
+					unset($list[$i]);
+				}
+			}
+			for ($i = 0, $len = count($list);$i < $len; $i++) {
+				var_dump($list[$i]);
 			}
 		}
 	}
