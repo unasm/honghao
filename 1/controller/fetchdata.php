@@ -10,7 +10,7 @@ if(!class_exists('Getcode')){
 class Fetchdata extends Getcode{
 	const RETRY = 3;
 	//刷新页面的时候，检查的页面数
-	const CheckPages = 6;
+	const CheckPages = 5;
 	static $cookie;
 	//保存cookie
 	public  function getCookie(){
@@ -45,6 +45,13 @@ class Fetchdata extends Getcode{
 		}
 		return $ip;
 	}
+	
+	//伪造header头，伪造ip，防止对方拒绝
+	private static function fakeHeader() {
+		$header = array('CLIENT-IP:' . self::_fakeIp(),'X-FORWARDED-FOR:' . self::_fakeIp());
+		return $header;
+		//var_dump($header);
+	}
 	/**
 	 * 控制调度,决定是不是要更新页面的数据
 	 *
@@ -59,12 +66,16 @@ class Fetchdata extends Getcode{
 		$this->DataBaseModel->setTables('param');
 		$maxTimes =  $this->getMaxTimes();
 		$diff = 0;
-		for ($start = rand(0,count($symbol) - 2 * self::CheckPages), $i = $start;$i < 2 * self::CheckPages + $start;$i++) {
+		for ($start = rand(0,count($symbol) - 3 * self::CheckPages), $i = $start;$i < 2 * self::CheckPages + $start;$i++) {
 			$code = $symbol[$i]['symbol'];
 			$arr = $this->getPage($code);
 			$pageData = $this->DataBaseModel->select('item,value',array('symbol' => $code , 'times' => $maxTimes));
 			foreach($pageData as $row) {
-				if (trim($arr[$row['item']]) !== trim($row['value'])) {
+				if ($row['item'] !== "current" && trim($arr[$row['item']]) !== trim($row['value'])) {
+					//current 是注定要改变的
+					echo "code diff : " . $code . "\n";
+					echo $row['item']  . "\t" . $row['value']  . "\n";
+					echo $arr[$row['item']] . "\n\n";
 					$diff ++;
 					break;
 				}
@@ -91,7 +102,7 @@ class Fetchdata extends Getcode{
 		$cookie = $this->getCookie();
 		$data = $this->BaseModelHttp->get(
 			'http://xueqiu.com/fund/quote/list.json?type=136&parent_type=13&order=desc&orderBy=percent&page=1&size=300&_=1428927' . rand(0,100000), 
-			array(), 
+			self::fakeHeader(),
 			20,
 			$cookie
 		);
@@ -138,7 +149,7 @@ class Fetchdata extends Getcode{
 	private function getPage($code = 'SZ163112')
 	{
 		$href = "http://xueqiu.com/S/" . $code ;
-		$page = $this->BaseModelHttp->get($href,array(), 20, $this->getCookie());
+		$page = $this->BaseModelHttp->get($href, self::fakeHeader(), 20, $this->getCookie());
 		$this->HtmlParserModel->parseStr($page);
 		preg_match("/SNB.data.quote\s*\=\s*(\{[^}]*\})/", $page, $res);
 		if(count($res) === 2){
@@ -201,7 +212,7 @@ class Fetchdata extends Getcode{
 			);
 			
 			$data && $data =  json_decode($data , true);
-			if ($data === false) {
+			if ($data === false || isset($ata['chartlist']) || !is_array($data['chartlist'])) {
 				//失败了重新抓
 				continue;
 			}
