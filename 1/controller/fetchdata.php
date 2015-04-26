@@ -212,8 +212,7 @@ class Fetchdata extends Getcode{
 			);
 			
 			$data && $data =  json_decode($data , true);
-			if ($data === false || isset($ata['chartlist']) || !is_array($data['chartlist'])) {
-				//失败了重新抓
+			if ($data === false || !isset($ata['chartlist']) || !is_array($data['chartlist'])) {
 				continue;
 			}
 			$list = $data['chartlist'];
@@ -232,12 +231,8 @@ class Fetchdata extends Getcode{
 				}
 			}
 			return $res;
-			/*
-			for ($i = 0, $len = count($res);$i < $len; $i++) {
-				var_dump($res[$i]);
-			}
-			 */
 		}
+		return array();
 	}
 
 	/**
@@ -256,13 +251,13 @@ class Fetchdata extends Getcode{
 		$maxTimes =  $this->getMaxTimes();//这里应该考虑到锁的情况
 		foreach ($sys as $code) {
 			$arr = $this->getCurrent($code['symbol']);
-			if (is_array($arr)) {
+			if (is_array($arr) && count($arr)) {
 				$current = trim($arr[count($arr) - 1]['current']);
 				$flag = $this->DataBaseModel->update(
 					array('value' => $current),
 					array('times' => $maxTimes, 'item' => 'current', 'symbol' => $code['symbol'])
 				);
-				if($flag == false){
+				if($flag === false){
 					echo "更新失败\n";
 				} else {
 					echo "success\n";
