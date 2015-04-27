@@ -205,14 +205,14 @@ class Fetchdata extends Getcode{
 	{
 		for ($i = 0;$i < self::RETRY; $i++) {
 			$data = $this->BaseModelHttp->get(
-				'http://xueqiu.com/stock/forchart/stocklist.json?symbol=SZ160512&period=2d&_=14'  . rand(0, 100000),
+				'http://xueqiu.com/stock/forchart/stocklist.json?symbol=' . $code . '&period=2d&_=14'  . rand(0, 100000),
 				array(), 
 				20,
 				self::getCookie()
 			);
-			
 			$data && $data =  json_decode($data , true);
-			if ($data === false || !isset($ata['chartlist']) || !is_array($data['chartlist'])) {
+			
+			if ($data === false || !isset($data['chartlist']) || !is_array($data['chartlist'])) {
 				continue;
 			}
 			$list = $data['chartlist'];
@@ -243,12 +243,12 @@ class Fetchdata extends Getcode{
 	 **/
 	public function freshPrice()
 	{
-		//$this->_setTimes();
-		//return;
 		$this->load->model("DataBaseModel")	;
 		$this->DataBaseModel->setTables('param');
 		$sys = $this->DataBaseModel->exec('select distinct symbol from list ');
 		$maxTimes =  $this->getMaxTimes();//这里应该考虑到锁的情况
+		int $flag = rand(0,100000);
+		echo "{$flag} Checking :: Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
 		foreach ($sys as $code) {
 			$arr = $this->getCurrent($code['symbol']);
 			if (is_array($arr) && count($arr)) {
@@ -257,13 +257,9 @@ class Fetchdata extends Getcode{
 					array('value' => $current),
 					array('times' => $maxTimes, 'item' => 'current', 'symbol' => $code['symbol'])
 				);
-				if($flag === false){
-					echo "更新失败\n";
-				} else {
-					echo "success\n";
-				}
 			}
 		}
+		echo "{$flag} ending :: Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
 	}
 
 	/**
