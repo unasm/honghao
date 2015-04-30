@@ -1,5 +1,6 @@
 <?php
 /*************************************************************************
+ * @todo  获取每一次更新的时候，与众不同的值，看那些是有意义的，那些是无意义的
  * File Name :    ./controller/fetchData.php
  * Author    :    unasm
  * Mail      :    unasm@sina.cn
@@ -71,7 +72,11 @@ class Fetchdata extends Getcode{
 			$arr = $this->getPage($code);
 			$pageData = $this->DataBaseModel->select('item,value',array('symbol' => $code , 'times' => $maxTimes));
 			foreach($pageData as $row) {
-				if ($row['item'] !== "current" && trim($arr[$row['item']]) !== trim($row['value'])) {
+				if (in_array($row,array('time', 'current'))) {
+					//time 变化没有意义，current是必然变化的
+					continue;
+				}
+				if (trim($arr[$row['item']]) !== trim($row['value'])) {
 					//current 是注定要改变的
 					echo "code diff : " . $code . "\n";
 					echo $row['item']  . "\t" . $row['value']  . "\n";
@@ -247,7 +252,7 @@ class Fetchdata extends Getcode{
 		$this->DataBaseModel->setTables('param');
 		$sys = $this->DataBaseModel->exec('select distinct symbol from list ');
 		$maxTimes =  $this->getMaxTimes();//这里应该考虑到锁的情况
-		int $flag = rand(0,100000);
+		$flag = rand(0,100000);
 		echo "{$flag} Checking :: Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
 		foreach ($sys as $code) {
 			$arr = $this->getCurrent($code['symbol']);
