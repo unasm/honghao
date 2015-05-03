@@ -252,6 +252,7 @@ class Fetchdata extends Getcode{
 		$this->DataBaseModel->setTables('param');
 		$sys = $this->DataBaseModel->exec('select distinct symbol from list ');
 		$maxTimes =  $this->getMaxTimes();//这里应该考虑到锁的情况
+		srand((int)microtime());
 		$flag = rand(0,100000);
 		echo "{$flag} Checking :: Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
 		foreach ($sys as $code) {
@@ -264,7 +265,7 @@ class Fetchdata extends Getcode{
 				);
 			}
 		}
-		echo "{$flag} ending :: Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
+		echo "{$flag} ending :: Now time is " . date("Y-m-d H:i:s", time()) . "\n\n" ;
 	}
 
 	/**
