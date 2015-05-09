@@ -49,9 +49,18 @@ class Fetchdata extends Getcode{
 	
 	//伪造header头，伪造ip，防止对方拒绝
 	private static function fakeHeader() {
-		$header = array('CLIENT-IP:' . self::_fakeIp(),'X-FORWARDED-FOR:' . self::_fakeIp());
+		$header = array(
+			'CLIENT-IP:' . self::_fakeIp(),
+			'X-FORWARDED-FOR:' . self::_fakeIp(),
+			'Referer: http://xueqiu.com/S/SZ161116/',
+			'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.122 Safari/537.36 FirePHP/4Chrome',
+			'Accept: */*',  
+			'Pragma: no-cache',  
+			'Accept-Language:zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.4',  
+			'RA-Sid: 3D8798DA-20150303-034052-12a566-f9928d',  
+			'Host: xueqiu.com',  
+		);
 		return $header;
-		//var_dump($header);
 	}
 	/**
 	 * 控制调度,决定是不是要更新页面的数据
@@ -67,12 +76,16 @@ class Fetchdata extends Getcode{
 		$this->DataBaseModel->setTables('param');
 		$maxTimes =  $this->getMaxTimes();
 		$diff = 0;
+		srand(time());
 		for ($start = rand(0,count($symbol) - 3 * self::CheckPages), $i = $start;$i < 2 * self::CheckPages + $start;$i++) {
 			$code = $symbol[$i]['symbol'];
 			$arr = $this->getPage($code);
 			$pageData = $this->DataBaseModel->select('item,value',array('symbol' => $code , 'times' => $maxTimes));
+			$cnt = rand(0,count($pageData) - 10);
+			$cnt = 0;
 			foreach($pageData as $row) {
-				if (in_array($row,array('time', 'current'))) {
+				$cnt++;
+				if (in_array($row['item'],array('updateAt', 'time', 'current'))) {
 					//time 变化没有意义，current是必然变化的
 					continue;
 				}
@@ -85,6 +98,7 @@ class Fetchdata extends Getcode{
 					break;
 				}
 			}
+			echo $cnt . " lines diff\n";
 		}
 		echo "Checking :: Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
 		if($diff >= self::CheckPages || empty($symbol)){
@@ -142,7 +156,6 @@ class Fetchdata extends Getcode{
 			echo "no stock data\n";
 		}
 
-		//$page = $this->BaseModelHttp->get("http://xueqiu.com/hq#exchange=CN&plate=5_2_6&firstName=5&secondName=5_2&fundtype=136&pfundtype=13&page=2", array(), 20, $cookie);
 	}
 
 	/**
@@ -153,18 +166,22 @@ class Fetchdata extends Getcode{
 	 **/
 	private function getPage($code = 'SZ163112')
 	{
-		$href = "http://xueqiu.com/S/" . $code ;
-		$page = $this->BaseModelHttp->get($href, self::fakeHeader(), 20, $this->getCookie());
-		$this->HtmlParserModel->parseStr($page);
-		preg_match("/SNB.data.quote\s*\=\s*(\{[^}]*\})/", $page, $res);
-		if(count($res) === 2){
-			$ts = json_decode($res[1], true);
-			if($ts && is_array($ts)){
-				return $ts;	
+		for ($i = 0; $i < self::RETRY; $i++) {
+			$href = "http://xueqiu.com/S/" . $code ;
+			//$page = $this->BaseModelHttp->get($href, array(), 20, $this->getCookie());
+			$page = $this->BaseModelHttp->get($href, self::fakeHeader(), 20, $this->getCookie());
+			$this->HtmlParserModel->parseStr($page);
+			preg_match("/SNB.data.quote\s*\=\s*(\{[^}]*\})/", $page, $res);
+			if(count($res) === 2){
+				$ts = json_decode($res[1], true);
+				if($ts && is_array($ts)){
+					return $ts;	
+				}
 			}
+			echo __LINE__ . "没有获取想要的信息\n";
+			var_dump($page);
+			sleep(10);
 		}
-		echo __LINE__ . "没有获取想要的信息\n";
-		var_dump($page);
 		exit;
 	}
 
@@ -182,7 +199,8 @@ class Fetchdata extends Getcode{
 			var_dump($code['symbol']);
 			$arr = $this->getPage($code['symbol']);
 			if (!isset($arr['symbol']) || $arr['symbol'] !== $code['symbol']) {
-				exit(__LINE__ . "行没有想要的返回值");
+				var_dump(__LINE__ . "行没有想要的返回值");
+				continue;
 			}
 			unset($arr['symbol']);
 			$data = array();
@@ -211,13 +229,14 @@ class Fetchdata extends Getcode{
 		for ($i = 0;$i < self::RETRY; $i++) {
 			$data = $this->BaseModelHttp->get(
 				'http://xueqiu.com/stock/forchart/stocklist.json?symbol=' . $code . '&period=2d&_=14'  . rand(0, 100000),
-				array(), 
+				self::fakeHeader(),
 				20,
 				self::getCookie()
 			);
 			$data && $data =  json_decode($data , true);
 			
 			if ($data === false || !isset($data['chartlist']) || !is_array($data['chartlist'])) {
+				var_dump($data);
 				continue;
 			}
 			$list = $data['chartlist'];
@@ -252,17 +271,21 @@ class Fetchdata extends Getcode{
 		$this->DataBaseModel->setTables('param');
 		$sys = $this->DataBaseModel->exec('select distinct symbol from list ');
 		$maxTimes =  $this->getMaxTimes();//这里应该考虑到锁的情况
-		srand((int)microtime());
+		srand(time());
 		$flag = rand(0,100000);
 		echo "{$flag} Checking :: Now time is " . date("Y-m-d H:i:s", time()) . "\n" ;
 		foreach ($sys as $code) {
 			$arr = $this->getCurrent($code['symbol']);
 			if (is_array($arr) && count($arr)) {
 				$current = trim($arr[count($arr) - 1]['current']);
+				echo $code['symbol'] . "  : " . $current . "\n";
 				$flag = $this->DataBaseModel->update(
 					array('value' => $current),
 					array('times' => $maxTimes, 'item' => 'current', 'symbol' => $code['symbol'])
 				);
+			} else {
+				echo $code['symbol'] . "\n";
+				var_dump($arr);
 			}
 		}
 		echo "{$flag} ending :: Now time is " . date("Y-m-d H:i:s", time()) . "\n\n" ;

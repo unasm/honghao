@@ -50,7 +50,11 @@ class Home extends Getcode
 			$dets[$k] = array_merge($dets[$k], $list[$k]);
 		}
 		foreach($dets as $key => $code){
-			$dets[$key]['overflow'] = round( ($code['current'] - $code['pe_lyr']	) / $code['pe_lyr'] * 100, 3);
+			if ($code['pe_lyr'] == 0) {
+				$dets[$key]['overflow'] = 0;
+			} else {
+				$dets[$key]['overflow'] = round( ($code['current'] - $code['pe_lyr']	) / $code['pe_lyr'] * 100, 3);
+			}
 		}
 		$this->sortByOrderKey($dets, 'overflow');
 		return $dets;
