@@ -6,55 +6,69 @@
 	<title>下载页面</title>
 </head>
 <body>
-	<table>
-		<thead>
-			<tr>
-				<th>股票代码</th>
-				<th>股票名字</th>
-				<th>市价</th>
-				<th>涨跌幅</th>
-				<th>净值</th>
-				<th>溢价率</th>
-				<th>成交量</th>
-				<th>申购状态</th>
-				<th>赎回状态</th>
-			</tr>
-		</thead>
-		<tbody>
+	<ul>
+		<div>
+			<li class = "row header">
+				<div class = "symbol">股票代码</div>
+				<div class = "name">股票名字</div>
+				<div class = "current">市价</div>
+				<div class = "percent">涨跌幅</div>
+				<div class = "pelyr">净值</div>
+				<div class = "overflow">溢价率</div>
+				<div class = "volume">成交量</div>
+				<div class = "tobuy">申购状态</div>
+				<div class = "tosell">赎回状态</div>
+				<div class = "tosell">操作</div>
+			</li>
+		</div>
+		<div id = "data">
 			<?php foreach ($list as $li ) : ?>
-			<tr>
-				<td><a href = "http://xueqiu.com/S/<?php echo $li['symbol'] ?>"> <?php  echo $li['symbol']?> </a></td>
-				<td class = "name" title = "<?php echo $li['name'] ?>">
+			<div class = "row">
+				<li >
+					<div class = "symbol"><a href = "http://xueqiu.com/S/<?php echo $li['symbol'] ?>"> <?php  echo $li['symbol']?> </a></div>
 					<a href = "http://xueqiu.com/S/<?php echo $li['symbol'] ?>">
+					<div class = "name" title = "<?php echo $li['name'] ?>">
 						<?php  echo $li['name']?>
+					</div>
 					</a>
-				</td>
-				<td><?php  echo $li['current']?></td>
-				<td><?php  echo $li['percent']?></td>
-				<td><?php  echo $li['pe_lyr']?></td>
-				<td><?php  echo $li['overflow']?></td>
-				<td><?php  echo $li['volume']?></td>
-				<td>
-					<?php  
-					if($li['subscription_status']){
-						echo "暂停申购"	;
-					} else {
-						echo "可申购"	;
-					}
-					?>
-				</td>
-				<td>
-					<?php  
-					if($li['redemption_status']){
-						echo "暂停赎回"	;
-					} else {
-						echo "可赎回"	;
-					}
-					?>
-				</td>
-			</tr>
+					<div class = "current"><?php  echo $li['current']?></div>
+					<div class = "percent"><?php  echo $li['percent']?></div>
+					<div class = "pelyr"><?php  echo $li['pe_lyr']?></div>
+					<div class = "overflow"><?php  echo $li['overflow']?></div>
+					<div class = "volume"><?php  echo $li['volume']?></div>
+					<div class = "tobuy">
+						<?php  
+						if($li['subscription_status']){
+							echo "暂停申购"	;
+						} else {
+							echo "可申购"	;
+						}
+						?>
+					</div>
+					<div class = "tosell">
+						<?php  
+						if($li['redemption_status']){
+							echo "暂停赎回"	;
+						} else {
+							echo "可赎回"	;
+						}
+						?>
+					</div>
+					<div class = "oper">
+						<a href = "javascript:void(0)" data-symbol = "<?php echo $li['symbol']?>">展开</a>
+					</div>
+				</li>
+				<div class = "svg" data-symbol = "SZ32323" style = "display:none" ></div>
+			</div>
 			<?php endforeach; ?>
-		</tbody>
-	</table>
+		</div>
+	</ul>
+	<!--
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	-->
+	<script type="text/javascript" src="svg/jquery.min.js"></script>
+<script type="text/javascript" charset="utf-8" src = "svg/xueqiu.js"></script>
+<script src="svg/highcharts.js"></script>
+<script src="svg/exporting.js"></script>
 </body>
 </html>

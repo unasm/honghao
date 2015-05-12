@@ -1,8 +1,8 @@
 /*************************************************************************
-  * File Name :  index.css
-  * Author  :      unasm
-  * Mail :         unasm@sina.cn
-  * Last_Modified: 2015-04-18 01:01:39
+ * File Name :  index.css
+ * Author  :      unasm
+ * Mail :         unasm@sina.cn
+ * Last_Modified: 2015-04-18 01:01:39
  ************************************************************************/
 a{
 	text-decoration:none;
@@ -14,13 +14,23 @@ body{
 	Background:green;
 	width:960px;
 	margin:0px auto;
+	overflow-x:hidden;
 }
-.name{
-	width:120px;
+ .header .name , #data .name{
+	width:90px;
+	/*
 	display:block;
+	*/
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;
+	margin-bottom:-2px;
+}
+.row:hover{
+	Background:beige;
+}
+.header:hover{
+	Background:green;
 }
 td,th{
 	padding:5px 15px;
@@ -28,6 +38,36 @@ td,th{
 tr:hover{
 	Background:gray;
 }
-th{
-	text-align:left;
+
+.header{
+	position:fixed;
+	top:0;
+	Background:green;
+	font-weight:bold;
+}
+li{
+	list-style:none;	
+	width:100%;
+}
+.row div{
+	display:inline-block;
+	margin:5px 4px;
+}
+.percent, .current , .overflow , .pelyr {
+	width:68px;	
+}
+.volume {
+	width:110px;	
+}
+.symbol{
+	width:100px;	
+}
+.tobuy , .tosell{
+	width:90px;	
+}
+#data{
+	margin-top:20px;
+}
+.svg{
+	width:880px;
 }
