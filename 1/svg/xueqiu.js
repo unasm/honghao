@@ -61,7 +61,12 @@ function freshCurrent() {
 				console.log(value);
 				var symbol = $(value).data('symbol');
 				if (data[symbol]) {
+					var pnode = value.parentNode;
+					var price = $($(pnode).find('.pelyr')[0]).html()
+					
 					$(value).html(data[symbol]['current']);
+					$(pnode).find('.overflow').html( parseInt((data[symbol]['current'] - price) / price * 100000)  / 1000  );
+					//$(pnode).find('.overflow').html(0);
 					//$(value).html(1);
 				}
 			})
