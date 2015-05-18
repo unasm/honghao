@@ -4,6 +4,9 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<link rel="stylesheet" href="css/index.css" type="text/css" media="screen" charset="utf-8">
 	<title>下载页面</title>
+	<script type="text/javascript" charset="utf-8">
+		window.current = "http://<?php echo $_SERVER['HTTP_HOST']?>/home/current/";
+	</script>
 </head>
 <body>
 	<ul>
@@ -31,7 +34,7 @@
 						<?php  echo $li['name']?>
 					</div>
 					</a>
-					<div class = "current"><?php  echo $li['current']?></div>
+					<div class = "current" data-symbol = "<?php echo $li['symbol'] ?>"><?php  echo $li['current']?></div>
 					<div class = "percent"><?php  echo $li['percent']?></div>
 					<div class = "pelyr"><?php  echo $li['pe_lyr']?></div>
 					<div class = "overflow"><?php  echo $li['overflow']?></div>

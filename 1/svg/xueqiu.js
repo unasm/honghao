@@ -50,6 +50,30 @@ function getSvgOpt(data){
 	//$(this).highcharts(opts);
 }
 
+
+function freshCurrent() {
+	$.ajax({
+		dataType:'json',
+		url:window.current,
+		success:function(data){
+			console.log(data);
+			$.each($("#data .current"), function(idx, value){
+				console.log(value);
+				var symbol = $(value).data('symbol');
+				if (data[symbol]) {
+					$(value).html(data[symbol]['current']);
+					//$(value).html(1);
+				}
+			})
+		},
+		error : function (data) {
+			console.log(data);		
+		}
+	},'json');
+	$.getJSON(window.current,function(data){
+	
+	});
+}
 $(document).ready(function (){
 	$("#data").delegate(".oper",'click', function(){
 		var node = $(this.parentNode.parentNode).find('.svg')[0];
@@ -69,5 +93,7 @@ $(document).ready(function (){
 			$(node).data('show', 1);
 		}
 	})
+	//freshCurrent
+	setInterval(freshCurrent,60000);
 })
 

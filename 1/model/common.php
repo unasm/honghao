@@ -30,6 +30,11 @@ if(!class_exists('Loader')){
 			//单例模式
 		}
 		public function __call($funcName , $files ){
+			/*
+			echo $funcName  . "<br/>";
+			var_dump($files);
+			echo "<br/>";
+			 */
 			$instance = &get_instance();
 			if($funcName === 'config'){
 				foreach($files as $class){

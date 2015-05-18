@@ -15,9 +15,9 @@ if(isset($_SERVER['argc'])){
 abstract class Getcode  extends Honghao{
 	public function __construct()
 	{
-		parent::__construct();
-		$this->load->model('BaseModelHttp');
-		$this->load->model('HtmlParserModel');
+		//parent::__construct();
+		//$this->load->model('BaseModelHttp');
+		//$this->load->model('HtmlParserModel');
 	}
 
 }
